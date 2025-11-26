@@ -58,23 +58,6 @@ ApplicationWindow {
         anchors.margins: 10
         spacing: 10
 
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-
-            Button {
-                text: qsTr("Import CSV")
-                icon.name: "document-open"
-                onClicked: fileDialog.open()
-            }
-
-            Label {
-                id: statusBar
-                Layout.fillWidth: true
-                text: qsTr("No data loaded. Click 'Import CSV' to load transactions.")
-            }
-        }
-
         ListView {
             id: listView
             Layout.fillWidth: true
