@@ -162,6 +162,9 @@ bool TransactionModel::loadFromCsv(const QString &filePath) {
   m_transactions.clear();
 
   QTextStream in(&file);
+  // Set encoding to Latin1 (ISO-8859-1) for French bank CSV files
+  in.setEncoding(QStringConverter::Latin1);
+  
   // Skip header line
   if (!in.atEnd()) {
     QString header = in.readLine();
