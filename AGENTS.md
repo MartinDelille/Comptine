@@ -4,7 +4,7 @@
 
 - The project use Qt 6.10.1 installed here: ~/Qt/6.10.1/macos
 - **Configure**: `qt-cmake -B build/agent -S .`
-- **Build**: `qt-cmake --build build/agent`
+- **Build**: `cmake --build build/agent`
 - **Run**: `./build/agent/appComptine.app/Contents/MacOS/appComptine example.csv`
 - **Clean**: `rm -rf build/agent`
 
