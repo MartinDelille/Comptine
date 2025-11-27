@@ -69,7 +69,7 @@ ApplicationWindow {
             model: transactionModel.model
 
             delegate: Rectangle {
-                width: ListView.view.width
+                width: ListView.view.width - scrollBar.width
                 height: 50
                 border.width: 1
                 border.color: "#ddd"
@@ -104,10 +104,25 @@ ApplicationWindow {
                         font.pixelSize: 14
                         color: "#333"
                     }
+
+                    Label {
+                        text: transaction?.amount ?? ""
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignRight
+                        font.pixelSize: 14
+                        color: {
+                            var amt = parseFloat(transaction?.amount ?? "0");
+                            return amt < 0 ? "#d32f2f" : "#388e3c";
+                        }
+                        font.bold: true
+                        Layout.preferredWidth: 100
+                    }
                 }
             }
 
-            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.vertical: ScrollBar {
+                id: scrollBar
+            }
         }
     }
 }

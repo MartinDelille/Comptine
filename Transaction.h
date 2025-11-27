@@ -16,6 +16,7 @@ class Transaction : public QObject {
   Q_PROPERTY(QString subCategory READ subCategory CONSTANT)
   Q_PROPERTY(QString debit READ debit CONSTANT)
   Q_PROPERTY(QString credit READ credit CONSTANT)
+  Q_PROPERTY(QString amount READ amount CONSTANT)
   Q_PROPERTY(QString operationDate READ operationDate CONSTANT)
   Q_PROPERTY(QString valueDate READ valueDate CONSTANT)
   Q_PROPERTY(QString checkStatus READ checkStatus CONSTANT)
@@ -33,6 +34,7 @@ public:
   QString subCategory() const;
   QString debit() const;
   QString credit() const;
+  QString amount() const;
   QString operationDate() const;
   QString valueDate() const;
   QString checkStatus() const;

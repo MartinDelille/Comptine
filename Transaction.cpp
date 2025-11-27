@@ -31,6 +31,11 @@ QString Transaction::credit() const {
                               : QString::number(m_creditValue, 'f', 2);
 }
 
+QString Transaction::amount() const {
+  double netAmount = m_creditValue + m_debitValue;  // debit is negative
+  return QString::number(netAmount, 'f', 2);
+}
+
 QString Transaction::operationDate() const {
   return m_operationDate.toString("dd/MM/yyyy");
 }
