@@ -75,15 +75,7 @@ ApplicationWindow {
                 border.color: "#ddd"
 
                 required property int index
-                required property string modelData
-
-                Component.onCompleted: {
-                    if (index === 0) {
-                        console.log("Index:", index);
-                        console.log("modelData type:", typeof modelData);
-                        console.log("modelData value:", modelData);
-                    }
-                }
+                property var transaction: transactionModel.getTransaction(index)
 
                 color: {
                     if (index % 2 === 0)
@@ -97,15 +89,16 @@ ApplicationWindow {
                     spacing: 10
 
                     Label {
-                        text: "#" + (index + 1)
-                        font.bold: true
-                        color: "#666"
+                        text: transaction?.accountingDate ?? ""
+                        verticalAlignment: Text.AlignVCenter
                         font.pixelSize: 14
+                        color: "#333"
+                        Layout.preferredWidth: 100
                     }
 
                     Label {
                         Layout.fillWidth: true
-                        text: modelData
+                        text: transaction?.simplifiedLabel ?? ""
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
                         font.pixelSize: 14

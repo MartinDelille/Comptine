@@ -17,6 +17,7 @@ public:
 
   Q_INVOKABLE bool loadFromCsv(const QString &filePath);
   Q_INVOKABLE void clear();
+  Q_INVOKABLE Transaction* getTransaction(int index) const;
   int count() const { return m_labels.size(); }
   QAbstractItemModel *model() const { return m_model; }
 

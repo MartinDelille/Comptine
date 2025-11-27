@@ -118,3 +118,10 @@ void TransactionModel::clear() {
   emit countChanged();
   emit modelChanged();
 }
+
+Transaction* TransactionModel::getTransaction(int index) const {
+  if (index >= 0 && index < m_transactions.size()) {
+    return m_transactions[index];
+  }
+  return nullptr;
+}
