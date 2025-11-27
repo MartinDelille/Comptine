@@ -65,8 +65,23 @@ ApplicationWindow {
 
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            focus: true
 
             model: transactionModel.model
+
+            Keys.onUpPressed: {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    positionViewAtIndex(currentIndex, ListView.Contain);
+                }
+            }
+
+            Keys.onDownPressed: {
+                if (currentIndex < count - 1) {
+                    currentIndex++;
+                    positionViewAtIndex(currentIndex, ListView.Contain);
+                }
+            }
 
             delegate: Rectangle {
                 width: ListView.view.width - scrollBar.width
@@ -87,7 +102,10 @@ ApplicationWindow {
 
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: listView.currentIndex = index
+                    onClicked: {
+                        listView.currentIndex = index;
+                        listView.forceActiveFocus();
+                    }
                 }
 
                 RowLayout {
