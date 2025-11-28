@@ -30,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Comptine-macOS
-          path: build/appComptine.app
+          path: build/Comptine.app

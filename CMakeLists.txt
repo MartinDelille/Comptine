@@ -11,7 +11,7 @@ find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
-qt_add_executable(appComptine 
+qt_add_executable(Comptine 
   main.cpp
   Transaction.h
   Transaction.cpp
@@ -43,9 +43,9 @@ add_custom_command(
 )
 
 set_source_files_properties(${APP_ICON_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-target_sources(appComptine PRIVATE ${APP_ICON_ICNS})
+target_sources(Comptine PRIVATE ${APP_ICON_ICNS})
 
-qt_add_qml_module(appComptine URI Comptine QML_FILES
+qt_add_qml_module(Comptine URI Comptine QML_FILES
     Main.qml
     BalanceHeader.qml
     TransactionDelegate.qml
@@ -57,8 +57,8 @@ qt_add_qml_module(appComptine URI Comptine QML_FILES
 # you are developing for iOS or macOS you should consider setting an explicit,
 # fixed bundle identifier manually though.
 set_target_properties(
-  appComptine
-  PROPERTIES # MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appComptine
+  Comptine
+  PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER org.delille.martin.Comptine
              MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
              MACOSX_BUNDLE_SHORT_VERSION_STRING
              ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -66,11 +66,11 @@ set_target_properties(
              MACOSX_BUNDLE TRUE
              WIN32_EXECUTABLE TRUE)
 
-target_link_libraries(appComptine PRIVATE Qt6::Quick)
+target_link_libraries(Comptine PRIVATE Qt6::Quick)
 
 include(GNUInstallDirs)
 install(
-  TARGETS appComptine
+  TARGETS Comptine
   BUNDLE DESTINATION .
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
