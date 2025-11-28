@@ -17,6 +17,14 @@ qt_add_executable(Comptine
   Transaction.cpp
   TransactionModel.h
   TransactionModel.cpp
+  Operation.h
+  Operation.cpp
+  Account.h
+  Account.cpp
+  Category.h
+  Category.cpp
+  BudgetData.h
+  BudgetData.cpp
 )
 
 # Generate macOS icon from PNG at build time
