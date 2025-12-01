@@ -19,6 +19,12 @@ ApplicationWindow {
                 onTriggered: openDialog.open()
             }
             Action {
+                text: qsTr("&Save")
+                shortcut: StandardKey.Save
+                enabled: budgetData.currentFilePath.length > 0
+                onTriggered: budgetData.saveToYaml(budgetData.currentFilePath)
+            }
+            Action {
                 text: qsTr("&Save As...")
                 shortcut: StandardKey.SaveAs
                 onTriggered: saveDialog.open()
