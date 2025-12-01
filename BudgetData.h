@@ -5,6 +5,7 @@
 #include <QList>
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 class BudgetData : public QObject {
   Q_OBJECT
@@ -44,6 +45,10 @@ public:
   void addCategory(Category *category);
   void removeCategory(int index);
   void clearCategories();
+
+  // Budget calculations (aggregates across all accounts)
+  Q_INVOKABLE double spentInCategory(const QString &categoryName, int year, int month) const;
+  Q_INVOKABLE QVariantList monthlyBudgetSummary(int year, int month) const;
 
   // File operations
   Q_INVOKABLE bool loadFromYaml(const QString &filePath);

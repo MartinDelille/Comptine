@@ -154,6 +154,40 @@ void BudgetData::clearCategories() {
   emit categoriesChanged();
 }
 
+double BudgetData::spentInCategory(const QString &categoryName, int year, int month) const {
+  double spent = 0.0;
+  for (const Account *account : _accounts) {
+    for (const Operation *op : account->operations()) {
+      if (op->category() == categoryName &&
+          op->dateValue().year() == year &&
+          op->dateValue().month() == month &&
+          op->amount() < 0) {
+        spent += op->amount(); // Already negative
+      }
+    }
+  }
+  return spent;
+}
+
+QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
+  QVariantList result;
+  for (const Category *category : _categories) {
+    double spent = -spentInCategory(category->name(), year, month); // Make positive
+    double budgetLimit = category->budgetLimit();
+    double remaining = budgetLimit - spent;
+    double percentUsed = budgetLimit > 0 ? (spent / budgetLimit) * 100.0 : 0.0;
+
+    QVariantMap item;
+    item["name"] = category->name();
+    item["budgetLimit"] = budgetLimit;
+    item["spent"] = spent;
+    item["remaining"] = remaining;
+    item["percentUsed"] = percentUsed;
+    result.append(item);
+  }
+  return result;
+}
+
 void BudgetData::clear() {
   clearAccounts();
   clearCategories();

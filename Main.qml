@@ -90,52 +90,33 @@ ApplicationWindow {
         anchors.margins: 10
         spacing: 10
 
-        RowLayout {
+        TabBar {
+            id: tabBar
             Layout.fillWidth: true
-            spacing: 10
 
-            ComboBox {
-                id: accountSelector
-                Layout.preferredWidth: 200
-                model: budgetData.accountCount
-                displayText: budgetData.currentAccount?.name ?? qsTr("No account")
-                onCurrentIndexChanged: {
-                    if (currentIndex >= 0) {
-                        budgetData.setCurrentAccountIndex(currentIndex);
-                    }
-                }
-                delegate: ItemDelegate {
-                    required property int index
-                    width: accountSelector.width
-                    text: budgetData.getAccount(index)?.name ?? ""
-                    highlighted: accountSelector.highlightedIndex === index
-                }
+            TabButton {
+                text: qsTr("Opérations")
             }
-
-            BalanceHeader {
-                Layout.fillWidth: true
-                balance: budgetData.operationCount > 0 ? budgetData.balanceAtIndex(0) : 0
-                operationCount: budgetData.operationCount
+            TabButton {
+                text: qsTr("Budget")
             }
         }
 
-        RowLayout {
+        StackLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 10
+            currentIndex: tabBar.currentIndex
 
-            OperationList {
-                id: operationList
+            // Operations view
+            OperationView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                model: budgetData.operationCount
             }
 
-            OperationDetails {
-                Layout.preferredWidth: 300
+            // Budget view
+            BudgetView {
+                Layout.fillWidth: true
                 Layout.fillHeight: true
-                operation: operationList.currentIndex >= 0 ? budgetData.getOperation(operationList.currentIndex) : null
-                balance: operationList.currentIndex >= 0 ? budgetData.balanceAtIndex(operationList.currentIndex) : 0
             }
         }
     }

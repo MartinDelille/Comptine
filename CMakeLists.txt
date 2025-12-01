@@ -52,9 +52,12 @@ target_sources(Comptine PRIVATE ${APP_ICON_ICNS})
 qt_add_qml_module(Comptine URI Comptine QML_FILES
     Main.qml
     BalanceHeader.qml
+    BudgetView.qml
+    MonthSelector.qml
     OperationDelegate.qml
-    OperationList.qml
     OperationDetails.qml
+    OperationList.qml
+    OperationView.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1. If
