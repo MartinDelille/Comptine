@@ -7,7 +7,6 @@ Rectangle {
 
     required property double balance
     required property int operationCount
-    required property string accountName
 
     function formatAmount(amount) {
         return amount.toFixed(2).replace('.', ',') + " €";
@@ -23,13 +22,6 @@ Rectangle {
     RowLayout {
         anchors.fill: parent
         anchors.margins: 10
-
-        Label {
-            text: root.accountName.length > 0 ? root.accountName : qsTr("No Account")
-            font.pixelSize: 16
-            font.bold: true
-            color: "#333"
-        }
 
         Label {
             text: qsTr("Balance:")

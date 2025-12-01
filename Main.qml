@@ -90,10 +90,33 @@ ApplicationWindow {
         anchors.margins: 10
         spacing: 10
 
-        BalanceHeader {
-            balance: budgetData.operationCount > 0 ? budgetData.balanceAtIndex(0) : 0
-            operationCount: budgetData.operationCount
-            accountName: budgetData.currentAccount?.name ?? ""
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+
+            ComboBox {
+                id: accountSelector
+                Layout.preferredWidth: 200
+                model: budgetData.accountCount
+                displayText: budgetData.currentAccount?.name ?? qsTr("No account")
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0) {
+                        budgetData.setCurrentAccountIndex(currentIndex);
+                    }
+                }
+                delegate: ItemDelegate {
+                    required property int index
+                    width: accountSelector.width
+                    text: budgetData.getAccount(index)?.name ?? ""
+                    highlighted: accountSelector.highlightedIndex === index
+                }
+            }
+
+            BalanceHeader {
+                Layout.fillWidth: true
+                balance: budgetData.operationCount > 0 ? budgetData.balanceAtIndex(0) : 0
+                operationCount: budgetData.operationCount
+            }
         }
 
         RowLayout {
