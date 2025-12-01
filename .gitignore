@@ -83,6 +83,4 @@ CMakeLists.txt.user*
 
 .qmlls.ini
 
-*.csv
-
 .envrc

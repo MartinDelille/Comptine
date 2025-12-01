@@ -1,0 +1,26 @@
+Date de comptabilisation;Libelle simplifie;Libelle operation;Reference;Informations complementaires;Type operation;Categorie;Sous categorie;Debit;Credit;Date operation;Date de valeur;Pointage operation
+28/11/2025;CARREFOUR MARKET;CB CARREFOUR MARKE FACT 261125;;;Carte bancaire;Alimentation;Hyper/supermarche;-52,30;;26/11/2025;28/11/2025;0
+27/11/2025;LE PETIT BISTROT;CB LE PETIT BISTRO FACT 251125;;;Carte bancaire;Alimentation;Restaurant;-35,00;;25/11/2025;27/11/2025;0
+26/11/2025;TOTALENERGIES;CB TOTAL FACT 241125;;;Carte bancaire;Transports;Carburant;-45,50;;24/11/2025;26/11/2025;0
+25/11/2025;AMAZON EU;CB AMAZON EU FACT 231125;;;Carte bancaire;Shopping et services;Shopping et services - autre;-29,99;;23/11/2025;25/11/2025;0
+24/11/2025;UGC CINE CITE;CB UGC CINE CITE FACT 221125;;;Carte bancaire;Loisirs et vacances;Expo, musee, cinema;-12,90;;22/11/2025;24/11/2025;0
+22/11/2025;BOULANGERIE PAUL;CB BOULANGERIE PAU FACT 201125;;;Carte bancaire;Alimentation;Alimentation - autre;-8,50;;20/11/2025;22/11/2025;0
+21/11/2025;PHARMACIE CENTRALE;CB PHARMACIE CENTR FACT 191125;;;Carte bancaire;Sante;Pharmacie;-22,40;;19/11/2025;21/11/2025;0
+20/11/2025;NETFLIX;PRLV NETFLIX INTERNATIONAL;2528785G10123456;2528785G10123456-;Prelevement;Loisirs et vacances;Video, Musique et jeux;-19,99;;20/11/2025;20/11/2025;0
+19/11/2025;AGENCE IMMOBILIERE DURAND;VIR SEPA AGENCE IMMOBILIERE DURA;2528685K10234567;LOYER NOVEMBRE 2025-;Virement;Logement - maison;Loyer et charges;-850,00;;19/11/2025;19/11/2025;0
+18/11/2025;EDF;PRLV EDF;2528585G10345678;2528585G10345678-;Prelevement;Logement - maison;Energie eau, gaz, electricite, fioul;-85,00;;18/11/2025;18/11/2025;0
+17/11/2025;SPOTIFY;PRLV SPOTIFY AB;2528485G10456789;2528485G10456789-;Prelevement;Loisirs et vacances;Video, Musique et jeux;-9,99;;17/11/2025;17/11/2025;0
+14/11/2025;VIREMENT VERS LIVRET A;VIREMENT VERS LIVRET A;2528185IN0678901;;Virement;Transaction exclue;Virement interne;-100,00;;14/11/2025;14/11/2025;0
+12/11/2025;RATP;PRLV RATP;2527985G10789012;2527985G10789012-;Prelevement;Transports;Transports en commun;-84,10;;12/11/2025;12/11/2025;0
+10/11/2025;E.LECLERC;CB E.LECLERC FACT 081125;;;Carte bancaire;Alimentation;Hyper/supermarche;-67,80;;08/11/2025;10/11/2025;0
+08/11/2025;DECATHLON;CB DECATHLON FACT 061125;;;Carte bancaire;Loisirs et vacances;Sport, Gym et Equipement;-45,00;;06/11/2025;08/11/2025;0
+06/11/2025;FNAC;CB FNAC FACT 041125;;;Carte bancaire;Loisirs et vacances;Livres, Magazines;-23,90;;04/11/2025;06/11/2025;0
+05/11/2025;CPAM RHONE;VIR SEPA CPAM RHONE;2527585K10890123;REMBOURSEMENT SOINS-;Virement recu;Revenus et rentrees d'argent;Remboursements de soins;;+45,00;05/11/2025;05/11/2025;0
+03/11/2025;PIZZERIA NAPOLI;CB PIZZERIA NAPOLI FACT 011125;;;Carte bancaire;Alimentation;Restaurant;-28,50;;01/11/2025;03/11/2025;0
+02/11/2025;ENTREPRISE MARTIN SA;VIR SEPA ENTREPRISE MARTIN SA;2528285K10567890;SALAIRE NOVEMBRE 2025-;Virement recu;Revenus et rentrees d'argent;Salaires;;+2500,00;02/11/2025;02/11/2025;0
+01/11/2025;MAIF;PRLV MAIF ASSURANCE;2527285G10901234;2527285G10901234-;Prelevement;Banque et assurances;Banque et assurance - autre;-65,00;;01/11/2025;01/11/2025;0
+30/10/2025;MONOPRIX;CB MONOPRIX FACT 281025;;;Carte bancaire;Alimentation;Hyper/supermarche;-48,20;;28/10/2025;30/10/2025;0
+28/10/2025;IKEA;CB IKEA FACT 261025;;;Carte bancaire;Logement - maison;Ameublement et appareil;-89,00;;26/10/2025;28/10/2025;0
+25/10/2025;DR MARTIN;CB DR MARTIN FACT 231025;;;Carte bancaire;Sante;Consultation medicale;-25,00;;23/10/2025;25/10/2025;0
+23/10/2025;CAFE DES SPORTS;CB CAFE DES SPORTS FACT 211025;;;Carte bancaire;Loisirs et vacances;Bar;-5,80;;21/10/2025;23/10/2025;0
+20/10/2025;JEAN DUPONT;VIR INST JEAN DUPONT;2526785I40012345;REMBOURSEMENT-;Virement recu;A categoriser - rentree d'argent;Virement recu - a categoriser;;+50,00;20/10/2025;20/10/2025;0
