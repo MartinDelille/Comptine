@@ -17,7 +17,7 @@ ColumnLayout {
             displayText: budgetData.currentAccount?.name ?? qsTr("No account")
             onCurrentIndexChanged: {
                 if (currentIndex >= 0) {
-                    budgetData.setCurrentAccountIndex(currentIndex);
+                    budgetData.currentAccountIndex = currentIndex;
                 }
             }
             delegate: ItemDelegate {

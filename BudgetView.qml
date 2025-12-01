@@ -26,7 +26,7 @@ Rectangle {
             monthSelector.selectedMonth = budgetData.budgetMonth;
             updateBudgetSummary();
         }
-        function onCategoriesChanged() {
+        function onCategoryCountChanged() {
             updateBudgetSummary();
         }
         function onBudgetYearChanged() {
@@ -50,8 +50,8 @@ Rectangle {
             selectedYear: budgetData.budgetYear
             selectedMonth: budgetData.budgetMonth
             onMonthChanged: (year, month) => {
-                budgetData.setBudgetYear(year);
-                budgetData.setBudgetMonth(month);
+                budgetData.budgetYear = year;
+                budgetData.budgetMonth = month;
             }
         }
 

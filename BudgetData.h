@@ -2,6 +2,7 @@
 
 #include "Account.h"
 #include "Category.h"
+#include "PropertyMacros.h"
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -9,24 +10,30 @@
 
 class BudgetData : public QObject {
   Q_OBJECT
-  Q_PROPERTY(int accountCount READ accountCount NOTIFY accountsChanged)
-  Q_PROPERTY(int categoryCount READ categoryCount NOTIFY categoriesChanged)
-  Q_PROPERTY(Account *currentAccount READ currentAccount NOTIFY currentAccountChanged)
-  Q_PROPERTY(int currentAccountIndex READ currentAccountIndex WRITE setCurrentAccountIndex NOTIFY currentAccountChanged)
-  Q_PROPERTY(int operationCount READ operationCount NOTIFY operationsChanged)
-  Q_PROPERTY(QString currentFilePath READ currentFilePath NOTIFY filePathChanged)
-  // UI state properties
-  Q_PROPERTY(int selectedOperationIndex READ selectedOperationIndex WRITE setSelectedOperationIndex NOTIFY selectedOperationIndexChanged)
-  Q_PROPERTY(int currentTabIndex READ currentTabIndex WRITE setCurrentTabIndex NOTIFY currentTabIndexChanged)
-  Q_PROPERTY(int budgetYear READ budgetYear WRITE setBudgetYear NOTIFY budgetYearChanged)
-  Q_PROPERTY(int budgetMonth READ budgetMonth WRITE setBudgetMonth NOTIFY budgetMonthChanged)
+
+  // UI state properties (macro-generated)
+  PROPERTY_RW(int, selectedOperationIndex, 0)
+  PROPERTY_RW(int, currentTabIndex, 0)
+  PROPERTY_RW(int, budgetYear, 0)
+  PROPERTY_RW(int, budgetMonth, 0)
+
+  // Data properties (macro-generated, read-only from QML)
+  PROPERTY_RW_INTERNAL(QString, currentFilePath, {})
+
+  // Read-only computed properties (macro-generated, implemented in .cpp)
+  PROPERTY_RO(int, accountCount)
+  PROPERTY_RO(int, categoryCount)
+  PROPERTY_RO(int, operationCount)
+  PROPERTY_RO(Account *, currentAccount)
+
+  // Custom property with validation logic (implemented in .cpp)
+  PROPERTY_RW_CUSTOM(int, currentAccountIndex, -1)
 
 public:
   explicit BudgetData(QObject *parent = nullptr);
   ~BudgetData();
 
   // Account management
-  int accountCount() const;
   QList<Account *> accounts() const;
   Q_INVOKABLE Account *getAccount(int index) const;
   Q_INVOKABLE Account *getAccountByName(const QString &name) const;
@@ -34,18 +41,11 @@ public:
   void removeAccount(int index);
   void clearAccounts();
 
-  // Current account (for UI binding)
-  Account *currentAccount() const;
-  int currentAccountIndex() const;
-  Q_INVOKABLE void setCurrentAccountIndex(int index);
-
   // Operations from current account (for UI binding)
-  int operationCount() const;
   Q_INVOKABLE Operation *getOperation(int index) const;
   Q_INVOKABLE double balanceAtIndex(int index) const;
 
   // Category management
-  int categoryCount() const;
   QList<Category *> categories() const;
   Q_INVOKABLE Category *getCategory(int index) const;
   Q_INVOKABLE Category *getCategoryByName(const QString &name) const;
@@ -61,33 +61,13 @@ public:
   Q_INVOKABLE bool loadFromYaml(const QString &filePath);
   Q_INVOKABLE bool saveToYaml(const QString &filePath) const;
   Q_INVOKABLE bool importFromCsv(const QString &filePath, const QString &accountName = QString());
-  QString currentFilePath() const;
-
-  // UI state
-  int selectedOperationIndex() const;
-  Q_INVOKABLE void setSelectedOperationIndex(int index);
-  int currentTabIndex() const;
-  Q_INVOKABLE void setCurrentTabIndex(int index);
-  int budgetYear() const;
-  Q_INVOKABLE void setBudgetYear(int year);
-  int budgetMonth() const;
-  Q_INVOKABLE void setBudgetMonth(int month);
 
   // Clear all data
   Q_INVOKABLE void clear();
 
 signals:
-  void accountsChanged();
-  void categoriesChanged();
-  void currentAccountChanged();
-  void operationsChanged();
-  void filePathChanged();
   void dataLoaded();
   void dataSaved();
-  void selectedOperationIndexChanged();
-  void currentTabIndexChanged();
-  void budgetYearChanged();
-  void budgetMonthChanged();
 
 private:
   QString escapeYamlString(const QString &str) const;
@@ -95,12 +75,4 @@ private:
 
   QList<Account *> _accounts;
   QList<Category *> _categories;
-  int _currentAccountIndex = -1;
-  QString _currentFilePath;
-
-  // UI state
-  int _selectedOperationIndex = 0;
-  int _currentTabIndex = 0;
-  int _budgetYear = 0;
-  int _budgetMonth = 0;
 };

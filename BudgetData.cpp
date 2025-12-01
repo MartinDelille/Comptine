@@ -13,10 +13,6 @@ BudgetData::~BudgetData() {
   clear();
 }
 
-QString BudgetData::currentFilePath() const {
-  return _currentFilePath;
-}
-
 int BudgetData::accountCount() const {
   return _accounts.size();
 }
@@ -46,9 +42,9 @@ void BudgetData::addAccount(Account *account) {
     account->setParent(this);
     _accounts.append(account);
     if (_currentAccountIndex < 0) {
-      setCurrentAccountIndex(0);
+      set_currentAccountIndex(0);
     }
-    emit accountsChanged();
+    emit accountCountChanged();
   }
 }
 
@@ -56,9 +52,9 @@ void BudgetData::removeAccount(int index) {
   if (index >= 0 && index < _accounts.size()) {
     delete _accounts.takeAt(index);
     if (_currentAccountIndex >= _accounts.size()) {
-      setCurrentAccountIndex(_accounts.size() - 1);
+      set_currentAccountIndex(_accounts.size() - 1);
     }
-    emit accountsChanged();
+    emit accountCountChanged();
   }
 }
 
@@ -66,7 +62,8 @@ void BudgetData::clearAccounts() {
   qDeleteAll(_accounts);
   _accounts.clear();
   _currentAccountIndex = -1;
-  emit accountsChanged();
+  emit accountCountChanged();
+  emit currentAccountIndexChanged();
   emit currentAccountChanged();
 }
 
@@ -78,11 +75,12 @@ int BudgetData::currentAccountIndex() const {
   return _currentAccountIndex;
 }
 
-void BudgetData::setCurrentAccountIndex(int index) {
+void BudgetData::set_currentAccountIndex(int index) {
   if (index != _currentAccountIndex && index >= -1 && index < _accounts.size()) {
     _currentAccountIndex = index;
+    emit currentAccountIndexChanged();
     emit currentAccountChanged();
-    emit operationsChanged();
+    emit operationCountChanged();
   }
 }
 
@@ -142,21 +140,21 @@ void BudgetData::addCategory(Category *category) {
   if (category) {
     category->setParent(this);
     _categories.append(category);
-    emit categoriesChanged();
+    emit categoryCountChanged();
   }
 }
 
 void BudgetData::removeCategory(int index) {
   if (index >= 0 && index < _categories.size()) {
     delete _categories.takeAt(index);
-    emit categoriesChanged();
+    emit categoryCountChanged();
   }
 }
 
 void BudgetData::clearCategories() {
   qDeleteAll(_categories);
   _categories.clear();
-  emit categoriesChanged();
+  emit categoryCountChanged();
 }
 
 double BudgetData::spentInCategory(const QString &categoryName, int year, int month) const {
@@ -164,8 +162,8 @@ double BudgetData::spentInCategory(const QString &categoryName, int year, int mo
   for (const Account *account : _accounts) {
     for (const Operation *op : account->operations()) {
       if (op->category() == categoryName &&
-          op->dateValue().year() == year &&
-          op->dateValue().month() == month &&
+          op->date().year() == year &&
+          op->date().month() == month &&
           op->amount() < 0) {
         spent += op->amount(); // Already negative
       }
@@ -196,51 +194,6 @@ QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
 void BudgetData::clear() {
   clearAccounts();
   clearCategories();
-}
-
-// UI state getters/setters
-int BudgetData::selectedOperationIndex() const {
-  return _selectedOperationIndex;
-}
-
-void BudgetData::setSelectedOperationIndex(int index) {
-  if (_selectedOperationIndex != index) {
-    _selectedOperationIndex = index;
-    emit selectedOperationIndexChanged();
-  }
-}
-
-int BudgetData::currentTabIndex() const {
-  return _currentTabIndex;
-}
-
-void BudgetData::setCurrentTabIndex(int index) {
-  if (_currentTabIndex != index) {
-    _currentTabIndex = index;
-    emit currentTabIndexChanged();
-  }
-}
-
-int BudgetData::budgetYear() const {
-  return _budgetYear;
-}
-
-void BudgetData::setBudgetYear(int year) {
-  if (_budgetYear != year) {
-    _budgetYear = year;
-    emit budgetYearChanged();
-  }
-}
-
-int BudgetData::budgetMonth() const {
-  return _budgetMonth;
-}
-
-void BudgetData::setBudgetMonth(int month) {
-  if (_budgetMonth != month) {
-    _budgetMonth = month;
-    emit budgetMonthChanged();
-  }
 }
 
 QString BudgetData::escapeYamlString(const QString &str) const {
@@ -290,7 +243,7 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
     out << "    balance: " << account->balance() << "\n";
     out << "    operations:\n";
     for (const Operation *op : account->operations()) {
-      out << "      - date: " << op->date() << "\n";
+      out << "      - date: " << op->date().toString("yyyy-MM-dd") << "\n";
       out << "        amount: " << op->amount() << "\n";
       out << "        category: " << escapeYamlString(op->category()) << "\n";
       out << "        description: " << escapeYamlString(op->description())
@@ -359,34 +312,34 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
     if (currentSection == Section::Categories) {
       if (isListItem && key == "name") {
         currentCategory = new Category(this);
-        currentCategory->setName(value);
+        currentCategory->set_name(value);
         _categories.append(currentCategory);
       } else if (currentCategory && key == "budget_limit") {
-        currentCategory->setBudgetLimit(value.toDouble());
+        currentCategory->set_budgetLimit(value.toDouble());
       }
     } else if (currentSection == Section::Accounts) {
       if (indent == 2 && isListItem && key == "name") {
         currentAccount = new Account(this);
-        currentAccount->setName(value);
+        currentAccount->set_name(value);
         _accounts.append(currentAccount);
         currentOperation = nullptr;
       } else if (currentAccount && indent == 4 && key == "balance") {
-        currentAccount->setBalance(value.toDouble());
+        currentAccount->set_balance(value.toDouble());
       } else if (currentAccount && indent == 4 && key == "operations") {
         currentSection = Section::Operations;
       }
     } else if (currentSection == Section::Operations && currentAccount) {
       if (indent == 6 && isListItem && key == "date") {
         currentOperation = new Operation(currentAccount);
-        currentOperation->setDate(QDate::fromString(value, "yyyy-MM-dd"));
+        currentOperation->set_date(QDate::fromString(value, "yyyy-MM-dd"));
         currentAccount->addOperation(currentOperation);
       } else if (currentOperation) {
         if (key == "amount") {
-          currentOperation->setAmount(value.toDouble());
+          currentOperation->set_amount(value.toDouble());
         } else if (key == "category") {
-          currentOperation->setCategory(value);
+          currentOperation->set_category(value);
         } else if (key == "description") {
-          currentOperation->setDescription(value);
+          currentOperation->set_description(value);
         }
       }
 
@@ -394,7 +347,7 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
       if (indent == 2 && isListItem) {
         currentSection = Section::Accounts;
         currentAccount = new Account(this);
-        currentAccount->setName(value);
+        currentAccount->set_name(value);
         _accounts.append(currentAccount);
         currentOperation = nullptr;
       }
@@ -405,13 +358,12 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
 
   // Set first account as current
   if (!_accounts.isEmpty()) {
-    setCurrentAccountIndex(0);
+    set_currentAccountIndex(0);
   }
 
-  _currentFilePath = filePath;
-  emit filePathChanged();
-  emit accountsChanged();
-  emit categoriesChanged();
+  set_currentFilePath(filePath);
+  emit accountCountChanged();
+  emit categoryCountChanged();
   emit dataLoaded();
   qDebug() << "Budget data loaded from:" << filePath;
   qDebug() << "  Accounts:" << _accounts.size();
@@ -458,7 +410,7 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
       Operation *operation = new Operation(account);
 
       // Parse date (field 0: accounting date)
-      operation->setDate(QDate::fromString(fields[0].trimmed(), "dd/MM/yyyy"));
+      operation->set_date(QDate::fromString(fields[0].trimmed(), "dd/MM/yyyy"));
 
       // Parse amount (field 8: debit, field 9: credit)
       QString debitStr = fields[8].trimmed().replace(',', '.');
@@ -470,7 +422,7 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
       } else if (!creditStr.isEmpty()) {
         amount = creditStr.toDouble();
       }
-      operation->setAmount(amount);
+      operation->set_amount(amount);
       totalBalance += amount;
 
       // Parse category (field 6: category, field 7: sub-category)
@@ -479,10 +431,10 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
       if (!subCategory.isEmpty()) {
         category = subCategory; // Use sub-category as more specific
       }
-      operation->setCategory(category);
+      operation->set_category(category);
 
       // Parse description (field 1: simplified label)
-      operation->setDescription(fields[1].trimmed());
+      operation->set_description(fields[1].trimmed());
 
       account->addOperation(operation);
       importCount++;
@@ -498,16 +450,16 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   file.close();
 
   // Update account balance
-  account->setBalance(totalBalance);
+  account->set_balance(totalBalance);
 
   // Set as current account
   int accountIndex = _accounts.indexOf(account);
   if (accountIndex >= 0) {
-    setCurrentAccountIndex(accountIndex);
+    set_currentAccountIndex(accountIndex);
   }
 
-  emit accountsChanged();
-  emit categoriesChanged();
+  emit accountCountChanged();
+  emit categoryCountChanged();
   emit dataLoaded();
 
   qDebug() << "Imported" << importCount << "operations";

@@ -18,7 +18,7 @@ ListView {
                 root.positionViewAtIndex(root.currentIndex, ListView.Center);
             }
         }
-        function onOperationsChanged() {
+        function onOperationCountChanged() {
             root.currentIndex = budgetData.selectedOperationIndex;
             if (root.currentIndex >= 0 && root.currentIndex < root.count) {
                 root.positionViewAtIndex(root.currentIndex, ListView.Center);
@@ -37,7 +37,7 @@ ListView {
     Keys.onUpPressed: {
         if (currentIndex > 0) {
             currentIndex--;
-            budgetData.setSelectedOperationIndex(currentIndex);
+            budgetData.selectedOperationIndex = currentIndex;
             positionViewAtIndex(currentIndex, ListView.Contain);
         }
     }
@@ -45,7 +45,7 @@ ListView {
     Keys.onDownPressed: {
         if (currentIndex < count - 1) {
             currentIndex++;
-            budgetData.setSelectedOperationIndex(currentIndex);
+            budgetData.selectedOperationIndex = currentIndex;
             positionViewAtIndex(currentIndex, ListView.Contain);
         }
     }
@@ -62,7 +62,7 @@ ListView {
             anchors.fill: parent
             onClicked: {
                 root.currentIndex = parent.index;
-                budgetData.setSelectedOperationIndex(parent.index);
+                budgetData.selectedOperationIndex = parent.index;
                 root.forceActiveFocus();
             }
         }

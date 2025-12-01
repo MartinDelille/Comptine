@@ -49,7 +49,7 @@ Rectangle {
 
             Label {
                 Layout.fillWidth: true
-                text: root.operation?.date ?? ""
+                text: root.operation?.date ? Qt.formatDate(root.operation.date, "yyyy-MM-dd") : ""
                 font.pixelSize: 12
                 color: "#333"
                 wrapMode: Text.WordWrap

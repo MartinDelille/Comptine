@@ -17,14 +17,14 @@ int main(int argc, char *argv[]) {
 
   // Load UI state from settings (before QML loads)
   auto loadUiState = [&settings, &budgetData]() {
-    budgetData.setCurrentAccountIndex(
+    budgetData.set_currentAccountIndex(
         settings.value("ui/currentAccount", 0).toInt());
-    budgetData.setSelectedOperationIndex(
+    budgetData.set_selectedOperationIndex(
         settings.value("ui/selectedOperation", 0).toInt());
-    budgetData.setCurrentTabIndex(settings.value("ui/currentTab", 0).toInt());
-    budgetData.setBudgetYear(
+    budgetData.set_currentTabIndex(settings.value("ui/currentTab", 0).toInt());
+    budgetData.set_budgetYear(
         settings.value("ui/budgetYear", QDate::currentDate().year()).toInt());
-    budgetData.setBudgetMonth(
+    budgetData.set_budgetMonth(
         settings.value("ui/budgetMonth", QDate::currentDate().month()).toInt());
   };
 

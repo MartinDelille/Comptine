@@ -25,7 +25,11 @@ When done, you can run the application with a sample CSV file as shown above to 
 - **Includes**: Qt headers first (`<QObject>`, `<QString>`), then local headers (`"Transaction.h"`)
 - **Naming**: Classes `PascalCase`, methods `camelCase`, private members `_camelCase`
 - **Qt Objects**: Inherit from `QObject`, use `Q_OBJECT` macro, explicit constructors with `QObject *parent = nullptr`
-- **Properties**: Use `Q_PROPERTY` for QML binding, `Q_INVOKABLE` for callable methods
+- **Properties**: Use macros from `PropertyMacros.h` instead of manual `Q_PROPERTY` declarations:
+  - `PROPERTY_RW(Type, name, default)` - Full read-write from QML and C++
+  - `PROPERTY_RW_INTERNAL(Type, name, default)` - Read-only from QML, writable from C++
+  - `PROPERTY_RO(Type, name)` - Read-only computed property (implement getter in .cpp)
+  - `PROPERTY_RW_CUSTOM(Type, name, default)` - Custom getter/setter logic (implement both in .cpp)
 - **Memory**: Use raw pointers for Qt parent-child ownership (parent deletes children automatically)
 - **Formatting**: 2-space indentation, `{` on same line for methods, `const` methods where applicable
 

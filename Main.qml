@@ -100,7 +100,7 @@ ApplicationWindow {
             id: tabBar
             Layout.fillWidth: true
             currentIndex: budgetData.currentTabIndex
-            onCurrentIndexChanged: budgetData.setCurrentTabIndex(currentIndex)
+            onCurrentIndexChanged: budgetData.currentTabIndex = currentIndex
 
             TabButton {
                 text: qsTr("Opérations")
