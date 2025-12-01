@@ -99,12 +99,21 @@ ApplicationWindow {
         TabBar {
             id: tabBar
             Layout.fillWidth: true
+            currentIndex: budgetData.currentTabIndex
+            onCurrentIndexChanged: budgetData.setCurrentTabIndex(currentIndex)
 
             TabButton {
                 text: qsTr("Opérations")
             }
             TabButton {
                 text: qsTr("Budget")
+            }
+        }
+
+        Connections {
+            target: budgetData
+            function onDataLoaded() {
+                tabBar.currentIndex = budgetData.currentTabIndex;
             }
         }
 

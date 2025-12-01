@@ -6,7 +6,8 @@
 #include <QTextStream>
 
 BudgetData::BudgetData(QObject *parent)
-    : QObject(parent) {}
+    : QObject(parent) {
+}
 
 BudgetData::~BudgetData() {
   clear();
@@ -71,6 +72,10 @@ void BudgetData::clearAccounts() {
 
 Account *BudgetData::currentAccount() const {
   return getAccount(_currentAccountIndex);
+}
+
+int BudgetData::currentAccountIndex() const {
+  return _currentAccountIndex;
 }
 
 void BudgetData::setCurrentAccountIndex(int index) {
@@ -191,6 +196,51 @@ QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
 void BudgetData::clear() {
   clearAccounts();
   clearCategories();
+}
+
+// UI state getters/setters
+int BudgetData::selectedOperationIndex() const {
+  return _selectedOperationIndex;
+}
+
+void BudgetData::setSelectedOperationIndex(int index) {
+  if (_selectedOperationIndex != index) {
+    _selectedOperationIndex = index;
+    emit selectedOperationIndexChanged();
+  }
+}
+
+int BudgetData::currentTabIndex() const {
+  return _currentTabIndex;
+}
+
+void BudgetData::setCurrentTabIndex(int index) {
+  if (_currentTabIndex != index) {
+    _currentTabIndex = index;
+    emit currentTabIndexChanged();
+  }
+}
+
+int BudgetData::budgetYear() const {
+  return _budgetYear;
+}
+
+void BudgetData::setBudgetYear(int year) {
+  if (_budgetYear != year) {
+    _budgetYear = year;
+    emit budgetYearChanged();
+  }
+}
+
+int BudgetData::budgetMonth() const {
+  return _budgetMonth;
+}
+
+void BudgetData::setBudgetMonth(int month) {
+  if (_budgetMonth != month) {
+    _budgetMonth = month;
+    emit budgetMonthChanged();
+  }
 }
 
 QString BudgetData::escapeYamlString(const QString &str) const {

@@ -1,35 +1,68 @@
+#include <QDate>
+#include <QFile>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSettings>
-#include <QFile>
 #include "BudgetData.h"
 
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
-  app.setOrganizationDomain("delille.martin");
+  app.setOrganizationDomain("org.delille.martin");
   app.setOrganizationName("Martin Delille");
   app.setApplicationName("Comptine");
 
   QSettings settings;
   BudgetData budgetData;
 
-  // Save last opened file when data is loaded
-  QObject::connect(&budgetData, &BudgetData::dataLoaded, [&settings, &budgetData]() {
-    if (!budgetData.currentFilePath().isEmpty()) {
-      settings.setValue("lastFile", budgetData.currentFilePath());
-    }
-  });
+  // Load UI state from settings (before QML loads)
+  auto loadUiState = [&settings, &budgetData]() {
+    budgetData.setCurrentAccountIndex(
+        settings.value("ui/currentAccount", 0).toInt());
+    budgetData.setSelectedOperationIndex(
+        settings.value("ui/selectedOperation", 0).toInt());
+    budgetData.setCurrentTabIndex(settings.value("ui/currentTab", 0).toInt());
+    budgetData.setBudgetYear(
+        settings.value("ui/budgetYear", QDate::currentDate().year()).toInt());
+    budgetData.setBudgetMonth(
+        settings.value("ui/budgetMonth", QDate::currentDate().month()).toInt());
+  };
+
+  // Save UI state to settings
+  auto saveUiState = [&settings, &budgetData]() {
+    settings.setValue("ui/currentAccount", budgetData.currentAccountIndex());
+    settings.setValue("ui/selectedOperation",
+                      budgetData.selectedOperationIndex());
+    settings.setValue("ui/currentTab", budgetData.currentTabIndex());
+    settings.setValue("ui/budgetYear", budgetData.budgetYear());
+    settings.setValue("ui/budgetMonth", budgetData.budgetMonth());
+    settings.sync();
+  };
+
+  // Load UI state immediately (sets defaults before QML binds)
+  loadUiState();
+
+  // Save last opened file when data is loaded, and re-apply UI state
+  QObject::connect(&budgetData, &BudgetData::dataLoaded,
+                   [&settings, &budgetData, &loadUiState]() {
+                     if (!budgetData.currentFilePath().isEmpty()) {
+                       settings.setValue("lastFile",
+                                         budgetData.currentFilePath());
+                     }
+                     // Re-apply UI state after data loads (for selectedOperationIndex
+                     // which needs valid operation count)
+                     loadUiState();
+                   });
+
+  // Save UI state when app is about to quit
+  QObject::connect(&app, &QGuiApplication::aboutToQuit, saveUiState);
 
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("budgetData", &budgetData);
-  
+
   QObject::connect(
-      &engine,
-      &QQmlApplicationEngine::objectCreationFailed,
-      &app,
-      []() { QCoreApplication::exit(-1); },
-      Qt::QueuedConnection);
+      &engine, &QQmlApplicationEngine::objectCreationFailed, &app,
+      []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
   engine.loadFromModule("Comptine", "Main");
 
   // Load file: command line argument takes priority, otherwise use last opened file

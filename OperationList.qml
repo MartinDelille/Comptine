@@ -9,9 +9,35 @@ ListView {
     boundsBehavior: Flickable.StopAtBounds
     focus: true
 
+    // Restore position when data is loaded or operations change
+    Connections {
+        target: budgetData
+        function onDataLoaded() {
+            root.currentIndex = budgetData.selectedOperationIndex;
+            if (root.currentIndex >= 0 && root.currentIndex < root.count) {
+                root.positionViewAtIndex(root.currentIndex, ListView.Center);
+            }
+        }
+        function onOperationsChanged() {
+            root.currentIndex = budgetData.selectedOperationIndex;
+            if (root.currentIndex >= 0 && root.currentIndex < root.count) {
+                root.positionViewAtIndex(root.currentIndex, ListView.Center);
+            }
+        }
+        function onSelectedOperationIndexChanged() {
+            if (root.currentIndex !== budgetData.selectedOperationIndex) {
+                root.currentIndex = budgetData.selectedOperationIndex;
+                if (root.currentIndex >= 0 && root.currentIndex < root.count) {
+                    root.positionViewAtIndex(root.currentIndex, ListView.Center);
+                }
+            }
+        }
+    }
+
     Keys.onUpPressed: {
         if (currentIndex > 0) {
             currentIndex--;
+            budgetData.setSelectedOperationIndex(currentIndex);
             positionViewAtIndex(currentIndex, ListView.Contain);
         }
     }
@@ -19,6 +45,7 @@ ListView {
     Keys.onDownPressed: {
         if (currentIndex < count - 1) {
             currentIndex++;
+            budgetData.setSelectedOperationIndex(currentIndex);
             positionViewAtIndex(currentIndex, ListView.Contain);
         }
     }
@@ -35,6 +62,7 @@ ListView {
             anchors.fill: parent
             onClicked: {
                 root.currentIndex = parent.index;
+                budgetData.setSelectedOperationIndex(parent.index);
                 root.forceActiveFocus();
             }
         }

@@ -6,12 +6,10 @@ Rectangle {
     id: root
     color: "#fafafa"
 
-    property int selectedYear: new Date().getFullYear()
-    property int selectedMonth: new Date().getMonth() + 1
     property var budgetSummary: []
 
     function updateBudgetSummary() {
-        budgetSummary = budgetData.monthlyBudgetSummary(selectedYear, selectedMonth);
+        budgetSummary = budgetData.monthlyBudgetSummary(budgetData.budgetYear, budgetData.budgetMonth);
     }
 
     function formatAmount(amount) {
@@ -23,9 +21,20 @@ Rectangle {
     Connections {
         target: budgetData
         function onDataLoaded() {
+            // Update MonthSelector to match loaded state
+            monthSelector.selectedYear = budgetData.budgetYear;
+            monthSelector.selectedMonth = budgetData.budgetMonth;
             updateBudgetSummary();
         }
         function onCategoriesChanged() {
+            updateBudgetSummary();
+        }
+        function onBudgetYearChanged() {
+            monthSelector.selectedYear = budgetData.budgetYear;
+            updateBudgetSummary();
+        }
+        function onBudgetMonthChanged() {
+            monthSelector.selectedMonth = budgetData.budgetMonth;
             updateBudgetSummary();
         }
     }
@@ -38,12 +47,11 @@ Rectangle {
         // Month navigation
         MonthSelector {
             id: monthSelector
-            selectedYear: root.selectedYear
-            selectedMonth: root.selectedMonth
+            selectedYear: budgetData.budgetYear
+            selectedMonth: budgetData.budgetMonth
             onMonthChanged: (year, month) => {
-                root.selectedYear = year;
-                root.selectedMonth = month;
-                updateBudgetSummary();
+                budgetData.setBudgetYear(year);
+                budgetData.setBudgetMonth(month);
             }
         }
 

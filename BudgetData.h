@@ -12,8 +12,14 @@ class BudgetData : public QObject {
   Q_PROPERTY(int accountCount READ accountCount NOTIFY accountsChanged)
   Q_PROPERTY(int categoryCount READ categoryCount NOTIFY categoriesChanged)
   Q_PROPERTY(Account *currentAccount READ currentAccount NOTIFY currentAccountChanged)
+  Q_PROPERTY(int currentAccountIndex READ currentAccountIndex WRITE setCurrentAccountIndex NOTIFY currentAccountChanged)
   Q_PROPERTY(int operationCount READ operationCount NOTIFY operationsChanged)
   Q_PROPERTY(QString currentFilePath READ currentFilePath NOTIFY filePathChanged)
+  // UI state properties
+  Q_PROPERTY(int selectedOperationIndex READ selectedOperationIndex WRITE setSelectedOperationIndex NOTIFY selectedOperationIndexChanged)
+  Q_PROPERTY(int currentTabIndex READ currentTabIndex WRITE setCurrentTabIndex NOTIFY currentTabIndexChanged)
+  Q_PROPERTY(int budgetYear READ budgetYear WRITE setBudgetYear NOTIFY budgetYearChanged)
+  Q_PROPERTY(int budgetMonth READ budgetMonth WRITE setBudgetMonth NOTIFY budgetMonthChanged)
 
 public:
   explicit BudgetData(QObject *parent = nullptr);
@@ -30,6 +36,7 @@ public:
 
   // Current account (for UI binding)
   Account *currentAccount() const;
+  int currentAccountIndex() const;
   Q_INVOKABLE void setCurrentAccountIndex(int index);
 
   // Operations from current account (for UI binding)
@@ -56,6 +63,16 @@ public:
   Q_INVOKABLE bool importFromCsv(const QString &filePath, const QString &accountName = QString());
   QString currentFilePath() const;
 
+  // UI state
+  int selectedOperationIndex() const;
+  Q_INVOKABLE void setSelectedOperationIndex(int index);
+  int currentTabIndex() const;
+  Q_INVOKABLE void setCurrentTabIndex(int index);
+  int budgetYear() const;
+  Q_INVOKABLE void setBudgetYear(int year);
+  int budgetMonth() const;
+  Q_INVOKABLE void setBudgetMonth(int month);
+
   // Clear all data
   Q_INVOKABLE void clear();
 
@@ -67,6 +84,10 @@ signals:
   void filePathChanged();
   void dataLoaded();
   void dataSaved();
+  void selectedOperationIndexChanged();
+  void currentTabIndexChanged();
+  void budgetYearChanged();
+  void budgetMonthChanged();
 
 private:
   QString escapeYamlString(const QString &str) const;
@@ -76,4 +97,10 @@ private:
   QList<Category *> _categories;
   int _currentAccountIndex = -1;
   QString _currentFilePath;
+
+  // UI state
+  int _selectedOperationIndex = 0;
+  int _currentTabIndex = 0;
+  int _budgetYear = 0;
+  int _budgetMonth = 0;
 };
