@@ -26,6 +26,7 @@ ApplicationWindow {
             MenuSeparator {}
             Action {
                 text: qsTr("&Import CSV...")
+                shortcut: "Ctrl+Shift+I"
                 onTriggered: csvDialog.open()
             }
             MenuSeparator {}
