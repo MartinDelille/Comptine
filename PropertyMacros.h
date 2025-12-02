@@ -24,30 +24,6 @@ Q_SIGNALS:                                                                     \
 private:                                                                       \
   Type _##name = defaultValue;
 
-// Macro for properties writable from C++ but read-only from QML
-// Usage: PROPERTY_RW_INTERNAL(double, amount, 0.0)
-// Generates:
-//   - Q_PROPERTY declaration without WRITE (read-only from QML)
-//   - Type name() const getter
-//   - void set_name(Type value) setter (C++ only, not Q_INVOKABLE)
-//   - void nameChanged() signal
-//   - Type _name member variable with default value
-
-#define PROPERTY_RW_INTERNAL(Type, name, defaultValue)                         \
-  Q_PROPERTY(Type name READ name NOTIFY name##Changed)                         \
-public:                                                                        \
-  Type name() const { return _##name; }                                        \
-  void set_##name(Type value) {                                                \
-    if (_##name != value) {                                                    \
-      _##name = value;                                                         \
-      emit name##Changed();                                                    \
-    }                                                                          \
-  }                                                                            \
-Q_SIGNALS:                                                                     \
-  void name##Changed();                                                        \
-private:                                                                       \
-  Type _##name = defaultValue;
-
 // Macro for read-only Qt properties with declared getter (implemented in .cpp)
 // Usage: PROPERTY_RO(int, accountCount)
 // Generates:
@@ -81,4 +57,3 @@ Q_SIGNALS:                                                                     \
   void name##Changed();                                                        \
 private:                                                                       \
   Type _##name = defaultValue;
-

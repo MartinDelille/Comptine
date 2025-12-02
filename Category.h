@@ -7,8 +7,8 @@
 
 class Category : public QObject {
   Q_OBJECT
-  PROPERTY_RW_INTERNAL(QString, name, QString())
-  PROPERTY_RW_INTERNAL(double, budgetLimit, 0.0)
+  PROPERTY_RW(QString, name, QString())
+  PROPERTY_RW(double, budgetLimit, 0.0)
 
 public:
   explicit Category(QObject *parent = nullptr);

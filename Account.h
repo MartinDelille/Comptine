@@ -9,8 +9,8 @@
 
 class Account : public QObject {
   Q_OBJECT
-  PROPERTY_RW_INTERNAL(QString, name, QString())
-  PROPERTY_RW_INTERNAL(double, balance, 0.0)
+  PROPERTY_RW(QString, name, QString())
+  PROPERTY_RW(double, balance, 0.0)
   PROPERTY_RO(int, operationCount)
 
 public:
