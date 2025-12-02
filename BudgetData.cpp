@@ -1,8 +1,13 @@
+// Must be included before Qt headers to avoid 'emit' keyword conflict
+#define RYML_NO_DEFAULT_CALLBACKS
+#include <ryml.hpp>
+#include <ryml_std.hpp>
+#include <c4/format.hpp>
+
 #include "BudgetData.h"
 #include <QDate>
 #include <QDebug>
 #include <QFile>
-#include <QRegularExpression>
 #include <QTextStream>
 
 BudgetData::BudgetData(QObject *parent)
@@ -196,30 +201,51 @@ void BudgetData::clear() {
   clearCategories();
 }
 
-QString BudgetData::escapeYamlString(const QString &str) const {
-  if (str.contains('\n') || str.contains('"') || str.contains(':') ||
-      str.contains('#') || str.startsWith(' ') || str.endsWith(' ')) {
-    QString escaped = str;
-    escaped.replace("\\", "\\\\");
-    escaped.replace("\"", "\\\"");
-    escaped.replace("\n", "\\n");
-    return "\"" + escaped + "\"";
-  }
-  return str;
-}
-
-QString BudgetData::unescapeYamlString(const QString &str) const {
-  QString result = str.trimmed();
-  if (result.startsWith('"') && result.endsWith('"')) {
-    result = result.mid(1, result.length() - 2);
-    result.replace("\\n", "\n");
-    result.replace("\\\"", "\"");
-    result.replace("\\\\", "\\");
-  }
-  return result;
+// Helper to convert QString to std::string for ryml
+static std::string toStdString(const QString &s) {
+  return s.toStdString();
 }
 
 bool BudgetData::saveToYaml(const QString &filePath) const {
+  ryml::Tree tree;
+  ryml::NodeRef root = tree.rootref();
+  root |= ryml::MAP;
+
+  // Write categories
+  ryml::NodeRef categories = root["categories"];
+  categories |= ryml::SEQ;
+  for (const Category *category : _categories) {
+    ryml::NodeRef cat = categories.append_child();
+    cat |= ryml::MAP;
+    cat["name"] << toStdString(category->name());
+    cat["budget_limit"] << category->budgetLimit();
+  }
+
+  // Write accounts
+  ryml::NodeRef accounts = root["accounts"];
+  accounts |= ryml::SEQ;
+  for (const Account *account : _accounts) {
+    ryml::NodeRef acc = accounts.append_child();
+    acc |= ryml::MAP;
+    acc["name"] << toStdString(account->name());
+    acc["balance"] << account->balance();
+
+    ryml::NodeRef operations = acc["operations"];
+    operations |= ryml::SEQ;
+    for (const Operation *op : account->operations()) {
+      ryml::NodeRef opNode = operations.append_child();
+      opNode |= ryml::MAP;
+      opNode["date"] << toStdString(op->date().toString("yyyy-MM-dd"));
+      opNode["amount"] << op->amount();
+      opNode["category"] << toStdString(op->category());
+      opNode["description"] << toStdString(op->description());
+    }
+  }
+
+  // Emit YAML to string
+  std::string yaml = ryml::emitrs_yaml<std::string>(tree);
+
+  // Write to file
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     qWarning() << "Failed to open file for writing:" << filePath;
@@ -228,32 +254,11 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
 
   QTextStream out(&file);
   out.setEncoding(QStringConverter::Utf8);
-
-  // Write categories
-  out << "categories:\n";
-  for (const Category *category : _categories) {
-    out << "  - name: " << escapeYamlString(category->name()) << "\n";
-    out << "    budget_limit: " << category->budgetLimit() << "\n";
-  }
-
-  // Write accounts
-  out << "\naccounts:\n";
-  for (const Account *account : _accounts) {
-    out << "  - name: " << escapeYamlString(account->name()) << "\n";
-    out << "    balance: " << account->balance() << "\n";
-    out << "    operations:\n";
-    for (const Operation *op : account->operations()) {
-      out << "      - date: " << op->date().toString("yyyy-MM-dd") << "\n";
-      out << "        amount: " << op->amount() << "\n";
-      out << "        category: " << escapeYamlString(op->category()) << "\n";
-      out << "        description: " << escapeYamlString(op->description())
-          << "\n";
-    }
-  }
-
+  out << QString::fromStdString(yaml);
   file.close();
+
   qDebug() << "Budget data saved to:" << filePath;
-  emit const_cast<BudgetData*>(this)->dataSaved();
+  emit const_cast<BudgetData *>(this)->dataSaved();
   return true;
 }
 
@@ -264,97 +269,80 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
     return false;
   }
 
+  QByteArray data = file.readAll();
+  file.close();
+
   clear();
 
-  QTextStream in(&file);
-  in.setEncoding(QStringConverter::Utf8);
+  try {
+    ryml::Tree tree = ryml::parse_in_arena(ryml::to_csubstr(data.constData()));
+    ryml::ConstNodeRef root = tree.crootref();
 
-  enum class Section { None, Categories, Accounts, Operations };
-  Section currentSection = Section::None;
-
-  Account *currentAccount = nullptr;
-  Category *currentCategory = nullptr;
-  Operation *currentOperation = nullptr;
-
-  // Match "key: value" or "- key: value" patterns
-  QRegularExpression keyValueRe("^(\\s*)-?\\s*([\\w_]+):\\s*(.*)$");
-
-  while (!in.atEnd()) {
-    QString line = in.readLine();
-
-    // Skip empty lines and comments
-    if (line.trimmed().isEmpty() || line.trimmed().startsWith('#')) {
-      continue;
-    }
-
-    auto match = keyValueRe.match(line);
-    if (!match.hasMatch()) {
-      continue;
-    }
-
-    int indent = match.captured(1).length();
-    QString key = match.captured(2);
-    QString value = unescapeYamlString(match.captured(3));
-
-    // List items (indicated by "- key: value" pattern)
-    bool isListItem = line.trimmed().startsWith('-');
-
-    // Top-level sections
-    if (indent == 0) {
-      if (key == "categories") {
-        currentSection = Section::Categories;
-      } else if (key == "accounts") {
-        currentSection = Section::Accounts;
-      }
-      continue;
-    }
-
-    if (currentSection == Section::Categories) {
-      if (isListItem && key == "name") {
-        currentCategory = new Category(this);
-        currentCategory->set_name(value);
-        _categories.append(currentCategory);
-      } else if (currentCategory && key == "budget_limit") {
-        currentCategory->set_budgetLimit(value.toDouble());
-      }
-    } else if (currentSection == Section::Accounts) {
-      if (indent == 2 && isListItem && key == "name") {
-        currentAccount = new Account(this);
-        currentAccount->set_name(value);
-        _accounts.append(currentAccount);
-        currentOperation = nullptr;
-      } else if (currentAccount && indent == 4 && key == "balance") {
-        currentAccount->set_balance(value.toDouble());
-      } else if (currentAccount && indent == 4 && key == "operations") {
-        currentSection = Section::Operations;
-      }
-    } else if (currentSection == Section::Operations && currentAccount) {
-      if (indent == 6 && isListItem && key == "date") {
-        currentOperation = new Operation(currentAccount);
-        currentOperation->set_date(QDate::fromString(value, "yyyy-MM-dd"));
-        currentAccount->addOperation(currentOperation);
-      } else if (currentOperation) {
-        if (key == "amount") {
-          currentOperation->set_amount(value.toDouble());
-        } else if (key == "category") {
-          currentOperation->set_category(value);
-        } else if (key == "description") {
-          currentOperation->set_description(value);
+    // Load categories
+    if (root.has_child("categories")) {
+      for (ryml::ConstNodeRef cat : root["categories"]) {
+        auto category = new Category(this);
+        if (cat.has_child("name")) {
+          std::string name;
+          cat["name"] >> name;
+          category->set_name(QString::fromStdString(name));
         }
-      }
-
-      // Check if we're back to accounts section
-      if (indent == 2 && isListItem) {
-        currentSection = Section::Accounts;
-        currentAccount = new Account(this);
-        currentAccount->set_name(value);
-        _accounts.append(currentAccount);
-        currentOperation = nullptr;
+        if (cat.has_child("budget_limit")) {
+          double limit;
+          cat["budget_limit"] >> limit;
+          category->set_budgetLimit(limit);
+        }
+        _categories.append(category);
       }
     }
-  }
 
-  file.close();
+    // Load accounts
+    if (root.has_child("accounts")) {
+      for (ryml::ConstNodeRef acc : root["accounts"]) {
+        auto account = new Account(this);
+        if (acc.has_child("name")) {
+          std::string name;
+          acc["name"] >> name;
+          account->set_name(QString::fromStdString(name));
+        }
+        if (acc.has_child("balance")) {
+          double balance;
+          acc["balance"] >> balance;
+          account->set_balance(balance);
+        }
+        if (acc.has_child("operations")) {
+          for (ryml::ConstNodeRef opNode : acc["operations"]) {
+            auto op = new Operation(account);
+            if (opNode.has_child("date")) {
+              std::string dateStr;
+              opNode["date"] >> dateStr;
+              op->set_date(QDate::fromString(QString::fromStdString(dateStr), "yyyy-MM-dd"));
+            }
+            if (opNode.has_child("amount")) {
+              double amount;
+              opNode["amount"] >> amount;
+              op->set_amount(amount);
+            }
+            if (opNode.has_child("category")) {
+              std::string category;
+              opNode["category"] >> category;
+              op->set_category(QString::fromStdString(category));
+            }
+            if (opNode.has_child("description")) {
+              std::string description;
+              opNode["description"] >> description;
+              op->set_description(QString::fromStdString(description));
+            }
+            account->addOperation(op);
+          }
+        }
+        _accounts.append(account);
+      }
+    }
+  } catch (const std::exception &e) {
+    qWarning() << "YAML parsing error:" << e.what();
+    return false;
+  }
 
   // Set first account as current
   if (!_accounts.isEmpty()) {

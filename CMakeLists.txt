@@ -7,6 +7,16 @@ project(
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Fetch rapidyaml
+include(FetchContent)
+FetchContent_Declare(
+  rapidyaml
+  GIT_REPOSITORY https://github.com/biojppm/rapidyaml.git
+  GIT_TAG v0.7.2
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(rapidyaml)
+
 find_package(Qt6 REQUIRED COMPONENTS Quick LinguistTools)
 
 qt_standard_project_setup(REQUIRES 6.8)
@@ -77,7 +87,7 @@ set_target_properties(
              MACOSX_BUNDLE TRUE
              WIN32_EXECUTABLE TRUE)
 
-target_link_libraries(Comptine PRIVATE Qt6::Quick)
+target_link_libraries(Comptine PRIVATE Qt6::Quick ryml::ryml)
 
 # Translations
 qt_add_translations(Comptine

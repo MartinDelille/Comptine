@@ -70,9 +70,6 @@ signals:
   void dataSaved();
 
 private:
-  QString escapeYamlString(const QString &str) const;
-  QString unescapeYamlString(const QString &str) const;
-
   QList<Account *> _accounts;
   QList<Category *> _categories;
 };
