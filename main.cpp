@@ -11,8 +11,7 @@
 
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
-  app.setOrganizationDomain("org.delille.martin");
-  app.setOrganizationName("Martin Delille");
+  app.setOrganizationDomain("martin.delille.org");
   app.setApplicationName("Comptine");
 
   // Load translations based on language preference
