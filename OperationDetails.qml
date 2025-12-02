@@ -8,116 +8,113 @@ Rectangle {
     required property var operation
     required property double balance
 
-    function formatAmount(amount) {
-        return amount.toFixed(2).replace('.', ',') + " €";
-    }
-
-    border.width: 1
-    border.color: "#ddd"
-    color: "#fafafa"
+    radius: Theme.cardRadius
+    border.width: Theme.cardBorderWidth
+    border.color: Theme.border
+    color: Theme.surface
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 15
-        spacing: 15
+        anchors.margins: Theme.spacingLarge
+        spacing: Theme.spacingLarge
 
         Label {
             text: qsTr("Operation Details")
-            font.pixelSize: 16
+            font.pixelSize: Theme.fontSizeLarge
             font.bold: true
-            color: "#333"
+            color: Theme.textPrimary
         }
 
         Rectangle {
             Layout.fillWidth: true
             height: 1
-            color: "#ddd"
+            color: Theme.border
         }
 
         GridLayout {
             Layout.fillWidth: true
             columns: 1
-            rowSpacing: 10
+            rowSpacing: Theme.spacingNormal
             visible: root.operation !== null
 
             Label {
                 text: qsTr("Date:")
-                font.pixelSize: 12
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
-                color: "#666"
+                color: Theme.textSecondary
             }
 
             Label {
                 Layout.fillWidth: true
                 text: root.operation?.date ? root.operation.date.toLocaleDateString(Qt.locale(), Locale.LongFormat) : ""
-                font.pixelSize: 12
-                color: "#333"
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.textPrimary
                 wrapMode: Text.WordWrap
             }
 
             Label {
                 text: qsTr("Description:")
-                font.pixelSize: 12
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
-                color: "#666"
-                Layout.topMargin: 5
+                color: Theme.textSecondary
+                Layout.topMargin: Theme.spacingSmall
             }
 
             Label {
                 Layout.fillWidth: true
                 text: root.operation?.description ?? ""
-                font.pixelSize: 12
-                color: "#333"
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.textPrimary
                 wrapMode: Text.WordWrap
             }
 
             Label {
                 text: qsTr("Category:")
-                font.pixelSize: 12
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
-                color: "#666"
-                Layout.topMargin: 5
+                color: Theme.textSecondary
+                Layout.topMargin: Theme.spacingSmall
             }
 
             Label {
                 Layout.fillWidth: true
                 text: root.operation?.category ?? qsTr("Uncategorized")
-                font.pixelSize: 12
-                color: root.operation?.category ? "#333" : "#999"
+                font.pixelSize: Theme.fontSizeSmall
+                color: root.operation?.category ? Theme.textPrimary : Theme.textMuted
                 wrapMode: Text.WordWrap
             }
 
             Label {
                 text: qsTr("Amount:")
-                font.pixelSize: 12
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
-                color: "#666"
-                Layout.topMargin: 5
+                color: Theme.textSecondary
+                Layout.topMargin: Theme.spacingSmall
             }
 
             Label {
                 Layout.fillWidth: true
-                text: root.operation ? root.formatAmount(root.operation.amount) : ""
-                font.pixelSize: 14
+                text: root.operation ? Theme.formatAmount(root.operation.amount) : ""
+                font.pixelSize: Theme.fontSizeNormal
                 font.bold: true
-                color: (root.operation?.amount ?? 0) < 0 ? "#d32f2f" : "#388e3c"
+                color: Theme.amountColor(root.operation?.amount ?? 0)
                 wrapMode: Text.WordWrap
             }
 
             Label {
                 text: qsTr("Balance:")
-                font.pixelSize: 12
+                font.pixelSize: Theme.fontSizeSmall
                 font.bold: true
-                color: "#666"
-                Layout.topMargin: 5
+                color: Theme.textSecondary
+                Layout.topMargin: Theme.spacingSmall
             }
 
             Label {
                 Layout.fillWidth: true
-                text: root.operation ? root.formatAmount(root.balance) : ""
-                font.pixelSize: 14
+                text: root.operation ? Theme.formatAmount(root.balance) : ""
+                font.pixelSize: Theme.fontSizeNormal
                 font.bold: true
-                color: root.balance < 0 ? "#d32f2f" : "#333"
+                color: Theme.balanceColor(root.balance)
                 wrapMode: Text.WordWrap
             }
         }
@@ -126,8 +123,8 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             text: root.operation === null ? qsTr("Select an operation to view details") : ""
-            font.pixelSize: 12
-            color: "#999"
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.textMuted
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WordWrap

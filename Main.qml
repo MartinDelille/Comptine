@@ -9,6 +9,7 @@ ApplicationWindow {
     height: 800
     visible: true
     title: budgetData.currentFilePath.length > 0 ? "Comptine - " + budgetData.currentFilePath.split('/').pop() : "Comptine"
+    color: Theme.background
 
     property bool fileDialogOpen: openDialog.visible || saveDialog.visible || csvDialog.visible
 
@@ -150,14 +151,18 @@ ApplicationWindow {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
-        spacing: 10
+        anchors.margins: Theme.spacingNormal
+        spacing: Theme.spacingNormal
 
         TabBar {
             id: tabBar
             Layout.fillWidth: true
             currentIndex: budgetData.currentTabIndex
             onCurrentIndexChanged: budgetData.currentTabIndex = currentIndex
+
+            background: Rectangle {
+                color: Theme.surface
+            }
 
             TabButton {
                 text: qsTr("Operations")

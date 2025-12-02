@@ -9,12 +9,14 @@ Dialog {
     modal: true
 
     property string originalLanguage: ""
+    property string originalTheme: ""
 
     onOpened: {
-        // Save original language to restore on cancel
+        // Save original values to restore on cancel
         originalLanguage = appSettings.language;
+        originalTheme = appSettings.theme;
 
-        // Set initial combo box value
+        // Set initial language combo box value
         if (appSettings.language === "") {
             languageComboBox.currentIndex = 0;
         } else if (appSettings.language === "en") {
@@ -22,12 +24,24 @@ Dialog {
         } else if (appSettings.language === "fr") {
             languageComboBox.currentIndex = 2;
         }
+
+        // Set initial theme combo box value
+        if (appSettings.theme === "") {
+            themeComboBox.currentIndex = 0;
+        } else if (appSettings.theme === "light") {
+            themeComboBox.currentIndex = 1;
+        } else if (appSettings.theme === "dark") {
+            themeComboBox.currentIndex = 2;
+        }
     }
 
     onRejected: {
-        // Restore original language on cancel
+        // Restore original values on cancel
         if (appSettings.language !== originalLanguage) {
             appSettings.language = originalLanguage;
+        }
+        if (appSettings.theme !== originalTheme) {
+            appSettings.theme = originalTheme;
         }
     }
 
@@ -37,8 +51,8 @@ Dialog {
 
         GridLayout {
             columns: 2
-            columnSpacing: 10
-            rowSpacing: 10
+            columnSpacing: 20
+            rowSpacing: 15
 
             Label {
                 text: qsTr("Language:")
@@ -46,6 +60,7 @@ Dialog {
 
             ComboBox {
                 id: languageComboBox
+                Layout.preferredWidth: 200
                 model: [qsTr("System Default"), "English", "Français"]
 
                 onActivated: {
@@ -56,6 +71,26 @@ Dialog {
                         newLanguage = "fr";
                     }
                     appSettings.language = newLanguage;
+                }
+            }
+
+            Label {
+                text: qsTr("Theme:")
+            }
+
+            ComboBox {
+                id: themeComboBox
+                Layout.preferredWidth: 200
+                model: [qsTr("System Default"), qsTr("Light"), qsTr("Dark")]
+
+                onActivated: {
+                    var newTheme = "";
+                    if (currentIndex === 1) {
+                        newTheme = "light";
+                    } else if (currentIndex === 2) {
+                        newTheme = "dark";
+                    }
+                    appSettings.theme = newTheme;
                 }
             }
         }

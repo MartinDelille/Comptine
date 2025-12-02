@@ -37,7 +37,7 @@ RowLayout {
 
     Layout.fillWidth: true
     Layout.alignment: Qt.AlignHCenter
-    spacing: 20
+    spacing: Theme.spacingXLarge
 
     Button {
         text: "<"
@@ -47,8 +47,9 @@ RowLayout {
 
     Label {
         text: monthName(selectedMonth) + " " + selectedYear
-        font.pixelSize: 20
+        font.pixelSize: Theme.fontSizeXLarge
         font.bold: true
+        color: Theme.textPrimary
         horizontalAlignment: Text.AlignHCenter
         Layout.preferredWidth: 200
     }

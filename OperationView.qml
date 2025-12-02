@@ -4,11 +4,11 @@ import QtQuick.Layouts
 
 ColumnLayout {
     id: root
-    spacing: 10
+    spacing: Theme.spacingNormal
 
     RowLayout {
         Layout.fillWidth: true
-        spacing: 10
+        spacing: Theme.spacingNormal
 
         ComboBox {
             id: accountSelector
@@ -38,7 +38,7 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        spacing: 10
+        spacing: Theme.spacingNormal
 
         OperationList {
             id: operationList

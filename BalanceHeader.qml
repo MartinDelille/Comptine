@@ -8,32 +8,28 @@ Rectangle {
     required property double balance
     required property int operationCount
 
-    function formatAmount(amount) {
-        return amount.toFixed(2).replace('.', ',') + " €";
-    }
-
     Layout.fillWidth: true
     Layout.preferredHeight: 50
-    color: "#f5f5f5"
-    border.width: 1
-    border.color: "#ddd"
-    radius: 4
+    color: Theme.surface
+    border.width: Theme.cardBorderWidth
+    border.color: Theme.border
+    radius: Theme.cardRadius
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: Theme.spacingNormal
 
         Label {
             text: qsTr("Balance:")
-            font.pixelSize: 14
-            color: "#666"
+            font.pixelSize: Theme.fontSizeNormal
+            color: Theme.textSecondary
         }
 
         Label {
-            text: root.formatAmount(root.balance)
-            font.pixelSize: 20
+            text: Theme.formatAmount(root.balance)
+            font.pixelSize: Theme.fontSizeXLarge
             font.bold: true
-            color: root.balance < 0 ? "#d32f2f" : "#388e3c"
+            color: Theme.balanceColor(root.balance)
         }
 
         Item {
@@ -42,8 +38,8 @@ Rectangle {
 
         Label {
             text: qsTr("%1 operations").arg(root.operationCount)
-            font.pixelSize: 14
-            color: "#666"
+            font.pixelSize: Theme.fontSizeNormal
+            color: Theme.textSecondary
         }
     }
 }

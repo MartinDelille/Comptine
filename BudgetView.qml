@@ -4,16 +4,12 @@ import QtQuick.Layouts
 
 Rectangle {
     id: root
-    color: "#fafafa"
+    color: Theme.background
 
     property var budgetSummary: []
 
     function updateBudgetSummary() {
         budgetSummary = budgetData.monthlyBudgetSummary(budgetData.budgetYear, budgetData.budgetMonth);
-    }
-
-    function formatAmount(amount) {
-        return amount.toFixed(2).replace('.', ',') + " €";
     }
 
     Component.onCompleted: updateBudgetSummary()
@@ -41,8 +37,8 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 20
-        spacing: 20
+        anchors.margins: Theme.spacingXLarge
+        spacing: Theme.spacingXLarge
 
         // Month navigation
         MonthSelector {
@@ -60,7 +56,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             model: budgetSummary
-            spacing: 10
+            spacing: Theme.spacingNormal
             clip: true
 
             delegate: Rectangle {
@@ -69,24 +65,24 @@ Rectangle {
 
                 width: ListView.view.width
                 height: 80
-                color: "white"
-                border.color: "#e0e0e0"
-                border.width: 1
-                radius: 8
+                color: Theme.surfaceElevated
+                border.color: Theme.borderLight
+                border.width: Theme.cardBorderWidth
+                radius: Theme.cardRadius
 
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 12
-                    spacing: 6
+                    spacing: Theme.spacingSmall
 
                     RowLayout {
                         Layout.fillWidth: true
 
                         Label {
                             text: modelData.name
-                            font.pixelSize: 14
+                            font.pixelSize: Theme.fontSizeNormal
                             font.bold: true
-                            color: "#333"
+                            color: Theme.textPrimary
                         }
 
                         Item {
@@ -95,15 +91,15 @@ Rectangle {
 
                         Label {
                             text: modelData.budgetLimit > 0 && modelData.percentUsed > 100 ? qsTr("EXCEEDED") : ""
-                            font.pixelSize: 12
+                            font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
-                            color: "#d32f2f"
+                            color: Theme.negative
                         }
 
                         Label {
-                            text: formatAmount(modelData.spent) + " / " + formatAmount(modelData.budgetLimit)
-                            font.pixelSize: 14
-                            color: "#666"
+                            text: Theme.formatAmount(modelData.spent) + " / " + Theme.formatAmount(modelData.budgetLimit)
+                            font.pixelSize: Theme.fontSizeNormal
+                            color: Theme.textSecondary
                         }
                     }
 
@@ -111,7 +107,7 @@ Rectangle {
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 16
-                        color: "#e0e0e0"
+                        color: Theme.progressBackground
                         radius: 4
 
                         Rectangle {
@@ -120,20 +116,20 @@ Rectangle {
                             radius: 4
                             color: {
                                 if (modelData.budgetLimit <= 0)
-                                    return "#9e9e9e";
+                                    return Theme.textMuted;
                                 if (modelData.percentUsed > 100)
-                                    return "#d32f2f";
+                                    return Theme.negative;
                                 if (modelData.percentUsed > 80)
-                                    return "#f57c00";
-                                return "#388e3c";
+                                    return Theme.warning;
+                                return Theme.positive;
                             }
                         }
                     }
 
                     Label {
-                        text: modelData.budgetLimit > 0 ? (modelData.remaining >= 0 ? qsTr("Remaining: %1").arg(formatAmount(modelData.remaining)) : qsTr("Exceeded: %1").arg(formatAmount(-modelData.remaining))) : qsTr("No budget defined")
-                        font.pixelSize: 12
-                        color: modelData.remaining >= 0 ? "#666" : "#d32f2f"
+                        text: modelData.budgetLimit > 0 ? (modelData.remaining >= 0 ? qsTr("Remaining: %1").arg(Theme.formatAmount(modelData.remaining)) : qsTr("Exceeded: %1").arg(Theme.formatAmount(-modelData.remaining))) : qsTr("No budget defined")
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: modelData.remaining >= 0 ? Theme.textSecondary : Theme.negative
                     }
                 }
             }
@@ -147,8 +143,8 @@ Rectangle {
             text: qsTr("No categories defined")
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: 16
-            color: "#999"
+            font.pixelSize: Theme.fontSizeLarge
+            color: Theme.textMuted
         }
     }
 }

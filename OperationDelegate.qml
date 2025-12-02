@@ -10,33 +10,30 @@ Rectangle {
     required property bool selected
     required property bool alternate
 
-    function formatAmount(amount) {
-        return amount.toFixed(2).replace('.', ',') + " €";
-    }
-
     width: parent ? parent.width : 0
     height: 50
+    radius: 4
     border.width: 1
-    border.color: "#ddd"
+    border.color: Theme.border
 
     color: {
         if (root.selected)
-            return "#e3f2fd";
+            return Theme.backgroundSelected;
         if (root.alternate)
-            return "#f9f9f9";
-        return "white";
+            return Theme.backgroundAlt;
+        return Theme.background;
     }
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 10
-        spacing: 10
+        anchors.margins: Theme.spacingNormal
+        spacing: Theme.spacingNormal
 
         Label {
             text: root.operation?.date ? root.operation.date.toLocaleDateString(Qt.locale(), Locale.ShortFormat) : ""
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: 14
-            color: "#333"
+            font.pixelSize: Theme.fontSizeNormal
+            color: Theme.textPrimary
             Layout.preferredWidth: 100
         }
 
@@ -45,26 +42,26 @@ Rectangle {
             text: root.operation?.description ?? ""
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
-            font.pixelSize: 14
-            color: "#333"
+            font.pixelSize: Theme.fontSizeNormal
+            color: Theme.textPrimary
         }
 
         Label {
-            text: root.formatAmount(root.operation?.amount ?? 0)
+            text: Theme.formatAmount(root.operation?.amount ?? 0)
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            font.pixelSize: 14
-            color: (root.operation?.amount ?? 0) < 0 ? "#d32f2f" : "#388e3c"
+            font.pixelSize: Theme.fontSizeNormal
+            color: Theme.amountColor(root.operation?.amount ?? 0)
             font.bold: true
             Layout.preferredWidth: 100
         }
 
         Label {
-            text: root.formatAmount(root.balance)
+            text: Theme.formatAmount(root.balance)
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            font.pixelSize: 14
-            color: root.balance < 0 ? "#d32f2f" : "#333"
+            font.pixelSize: Theme.fontSizeNormal
+            color: Theme.balanceColor(root.balance)
             Layout.preferredWidth: 100
         }
     }

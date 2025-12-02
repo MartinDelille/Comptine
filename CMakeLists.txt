@@ -62,6 +62,8 @@ add_custom_command(
 set_source_files_properties(${APP_ICON_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 target_sources(Comptine PRIVATE ${APP_ICON_ICNS})
 
+set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(Comptine URI Comptine QML_FILES
     Main.qml
     BalanceHeader.qml
@@ -72,6 +74,7 @@ qt_add_qml_module(Comptine URI Comptine QML_FILES
     OperationList.qml
     OperationView.qml
     PreferencesDialog.qml
+    Theme.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1. If

@@ -219,4 +219,31 @@ Importez et gérez vos données bancaires.</translation>
         <translation>Aucune catégorie définie</translation>
     </message>
 </context>
+<context>
+    <name>PreferencesDialog</name>
+    <message>
+        <source>Preferences</source>
+        <translation>Préférences</translation>
+    </message>
+    <message>
+        <source>Language:</source>
+        <translation>Langue :</translation>
+    </message>
+    <message>
+        <source>System Default</source>
+        <translation>Système par défaut</translation>
+    </message>
+    <message>
+        <source>Theme:</source>
+        <translation>Thème :</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation>Clair</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation>Sombre</translation>
+    </message>
+</context>
 </TS>
