@@ -40,6 +40,15 @@ void Account::clearOperations() {
   emit operationCountChanged();
 }
 
+bool Account::hasOperation(const QDate &date, double amount, const QString &description) const {
+  for (Operation *op : _operations) {
+    if (op->date() == date && op->amount() == amount && op->description() == description) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Operation *Account::getOperation(int index) const {
   if (index >= 0 && index < _operations.size()) {
     return _operations[index];

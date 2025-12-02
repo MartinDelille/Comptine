@@ -22,6 +22,7 @@ public:
   void addOperation(Operation *operation);
   void removeOperation(int index);
   void clearOperations();
+  bool hasOperation(const QDate &date, double amount, const QString &description) const;
 
   Q_INVOKABLE Operation *getOperation(int index) const;
 

@@ -396,10 +396,8 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
     QStringList fields = line.split(';');
 
     if (fields.size() >= 13) {
-      Operation *operation = new Operation(account);
-
       // Parse date (field 0: accounting date)
-      operation->set_date(QDate::fromString(fields[0].trimmed(), "dd/MM/yyyy"));
+      QDate date = QDate::fromString(fields[0].trimmed(), "dd/MM/yyyy");
 
       // Parse amount (field 8: debit, field 9: credit)
       QString debitStr = fields[8].trimmed().replace(',', '.');
@@ -411,7 +409,19 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
       } else if (!creditStr.isEmpty()) {
         amount = creditStr.toDouble();
       }
+
+      // Parse description (field 1: simplified label)
+      QString description = fields[1].trimmed();
+
+      // Skip duplicate operations
+      if (account->hasOperation(date, amount, description)) {
+        continue;
+      }
+
+      Operation *operation = new Operation(account);
+      operation->set_date(date);
       operation->set_amount(amount);
+      operation->set_description(description);
       totalBalance += amount;
 
       // Parse category (field 6: category, field 7: sub-category)
@@ -421,9 +431,6 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
         category = subCategory; // Use sub-category as more specific
       }
       operation->set_category(category);
-
-      // Parse description (field 1: simplified label)
-      operation->set_description(fields[1].trimmed());
 
       account->addOperation(operation);
       importCount++;

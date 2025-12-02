@@ -131,6 +131,7 @@ ApplicationWindow {
         nameFilters: ["CSV files (*.csv)", "All files (*)"]
         onAccepted: {
             budgetData.importFromCsv(selectedFile.toString().replace("file://", ""), budgetData.currentAccount?.name ?? "");
+            budgetData.currentTabIndex = 0;
         }
     }
 
