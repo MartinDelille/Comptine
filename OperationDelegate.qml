@@ -33,7 +33,7 @@ Rectangle {
         spacing: 10
 
         Label {
-            text: root.operation?.date ? Qt.formatDate(root.operation.date, "yyyy-MM-dd") : ""
+            text: root.operation?.date ? root.operation.date.toLocaleDateString(Qt.locale(), Locale.ShortFormat) : ""
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 14
             color: "#333"
