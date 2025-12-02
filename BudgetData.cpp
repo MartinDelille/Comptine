@@ -389,6 +389,7 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
 
   int importCount = 0;
   double totalBalance = 0.0;
+  Operation *lastImportedOperation = nullptr;
 
   while (!in.atEnd()) {
     QString line = in.readLine();
@@ -427,10 +428,9 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
       account->addOperation(operation);
       importCount++;
 
-      // Auto-create category if it doesn't exist
-      if (!category.isEmpty() && !getCategoryByName(category)) {
-        Category *cat = new Category(category, 0.0, this);
-        _categories.append(cat);
+      // Track the most recent imported operation
+      if (!lastImportedOperation || operation->date() > lastImportedOperation->date()) {
+        lastImportedOperation = operation;
       }
     }
   }
@@ -447,11 +447,16 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   }
 
   emit accountCountChanged();
-  emit categoryCountChanged();
+  emit operationCountChanged();
 
-  // Highlight the last imported operation (most recent one, at the end of the list)
-  if (importCount > 0) {
-    set_lastImportedOperationIndex(account->operationCount() - 1);
+  // Highlight the last imported operation (most recent one)
+  if (lastImportedOperation) {
+    for (int i = 0; i < account->operationCount(); i++) {
+      if (account->getOperation(i) == lastImportedOperation) {
+        set_lastImportedOperationIndex(i);
+        break;
+      }
+    }
   }
 
   emit dataLoaded();
