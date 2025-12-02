@@ -7,7 +7,7 @@ project(
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick LinguistTools)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
@@ -75,6 +75,13 @@ set_target_properties(
              WIN32_EXECUTABLE TRUE)
 
 target_link_libraries(Comptine PRIVATE Qt6::Quick)
+
+# Translations
+qt_add_translations(Comptine
+    TS_FILES
+        translations/comptine_fr.ts
+    RESOURCE_PREFIX "/i18n"
+)
 
 include(GNUInstallDirs)
 install(

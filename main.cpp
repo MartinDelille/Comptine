@@ -1,9 +1,11 @@
 #include <QDate>
 #include <QFile>
 #include <QGuiApplication>
+#include <QLocale>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSettings>
+#include <QTranslator>
 #include "BudgetData.h"
 
 int main(int argc, char *argv[]) {
@@ -11,6 +13,12 @@ int main(int argc, char *argv[]) {
   app.setOrganizationDomain("org.delille.martin");
   app.setOrganizationName("Martin Delille");
   app.setApplicationName("Comptine");
+
+  // Load translations
+  QTranslator translator;
+  if (translator.load(QLocale(), "comptine", "_", ":/i18n")) {
+    app.installTranslator(&translator);
+  }
 
   QSettings settings;
   BudgetData budgetData;

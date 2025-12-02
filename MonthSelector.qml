@@ -11,7 +11,7 @@ RowLayout {
     signal monthChanged(int year, int month)
 
     function monthName(month) {
-        var months = [qsTr("Janvier"), qsTr("Février"), qsTr("Mars"), qsTr("Avril"), qsTr("Mai"), qsTr("Juin"), qsTr("Juillet"), qsTr("Août"), qsTr("Septembre"), qsTr("Octobre"), qsTr("Novembre"), qsTr("Décembre")];
+        var months = [qsTr("January"), qsTr("February"), qsTr("March"), qsTr("April"), qsTr("May"), qsTr("June"), qsTr("July"), qsTr("August"), qsTr("September"), qsTr("October"), qsTr("November"), qsTr("December")];
         return months[month - 1];
     }
 

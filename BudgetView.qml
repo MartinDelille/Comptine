@@ -94,7 +94,7 @@ Rectangle {
                         }
 
                         Label {
-                            text: modelData.budgetLimit > 0 && modelData.percentUsed > 100 ? qsTr("DÉPASSÉ") : ""
+                            text: modelData.budgetLimit > 0 && modelData.percentUsed > 100 ? qsTr("EXCEEDED") : ""
                             font.pixelSize: 12
                             font.bold: true
                             color: "#d32f2f"
@@ -131,7 +131,7 @@ Rectangle {
                     }
 
                     Label {
-                        text: modelData.budgetLimit > 0 ? (modelData.remaining >= 0 ? qsTr("Reste: %1").arg(formatAmount(modelData.remaining)) : qsTr("Dépassement: %1").arg(formatAmount(-modelData.remaining))) : qsTr("Pas de budget défini")
+                        text: modelData.budgetLimit > 0 ? (modelData.remaining >= 0 ? qsTr("Remaining: %1").arg(formatAmount(modelData.remaining)) : qsTr("Exceeded: %1").arg(formatAmount(-modelData.remaining))) : qsTr("No budget defined")
                         font.pixelSize: 12
                         color: modelData.remaining >= 0 ? "#666" : "#d32f2f"
                     }
@@ -144,7 +144,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             visible: budgetSummary.length === 0
-            text: qsTr("Aucune catégorie définie")
+            text: qsTr("No categories defined")
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 16

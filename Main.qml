@@ -149,7 +149,7 @@ ApplicationWindow {
             onCurrentIndexChanged: budgetData.currentTabIndex = currentIndex
 
             TabButton {
-                text: qsTr("Opérations")
+                text: qsTr("Operations")
             }
             TabButton {
                 text: qsTr("Budget")
