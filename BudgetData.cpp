@@ -448,6 +448,12 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
 
   emit accountCountChanged();
   emit categoryCountChanged();
+
+  // Highlight the last imported operation (most recent one, at the end of the list)
+  if (importCount > 0) {
+    set_lastImportedOperationIndex(account->operationCount() - 1);
+  }
+
   emit dataLoaded();
 
   qDebug() << "Imported" << importCount << "operations";

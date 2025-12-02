@@ -13,6 +13,7 @@ class BudgetData : public QObject {
 
   // UI state properties (macro-generated)
   PROPERTY_RW(int, selectedOperationIndex, 0)
+  PROPERTY_RW(int, lastImportedOperationIndex, -1)
   PROPERTY_RW(int, currentTabIndex, 0)
   PROPERTY_RW(int, budgetYear, 0)
   PROPERTY_RW(int, budgetMonth, 0)

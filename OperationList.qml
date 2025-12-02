@@ -57,6 +57,7 @@ ListView {
         balance: budgetData.balanceAtIndex(index)
         selected: root.currentIndex === index
         alternate: index % 2 === 0
+        highlighted: index === budgetData.lastImportedOperationIndex
 
         MouseArea {
             anchors.fill: parent

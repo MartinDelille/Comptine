@@ -9,6 +9,7 @@ Rectangle {
     required property double balance
     required property bool selected
     required property bool alternate
+    required property bool highlighted
 
     width: parent ? parent.width : 0
     height: 50
@@ -19,6 +20,8 @@ Rectangle {
     color: {
         if (root.selected)
             return Theme.backgroundSelected;
+        if (root.highlighted)
+            return Theme.backgroundHighlighted;
         if (root.alternate)
             return Theme.backgroundAlt;
         return Theme.background;
