@@ -17,6 +17,14 @@ ApplicationWindow {
         Menu {
             title: qsTr("&File")
             Action {
+                text: qsTr("&New...")
+                shortcut: StandardKey.New
+                onTriggered: {
+                    budgetData.clear();
+                    budgetData.currentFilePath = "";
+                }
+            }
+            Action {
                 text: qsTr("&Open...")
                 shortcut: StandardKey.Open
                 onTriggered: openDialog.open()
@@ -24,8 +32,13 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Save")
                 shortcut: StandardKey.Save
-                enabled: budgetData.currentFilePath.length > 0
-                onTriggered: budgetData.saveToYaml(budgetData.currentFilePath)
+                onTriggered: {
+                    if (budgetData.currentFilePath.length > 0) {
+                        budgetData.saveToYaml(budgetData.currentFilePath);
+                    } else {
+                        saveDialog.open();
+                    }
+                }
             }
             Action {
                 text: qsTr("&Save As...")

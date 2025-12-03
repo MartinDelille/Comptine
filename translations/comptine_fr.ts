@@ -8,6 +8,10 @@
         <translation>Fichier</translation>
     </message>
     <message>
+        <source>&amp;New...</source>
+        <translation>Nouveau...</translation>
+    </message>
+    <message>
         <source>&amp;Open...</source>
         <translation>Ouvrir...</translation>
     </message>

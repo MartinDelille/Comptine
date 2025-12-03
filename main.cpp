@@ -80,12 +80,15 @@ int main(int argc, char *argv[]) {
                      loadUiState();
                    });
 
-  // Save last file when currentFilePath changes (e.g., Save As)
+  // Save or clear last file when currentFilePath changes (e.g., Save As or File > New)
   QObject::connect(&budgetData, &BudgetData::currentFilePathChanged,
                    [&settings, &budgetData]() {
                      if (!budgetData.currentFilePath().isEmpty()) {
                        settings.setValue("lastFile",
                                          budgetData.currentFilePath());
+                     } else {
+                       // Clear lastFile when File > New is used
+                       settings.remove("lastFile");
                      }
                    });
 
