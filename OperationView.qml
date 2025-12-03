@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 ColumnLayout {
     id: root
+    objectName: "OperationView"
     spacing: Theme.spacingNormal
 
     RowLayout {

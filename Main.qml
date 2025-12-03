@@ -174,6 +174,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             currentIndex: budgetData.currentTabIndex
             onCurrentIndexChanged: budgetData.currentTabIndex = currentIndex
+            focusPolicy: Qt.NoFocus  // Prevent tab bar from stealing focus
 
             background: Rectangle {
                 color: Theme.surface
@@ -181,9 +182,11 @@ ApplicationWindow {
 
             TabButton {
                 text: qsTr("Operations")
+                focusPolicy: Qt.NoFocus
             }
             TabButton {
                 text: qsTr("Budget")
+                focusPolicy: Qt.NoFocus
             }
         }
 
