@@ -42,3 +42,7 @@ When done, you can run the application as shown above to show the progress.
 - **Strings**: Use `qsTr()` for translatable text
 - **Translations**: When adding new `qsTr()` strings, update all translation files in `translations/` with appropriate translations
 - **Formatting**: 4-space indentation, prefer named properties over property bindings where possible
+
+## Testing Guidelines
+
+- **Fake Data**: When creating unit tests, always use fake/fictional data instead of real personal information. Replace names, account numbers, references, and other identifiable data with obviously fictional equivalents (e.g., "NICK LARSONO" instead of real names, "9876543XY0012345" instead of real reference numbers).

@@ -106,3 +106,13 @@ install(
   BUNDLE DESTINATION .
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Unit tests
+enable_testing()
+find_package(Qt6 REQUIRED COMPONENTS Test)
+qt_add_executable(CsvParserTest
+  tests/CsvParserTest.cpp
+  CsvParser.h
+)
+target_link_libraries(CsvParserTest PRIVATE Qt6::Core Qt6::Test)
+add_test(NAME CsvParserTest COMMAND CsvParserTest)

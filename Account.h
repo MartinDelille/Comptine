@@ -10,12 +10,11 @@
 class Account : public QObject {
   Q_OBJECT
   PROPERTY_RW(QString, name, QString())
-  PROPERTY_RW(double, balance, 0.0)
   PROPERTY_RO(int, operationCount)
 
 public:
   explicit Account(QObject *parent = nullptr);
-  Account(const QString &name, double balance, QObject *parent = nullptr);
+  explicit Account(const QString &name, QObject *parent = nullptr);
 
   QList<Operation *> operations() const;
 

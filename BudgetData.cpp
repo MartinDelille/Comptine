@@ -5,10 +5,13 @@
 #include <c4/format.hpp>
 
 #include "BudgetData.h"
+#include "CsvParser.h"
 #include <QDate>
 #include <QDebug>
 #include <QFile>
 #include <QTextStream>
+
+using namespace CsvParser;
 
 BudgetData::BudgetData(QObject *parent)
     : QObject(parent) {
@@ -106,9 +109,9 @@ double BudgetData::balanceAtIndex(int index) const {
     return 0.0;
   }
 
-  // Start with account balance and subtract operations from 0 to index-1
-  // Operations are sorted from most recent to oldest
-  double balance = account->balance();
+  // Operations are sorted from most recent (index 0) to oldest (index n-1)
+  // Balance = sum of all operations from oldest up to and including this one
+  double balance = 0.0;
   for (int i = account->operationCount() - 1; i >= index; --i) {
     Operation *op = account->getOperation(i);
     if (op) {
@@ -229,7 +232,6 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
     ryml::NodeRef acc = accounts.append_child();
     acc |= ryml::MAP;
     acc["name"] << toStdString(account->name());
-    acc["balance"] << account->balance();
 
     ryml::NodeRef operations = acc["operations"];
     operations |= ryml::SEQ;
@@ -284,14 +286,12 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
       for (ryml::ConstNodeRef cat : root["categories"]) {
         auto category = new Category(this);
         if (cat.has_child("name")) {
-          std::string name;
-          cat["name"] >> name;
-          category->set_name(QString::fromStdString(name));
+          auto val = cat["name"].val();
+          category->set_name(QString::fromUtf8(val.str, val.len));
         }
         if (cat.has_child("budget_limit")) {
-          double limit;
-          cat["budget_limit"] >> limit;
-          category->set_budgetLimit(limit);
+          auto val = cat["budget_limit"].val();
+          category->set_budgetLimit(QString::fromUtf8(val.str, val.len).toDouble());
         }
         _categories.append(category);
       }
@@ -302,37 +302,28 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
       for (ryml::ConstNodeRef acc : root["accounts"]) {
         auto account = new Account(this);
         if (acc.has_child("name")) {
-          std::string name;
-          acc["name"] >> name;
-          account->set_name(QString::fromStdString(name));
+          auto val = acc["name"].val();
+          account->set_name(QString::fromUtf8(val.str, val.len));
         }
-        if (acc.has_child("balance")) {
-          double balance;
-          acc["balance"] >> balance;
-          account->set_balance(balance);
-        }
+        // Note: balance field is ignored - balance is calculated from operations
         if (acc.has_child("operations")) {
           for (ryml::ConstNodeRef opNode : acc["operations"]) {
             auto op = new Operation(account);
             if (opNode.has_child("date")) {
-              std::string dateStr;
-              opNode["date"] >> dateStr;
-              op->set_date(QDate::fromString(QString::fromStdString(dateStr), "yyyy-MM-dd"));
+              auto val = opNode["date"].val();
+              op->set_date(QDate::fromString(QString::fromUtf8(val.str, val.len), "yyyy-MM-dd"));
             }
             if (opNode.has_child("amount")) {
-              double amount;
-              opNode["amount"] >> amount;
-              op->set_amount(amount);
+              auto val = opNode["amount"].val();
+              op->set_amount(QString::fromUtf8(val.str, val.len).toDouble());
             }
             if (opNode.has_child("category")) {
-              std::string category;
-              opNode["category"] >> category;
-              op->set_category(QString::fromStdString(category));
+              auto val = opNode["category"].val();
+              op->set_category(QString::fromUtf8(val.str, val.len));
             }
             if (opNode.has_child("description")) {
-              std::string description;
-              opNode["description"] >> description;
-              op->set_description(QString::fromStdString(description));
+              auto val = opNode["description"].val();
+              op->set_description(QString::fromUtf8(val.str, val.len));
             }
             account->addOperation(op);
           }
@@ -377,79 +368,148 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   QString name = accountName.isEmpty() ? "Imported Account" : accountName;
   Account *account = getAccountByName(name);
   if (!account) {
-    account = new Account(name, 0.0, this);
+    account = new Account(name, this);
     _accounts.append(account);
   }
 
   QTextStream in(&file);
-  // Set encoding to Latin1 (ISO-8859-1) for French bank CSV files
-  in.setEncoding(QStringConverter::Latin1);
+  // Default to UTF-8 for reading header (most modern files use UTF-8)
+  in.setEncoding(QStringConverter::Utf8);
 
-  // Skip header line
-  if (!in.atEnd()) {
-    QString header = in.readLine();
-    qDebug() << "Header:" << header;
+  // Read header line to detect format
+  if (in.atEnd()) {
+    qDebug() << "Empty CSV file";
+    file.close();
+    return false;
+  }
+
+  QString headerLine = in.readLine();
+  qDebug() << "Header:" << headerLine;
+
+  // Auto-detect delimiter: if header contains semicolons, use semicolon; otherwise use comma
+  QChar delimiter = headerLine.contains(';') ? ';' : ',';
+  qDebug() << "Detected delimiter:" << delimiter;
+
+  // Adjust encoding for remaining lines based on format
+  // Semicolon-separated files from French banks typically use Latin1
+  if (delimiter == ';') {
+    in.setEncoding(QStringConverter::Latin1);
+  }
+
+  // Parse header to detect column indices
+  QStringList headerFields = parseCsvLine(headerLine, delimiter);
+  CsvFieldIndices idx = parseHeader(headerFields);
+
+  // Log detected columns
+  qDebug() << "Detected columns:";
+  qDebug() << "  date:" << idx.date;
+  qDebug() << "  description:" << idx.description;
+  qDebug() << "  category:" << idx.category;
+  qDebug() << "  subCategory:" << idx.subCategory;
+  qDebug() << "  debit:" << idx.debit;
+  qDebug() << "  credit:" << idx.credit;
+  qDebug() << "  amount:" << idx.amount;
+
+  // Validate required columns
+  if (!idx.isValid()) {
+    qDebug() << "Invalid CSV format: missing required columns (date, description, and debit/credit/amount)";
+    qDebug() << "Available headers:";
+    for (int i = 0; i < headerFields.size(); i++) {
+      qDebug() << "  [" << i << "]" << headerFields[i];
+    }
+    file.close();
+    return false;
   }
 
   int importCount = 0;
+  int skippedCount = 0;
   double totalBalance = 0.0;
   Operation *lastImportedOperation = nullptr;
 
   while (!in.atEnd()) {
     QString line = in.readLine();
-    QStringList fields = line.split(';');
 
-    if (fields.size() >= 13) {
-      // Parse date (field 0: accounting date)
-      QDate date = QDate::fromString(fields[0].trimmed(), "dd/MM/yyyy");
+    // Skip empty lines
+    if (isEmptyLine(line, delimiter)) {
+      continue;
+    }
 
-      // Parse amount (field 8: debit, field 9: credit)
-      QString debitStr = fields[8].trimmed().replace(',', '.');
-      QString creditStr = fields[9].trimmed().replace('+', "").replace(',', '.');
+    QStringList fields = parseCsvLine(line, delimiter);
 
-      double amount = 0.0;
+    // Parse date (required)
+    QDate date = QDate::fromString(getField(fields, idx.date), "dd/MM/yyyy");
+    if (!date.isValid()) {
+      qDebug() << "Skipping row with invalid date:" << getField(fields, idx.date);
+      skippedCount++;
+      continue;
+    }
+
+    // Parse amount (required - from debit, credit, or amount column)
+    double amount = 0.0;
+    if (idx.amount >= 0) {
+      QString amountStr = getField(fields, idx.amount);
+      qDebug() << "  Amount string from Montant column:" << amountStr;
+      if (!amountStr.isEmpty()) {
+        amount = parseAmount(amountStr);
+        qDebug() << "  Parsed amount:" << amount;
+      }
+    } else {
+      QString debitStr = getField(fields, idx.debit);
+      QString creditStr = getField(fields, idx.credit);
+      qDebug() << "  Debit:" << debitStr << "Credit:" << creditStr;
       if (!debitStr.isEmpty()) {
-        amount = debitStr.toDouble(); // Already negative
+        amount = parseAmount(debitStr);
       } else if (!creditStr.isEmpty()) {
-        amount = creditStr.toDouble();
+        amount = parseAmount(creditStr);
       }
+      qDebug() << "  Parsed amount:" << amount;
+    }
 
-      // Parse description (field 1: simplified label)
-      QString description = fields[1].trimmed();
+    // Parse description (required)
+    QString description = getField(fields, idx.description);
+    if (description.isEmpty()) {
+      qDebug() << "Skipping row with empty description";
+      skippedCount++;
+      continue;
+    }
 
-      // Skip duplicate operations
-      if (account->hasOperation(date, amount, description)) {
-        continue;
-      }
+    // Skip duplicate operations
+    if (account->hasOperation(date, amount, description)) {
+      continue;
+    }
 
-      Operation *operation = new Operation(account);
-      operation->set_date(date);
-      operation->set_amount(amount);
-      operation->set_description(description);
-      totalBalance += amount;
+    // Parse category (optional - prefer sub-category if available)
+    QString category = getField(fields, idx.subCategory);
+    if (category.isEmpty()) {
+      category = getField(fields, idx.category);
+    }
 
-      // Parse category (field 6: category, field 7: sub-category)
-      QString category = fields[6].trimmed();
-      QString subCategory = fields[7].trimmed();
-      if (!subCategory.isEmpty()) {
-        category = subCategory; // Use sub-category as more specific
-      }
-      operation->set_category(category);
+    // Create operation
+    Operation *operation = new Operation(account);
+    operation->set_date(date);
+    operation->set_amount(amount);
+    operation->set_description(description);
+    operation->set_category(category);
+    totalBalance += amount;
 
-      account->addOperation(operation);
-      importCount++;
+    account->addOperation(operation);
+    importCount++;
 
-      // Track the most recent imported operation
-      if (!lastImportedOperation || operation->date() > lastImportedOperation->date()) {
-        lastImportedOperation = operation;
-      }
+    // Track the most recent imported operation
+    if (!lastImportedOperation || operation->date() > lastImportedOperation->date()) {
+      lastImportedOperation = operation;
     }
   }
 
   file.close();
 
-  // Update account balance
-  account->set_balance(totalBalance);
+  qDebug() << "Import complete:";
+  qDebug() << "  Imported:" << importCount << "operations";
+  qDebug() << "  Skipped:" << skippedCount << "rows";
+  qDebug() << "  Total balance delta:" << totalBalance;
+
+  // Note: We preserve the account balance from the YAML file.
+  // The balance represents the current balance after all operations.
 
   // Set as current account
   int accountIndex = _accounts.indexOf(account);
@@ -471,9 +531,6 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   }
 
   emit dataLoaded();
-
-  qDebug() << "Imported" << importCount << "operations";
-  qDebug() << "Total balance:" << totalBalance;
 
   return true;
 }

@@ -2,8 +2,8 @@
 
 Account::Account(QObject *parent) : QObject(parent) {}
 
-Account::Account(const QString &name, double balance, QObject *parent)
-    : QObject(parent), _name(name), _balance(balance) {}
+Account::Account(const QString &name, QObject *parent)
+    : QObject(parent), _name(name) {}
 
 int Account::operationCount() const {
   return _operations.size();
