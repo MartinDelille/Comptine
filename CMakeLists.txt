@@ -32,6 +32,10 @@ qt_add_executable(Comptine
   Category.cpp
   BudgetData.h
   BudgetData.cpp
+  OperationListModel.h
+  OperationListModel.cpp
+  AccountListModel.h
+  AccountListModel.cpp
   AppSettings.h
   AppSettings.cpp
 )

@@ -45,8 +45,6 @@ int main(int argc, char *argv[]) {
   auto loadUiState = [&settings, &budgetData]() {
     budgetData.set_currentAccountIndex(
         settings.value("ui/currentAccount", 0).toInt());
-    budgetData.set_selectedOperationIndex(
-        settings.value("ui/selectedOperation", 0).toInt());
     budgetData.set_currentTabIndex(settings.value("ui/currentTab", 0).toInt());
     budgetData.set_budgetYear(
         settings.value("ui/budgetYear", QDate::currentDate().year()).toInt());
@@ -57,8 +55,6 @@ int main(int argc, char *argv[]) {
   // Save UI state to settings
   auto saveUiState = [&settings, &budgetData]() {
     settings.setValue("ui/currentAccount", budgetData.currentAccountIndex());
-    settings.setValue("ui/selectedOperation",
-                      budgetData.selectedOperationIndex());
     settings.setValue("ui/currentTab", budgetData.currentTabIndex());
     settings.setValue("ui/budgetYear", budgetData.budgetYear());
     settings.setValue("ui/budgetMonth", budgetData.budgetMonth());

@@ -14,25 +14,27 @@ ColumnLayout {
         ComboBox {
             id: accountSelector
             Layout.preferredWidth: 200
-            model: budgetData.accountCount
+            model: budgetData.accountModel
+            textRole: "name"
+            currentIndex: budgetData.currentAccountIndex
+            enabled: budgetData.accountCount > 0
             displayText: budgetData.currentAccount?.name ?? qsTr("No account")
-            onCurrentIndexChanged: {
-                if (currentIndex >= 0) {
-                    budgetData.currentAccountIndex = currentIndex;
-                }
+            onActivated: {
+                budgetData.currentAccountIndex = currentIndex;
             }
             delegate: ItemDelegate {
                 required property int index
+                required property string name
                 width: accountSelector.width
-                text: budgetData.getAccount(index)?.name ?? ""
+                text: name
                 highlighted: accountSelector.highlightedIndex === index
             }
         }
 
         BalanceHeader {
             Layout.fillWidth: true
-            balance: budgetData.operationCount > 0 ? budgetData.balanceAtIndex(0) : 0
-            operationCount: budgetData.operationCount
+            balance: budgetData.operationModel.count > 0 ? budgetData.operationModel.data(budgetData.operationModel.index(0, 0), 261) : 0
+            operationCount: budgetData.operationModel.count
         }
     }
 
@@ -45,14 +47,12 @@ ColumnLayout {
             id: operationList
             Layout.fillWidth: true
             Layout.fillHeight: true
-            model: budgetData.operationCount
         }
 
         OperationDetails {
             Layout.preferredWidth: 300
             Layout.fillHeight: true
-            operation: operationList.currentIndex >= 0 ? budgetData.getOperation(operationList.currentIndex) : null
-            balance: operationList.currentIndex >= 0 ? budgetData.balanceAtIndex(operationList.currentIndex) : 0
+            currentIndex: operationList.currentIndex
         }
     }
 }

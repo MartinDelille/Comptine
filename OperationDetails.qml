@@ -5,11 +5,14 @@ import QtQuick.Layouts
 Rectangle {
     id: root
 
-    required property var operation
-    required property double balance
+    required property int currentIndex
+
+    // Get operation and balance from the model
+    readonly property var operation: currentIndex >= 0 ? budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 263) : null
+    readonly property double balance: currentIndex >= 0 ? budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 261) : 0
 
     // Multi-selection state
-    readonly property bool multipleSelected: budgetData.selectionCount > 1
+    readonly property bool multipleSelected: budgetData.operationModel.selectionCount > 1
 
     radius: Theme.cardRadius
     border.width: Theme.cardBorderWidth
@@ -49,7 +52,7 @@ Rectangle {
 
             Label {
                 Layout.fillWidth: true
-                text: qsTr("%n operation(s)", "", budgetData.selectionCount)
+                text: qsTr("%n operation(s)", "", budgetData.operationModel.selectionCount)
                 font.pixelSize: Theme.fontSizeNormal
                 color: Theme.textPrimary
             }
@@ -64,10 +67,10 @@ Rectangle {
 
             Label {
                 Layout.fillWidth: true
-                text: Theme.formatAmount(budgetData.selectedOperationsTotal())
+                text: Theme.formatAmount(budgetData.operationModel.selectedTotal)
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
-                color: Theme.amountColor(budgetData.selectedOperationsTotal())
+                color: Theme.amountColor(budgetData.operationModel.selectedTotal)
             }
         }
 

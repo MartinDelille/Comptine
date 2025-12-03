@@ -5,7 +5,9 @@
 #include <c4/format.hpp>
 
 #include "BudgetData.h"
+#include "AccountListModel.h"
 #include "CsvParser.h"
+#include "OperationListModel.h"
 #include <QClipboard>
 #include <QDate>
 #include <QDebug>
@@ -16,7 +18,10 @@
 using namespace CsvParser;
 
 BudgetData::BudgetData(QObject *parent)
-    : QObject(parent) {
+    : QObject(parent),
+      _operationModel(new OperationListModel(this)),
+      _accountModel(new AccountListModel(this)) {
+  _accountModel->setAccounts(&_accounts);
 }
 
 BudgetData::~BudgetData() {
@@ -69,9 +74,11 @@ void BudgetData::removeAccount(int index) {
 }
 
 void BudgetData::clearAccounts() {
+  _operationModel->setAccount(nullptr);
+  _currentAccountIndex = -1;
   qDeleteAll(_accounts);
   _accounts.clear();
-  _currentAccountIndex = -1;
+  _accountModel->refresh();
   emit accountCountChanged();
   emit currentAccountIndexChanged();
   emit currentAccountChanged();
@@ -88,39 +95,10 @@ int BudgetData::currentAccountIndex() const {
 void BudgetData::set_currentAccountIndex(int index) {
   if (index != _currentAccountIndex && index >= -1 && index < _accounts.size()) {
     _currentAccountIndex = index;
-    clearSelection(); // Clear selection when switching accounts
+    _operationModel->setAccount(currentAccount());
     emit currentAccountIndexChanged();
     emit currentAccountChanged();
-    emit operationCountChanged();
   }
-}
-
-int BudgetData::operationCount() const {
-  Account *account = currentAccount();
-  return account ? account->operationCount() : 0;
-}
-
-Operation *BudgetData::getOperation(int index) const {
-  Account *account = currentAccount();
-  return account ? account->getOperation(index) : nullptr;
-}
-
-double BudgetData::balanceAtIndex(int index) const {
-  Account *account = currentAccount();
-  if (!account || index < 0 || index >= account->operationCount()) {
-    return 0.0;
-  }
-
-  // Operations are sorted from most recent (index 0) to oldest (index n-1)
-  // Balance = sum of all operations from oldest up to and including this one
-  double balance = 0.0;
-  for (int i = account->operationCount() - 1; i >= index; --i) {
-    Operation *op = account->getOperation(i);
-    if (op) {
-      balance += op->amount();
-    }
-  }
-  return balance;
 }
 
 int BudgetData::categoryCount() const {
@@ -338,14 +316,17 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
     return false;
   }
 
+  // Refresh account model first so QML bindings see the accounts
+  _accountModel->refresh();
+  emit accountCountChanged();
+  emit categoryCountChanged();
+
   // Set first account as current
   if (!_accounts.isEmpty()) {
     set_currentAccountIndex(0);
   }
 
   set_currentFilePath(filePath);
-  emit accountCountChanged();
-  emit categoryCountChanged();
   emit dataLoaded();
   qDebug() << "Budget data loaded from:" << filePath;
   qDebug() << "  Accounts:" << _accounts.size();
@@ -356,9 +337,6 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
 
 bool BudgetData::importFromCsv(const QString &filePath, const QString &accountName) {
   qDebug() << "Importing CSV from:" << filePath;
-
-  // Clear selection when importing new data
-  clearSelection();
 
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -520,13 +498,13 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   }
 
   emit accountCountChanged();
-  emit operationCountChanged();
+  _accountModel->refresh();
 
   // Select the last imported operation (most recent one)
   if (lastImportedOperation) {
     for (int i = 0; i < account->operationCount(); i++) {
       if (account->getOperation(i) == lastImportedOperation) {
-        selectOperation(i, false);
+        _operationModel->select(i, false);
         break;
       }
     }
@@ -537,170 +515,9 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   return true;
 }
 
-// Multi-selection implementation
-
-bool BudgetData::isOperationSelected(int index) const {
-  return _selectedOperations.contains(index);
-}
-
-void BudgetData::selectOperation(int index, bool extend) {
-  if (index < 0 || index >= operationCount()) {
-    return;
-  }
-
-  bool changed = false;
-
-  if (!extend) {
-    // Single selection: clear all and select just this one
-    if (_selectedOperations.size() != 1 || !_selectedOperations.contains(index)) {
-      _selectedOperations.clear();
-      _selectedOperations.insert(index);
-      changed = true;
-    }
-  } else {
-    // Extend selection: add to existing selection
-    if (!_selectedOperations.contains(index)) {
-      _selectedOperations.insert(index);
-      changed = true;
-    }
-  }
-
-  _lastClickedIndex = index;
-
-  // Also update the single selectedOperationIndex for compatibility
-  set_selectedOperationIndex(index);
-
-  if (changed) {
-    emit selectedOperationsChanged();
-  }
-}
-
-void BudgetData::toggleOperationSelection(int index) {
-  if (index < 0 || index >= operationCount()) {
-    return;
-  }
-
-  if (_selectedOperations.contains(index)) {
-    _selectedOperations.remove(index);
-  } else {
-    _selectedOperations.insert(index);
-  }
-
-  _lastClickedIndex = index;
-
-  // Update selectedOperationIndex to the toggled item
-  set_selectedOperationIndex(index);
-
-  emit selectedOperationsChanged();
-}
-
-void BudgetData::selectRange(int fromIndex, int toIndex) {
-  if (fromIndex < 0) {
-    fromIndex = 0;
-  }
-  if (toIndex < 0) {
-    toIndex = 0;
-  }
-
-  int maxIndex = operationCount() - 1;
-  if (fromIndex > maxIndex) {
-    fromIndex = maxIndex;
-  }
-  if (toIndex > maxIndex) {
-    toIndex = maxIndex;
-  }
-
-  if (fromIndex < 0 || toIndex < 0) {
-    return; // No operations
-  }
-
-  int start = qMin(fromIndex, toIndex);
-  int end = qMax(fromIndex, toIndex);
-
-  // Add all indices in range to selection
-  for (int i = start; i <= end; ++i) {
-    _selectedOperations.insert(i);
-  }
-
-  _lastClickedIndex = toIndex;
-  set_selectedOperationIndex(toIndex);
-
-  emit selectedOperationsChanged();
-}
-
-void BudgetData::clearSelection() {
-  if (!_selectedOperations.isEmpty()) {
-    _selectedOperations.clear();
-    _lastClickedIndex = -1;
-    emit selectedOperationsChanged();
-  }
-}
-
-int BudgetData::selectionCount() const {
-  return _selectedOperations.size();
-}
-
-double BudgetData::selectedOperationsTotal() const {
-  double total = 0.0;
-  Account *account = currentAccount();
-  if (!account) {
-    return total;
-  }
-
-  for (int index : _selectedOperations) {
-    Operation *op = account->getOperation(index);
-    if (op) {
-      total += op->amount();
-    }
-  }
-  return total;
-}
-
 void BudgetData::copySelectedOperationsToClipboard() const {
-  Account *account = currentAccount();
-  if (!account || _selectedOperations.isEmpty()) {
-    return;
+  QString csv = _operationModel->selectedOperationsAsCsv();
+  if (!csv.isEmpty()) {
+    QGuiApplication::clipboard()->setText(csv);
   }
-
-  // Build CSV content with header
-  QString csv;
-  csv += "Date,Description,Category,Amount,Balance\n";
-
-  // Sort indices for consistent output
-  QList<int> sortedIndices = _selectedOperations.values();
-  std::sort(sortedIndices.begin(), sortedIndices.end());
-
-  for (int index : sortedIndices) {
-    Operation *op = account->getOperation(index);
-    if (op) {
-      // Escape fields that might contain commas or quotes
-      QString description = op->description();
-      QString category = op->category();
-
-      // Escape quotes by doubling them
-      description.replace("\"", "\"\"");
-      category.replace("\"", "\"\"");
-
-      // Quote fields that contain commas, quotes, or newlines
-      if (description.contains(',') || description.contains('"') || description.contains('\n')) {
-        description = "\"" + description + "\"";
-      }
-      if (category.contains(',') || category.contains('"') || category.contains('\n')) {
-        category = "\"" + category + "\"";
-      }
-
-      // Format amount and balance with period as decimal separator (standard CSV format)
-      QString amount = QString::number(op->amount(), 'f', 2);
-      QString balance = QString::number(balanceAtIndex(index), 'f', 2);
-
-      csv += op->date().toString("dd/MM/yyyy") + ","
-           + description + ","
-           + category + ","
-           + amount + ","
-           + balance + "\n";
-    }
-  }
-
-  // Copy to clipboard
-  QGuiApplication::clipboard()->setText(csv);
 }

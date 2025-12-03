@@ -10,16 +10,32 @@ Dialog {
 
     property string filePath: ""
 
+    // Use a separate model with "New account" option enabled
+    property var importAccountModel: null
+
+    Component.onCompleted: {
+        // Create a model with includeNewAccountOption enabled
+        // This is done once since accountModel from budgetData doesn't have this option
+    }
+
     onOpened: {
+        // Enable "New account" option
+        budgetData.accountModel.includeNewAccountOption = true;
         // Default to "New account" (last item in the list)
-        accountComboBox.currentIndex = budgetData.accountCount;
+        accountComboBox.currentIndex = budgetData.accountModel.count - 1;
+    }
+
+    onClosed: {
+        // Disable "New account" option when dialog closes
+        budgetData.accountModel.includeNewAccountOption = false;
     }
 
     onAccepted: {
         var accountName = "";
-        // If not the last item ("New account"), use existing account name
-        if (accountComboBox.currentIndex >= 0 && accountComboBox.currentIndex < budgetData.accountCount) {
-            accountName = budgetData.getAccount(accountComboBox.currentIndex)?.name ?? "";
+        // If not the "New account" option, use existing account name
+        if (!budgetData.accountModel.isNewAccountOption(accountComboBox.currentIndex)) {
+            var account = budgetData.getAccount(accountComboBox.currentIndex);
+            accountName = account ? account.name : "";
         }
         // Empty accountName will create a new account in importFromCsv
         budgetData.importFromCsv(filePath, accountName);
@@ -38,19 +54,20 @@ Dialog {
             id: accountComboBox
             Layout.fillWidth: true
             Layout.preferredWidth: 250
-            // +1 for "New account" option at the end
-            model: budgetData.accountCount + 1
-            displayText: {
-                if (currentIndex >= 0 && currentIndex < budgetData.accountCount) {
-                    return budgetData.getAccount(currentIndex)?.name ?? qsTr("New account");
-                }
-                return qsTr("New account");
-            }
+            model: budgetData.accountModel
+            textRole: "name"
             delegate: ItemDelegate {
                 required property int index
+                required property string name
                 width: accountComboBox.width
-                text: index < budgetData.accountCount ? (budgetData.getAccount(index)?.name ?? "") : qsTr("New account")
+                text: budgetData.accountModel.isNewAccountOption(index) ? qsTr("New account") : name
                 highlighted: accountComboBox.highlightedIndex === index
+            }
+            displayText: {
+                if (budgetData.accountModel.isNewAccountOption(currentIndex)) {
+                    return qsTr("New account");
+                }
+                return budgetData.getAccount(currentIndex)?.name ?? qsTr("New account");
             }
         }
     }

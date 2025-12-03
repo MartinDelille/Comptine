@@ -15,9 +15,7 @@ FocusScope {
     ListView {
         id: listView
         anchors.fill: parent
-
-        // Track selection changes to force delegate updates
-        property int selectionVersion: 0
+        model: budgetData.operationModel
 
         clip: true
         boundsBehavior: Flickable.StopAtBounds
@@ -25,33 +23,16 @@ FocusScope {
         keyNavigationEnabled: false  // We handle key navigation ourselves
         highlightFollowsCurrentItem: false  // Don't auto-scroll highlight
 
-        // Restore position when data is loaded or operations change
+        // Restore focus when data is loaded
         Connections {
             target: budgetData
             function onDataLoaded() {
-                listView.currentIndex = budgetData.selectedOperationIndex;
-                if (listView.currentIndex >= 0 && listView.currentIndex < listView.count) {
-                    listView.positionViewAtIndex(listView.currentIndex, ListView.Center);
+                if (listView.count > 0) {
+                    listView.currentIndex = 0;
+                    budgetData.operationModel.select(0, false);
+                    listView.positionViewAtIndex(0, ListView.Beginning);
                 }
-                listView.forceActiveFocus();  // Ensure ListView has focus after loading
-            }
-            function onOperationCountChanged() {
-                listView.currentIndex = budgetData.selectedOperationIndex;
-                if (listView.currentIndex >= 0 && listView.currentIndex < listView.count) {
-                    listView.positionViewAtIndex(listView.currentIndex, ListView.Center);
-                }
-            }
-            function onSelectedOperationIndexChanged() {
-                if (listView.currentIndex !== budgetData.selectedOperationIndex) {
-                    listView.currentIndex = budgetData.selectedOperationIndex;
-                    if (listView.currentIndex >= 0 && listView.currentIndex < listView.count) {
-                        listView.positionViewAtIndex(listView.currentIndex, ListView.Center);
-                    }
-                }
-            }
-            function onSelectedOperationsChanged() {
-                // Increment version to trigger delegate rebinding
-                listView.selectionVersion++;
+                listView.forceActiveFocus();
             }
         }
 
@@ -60,10 +41,10 @@ FocusScope {
                 currentIndex--;
                 if (event.modifiers & Qt.ShiftModifier) {
                     // Shift+Up: extend selection
-                    budgetData.selectOperation(currentIndex, true);
+                    budgetData.operationModel.select(currentIndex, true);
                 } else {
                     // Plain Up: single selection
-                    budgetData.selectOperation(currentIndex, false);
+                    budgetData.operationModel.select(currentIndex, false);
                 }
                 positionViewAtIndex(currentIndex, ListView.Contain);
             }
@@ -74,10 +55,10 @@ FocusScope {
                 currentIndex++;
                 if (event.modifiers & Qt.ShiftModifier) {
                     // Shift+Down: extend selection
-                    budgetData.selectOperation(currentIndex, true);
+                    budgetData.operationModel.select(currentIndex, true);
                 } else {
                     // Plain Down: single selection
-                    budgetData.selectOperation(currentIndex, false);
+                    budgetData.operationModel.select(currentIndex, false);
                 }
                 positionViewAtIndex(currentIndex, ListView.Contain);
             }
@@ -86,17 +67,18 @@ FocusScope {
         // Cmd+A to select all
         Keys.onPressed: event => {
             if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_A) {
-                budgetData.selectRange(0, count - 1);
+                budgetData.operationModel.selectRange(0, count - 1);
                 event.accepted = true;
             }
         }
 
         delegate: OperationDelegate {
             required property int index
+            required property var model
             width: listView.width - scrollBar.width
-            operation: budgetData.getOperation(index)
-            balance: budgetData.balanceAtIndex(index)
-            selected: listView.selectionVersion >= 0 && budgetData.isOperationSelected(index)
+            operation: model.operation
+            balance: model.balance
+            selected: model.selected
             focused: listView.activeFocus && listView.currentIndex === index
             alternate: index % 2 === 0
 
@@ -108,13 +90,13 @@ FocusScope {
 
                     if (mouse.modifiers & Qt.ControlModifier) {
                         // Cmd/Ctrl+click: toggle selection
-                        budgetData.toggleOperationSelection(parent.index);
+                        budgetData.operationModel.toggleSelection(parent.index);
                     } else if (mouse.modifiers & Qt.ShiftModifier) {
-                        // Shift+click: range selection from last clicked
-                        budgetData.selectRange(budgetData.selectedOperationIndex, parent.index);
+                        // Shift+click: range selection from current
+                        budgetData.operationModel.selectRange(listView.currentIndex, parent.index);
                     } else {
                         // Plain click: single selection (clear others)
-                        budgetData.selectOperation(parent.index, false);
+                        budgetData.operationModel.select(parent.index, false);
                     }
                 }
             }
@@ -128,5 +110,4 @@ FocusScope {
     // Expose properties for parent access
     property alias count: listView.count
     property alias currentIndex: listView.currentIndex
-    property alias model: listView.model
 }
