@@ -8,20 +8,18 @@ Rectangle {
     required property var operation
     required property double balance
     required property bool selected
+    required property bool focused
     required property bool alternate
-    required property bool highlighted
 
     width: parent ? parent.width : 0
     height: 50
     radius: 4
-    border.width: 1
-    border.color: Theme.border
+    border.width: root.focused ? 2 : 1
+    border.color: root.focused ? Theme.accent : Theme.border
 
     color: {
         if (root.selected)
             return Theme.backgroundSelected;
-        if (root.highlighted)
-            return Theme.backgroundHighlighted;
         if (root.alternate)
             return Theme.backgroundAlt;
         return Theme.background;

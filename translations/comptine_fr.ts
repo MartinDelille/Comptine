@@ -117,6 +117,25 @@ Importez et gérez vos données bancaires.</translation>
         <translation>Détails de l&apos;opération</translation>
     </message>
     <message>
+        <source>Multiple Operations</source>
+        <translation>Opérations multiples</translation>
+    </message>
+    <message>
+        <source>Selected:</source>
+        <translation>Sélectionnées :</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n operation(s)</source>
+        <translation>
+            <numerusform>%n opération</numerusform>
+            <numerusform>%n opérations</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Total Amount:</source>
+        <translation>Montant total :</translation>
+    </message>
+    <message>
         <source>Select an operation to view details</source>
         <translation>Sélectionnez une opération pour voir les détails</translation>
     </message>

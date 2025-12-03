@@ -83,6 +83,7 @@ int BudgetData::currentAccountIndex() const {
 void BudgetData::set_currentAccountIndex(int index) {
   if (index != _currentAccountIndex && index >= -1 && index < _accounts.size()) {
     _currentAccountIndex = index;
+    clearSelection(); // Clear selection when switching accounts
     emit currentAccountIndexChanged();
     emit currentAccountChanged();
     emit operationCountChanged();
@@ -363,6 +364,9 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
 bool BudgetData::importFromCsv(const QString &filePath, const QString &accountName) {
   qDebug() << "Importing CSV from:" << filePath;
 
+  // Clear selection when importing new data
+  clearSelection();
+
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     qDebug() << "Failed to open file:" << file.errorString();
@@ -456,11 +460,11 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   emit accountCountChanged();
   emit operationCountChanged();
 
-  // Highlight the last imported operation (most recent one)
+  // Select the last imported operation (most recent one)
   if (lastImportedOperation) {
     for (int i = 0; i < account->operationCount(); i++) {
       if (account->getOperation(i) == lastImportedOperation) {
-        set_lastImportedOperationIndex(i);
+        selectOperation(i, false);
         break;
       }
     }
@@ -472,4 +476,123 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   qDebug() << "Total balance:" << totalBalance;
 
   return true;
+}
+
+// Multi-selection implementation
+
+bool BudgetData::isOperationSelected(int index) const {
+  return _selectedOperations.contains(index);
+}
+
+void BudgetData::selectOperation(int index, bool extend) {
+  if (index < 0 || index >= operationCount()) {
+    return;
+  }
+
+  bool changed = false;
+
+  if (!extend) {
+    // Single selection: clear all and select just this one
+    if (_selectedOperations.size() != 1 || !_selectedOperations.contains(index)) {
+      _selectedOperations.clear();
+      _selectedOperations.insert(index);
+      changed = true;
+    }
+  } else {
+    // Extend selection: add to existing selection
+    if (!_selectedOperations.contains(index)) {
+      _selectedOperations.insert(index);
+      changed = true;
+    }
+  }
+
+  _lastClickedIndex = index;
+
+  // Also update the single selectedOperationIndex for compatibility
+  set_selectedOperationIndex(index);
+
+  if (changed) {
+    emit selectedOperationsChanged();
+  }
+}
+
+void BudgetData::toggleOperationSelection(int index) {
+  if (index < 0 || index >= operationCount()) {
+    return;
+  }
+
+  if (_selectedOperations.contains(index)) {
+    _selectedOperations.remove(index);
+  } else {
+    _selectedOperations.insert(index);
+  }
+
+  _lastClickedIndex = index;
+
+  // Update selectedOperationIndex to the toggled item
+  set_selectedOperationIndex(index);
+
+  emit selectedOperationsChanged();
+}
+
+void BudgetData::selectRange(int fromIndex, int toIndex) {
+  if (fromIndex < 0) {
+    fromIndex = 0;
+  }
+  if (toIndex < 0) {
+    toIndex = 0;
+  }
+
+  int maxIndex = operationCount() - 1;
+  if (fromIndex > maxIndex) {
+    fromIndex = maxIndex;
+  }
+  if (toIndex > maxIndex) {
+    toIndex = maxIndex;
+  }
+
+  if (fromIndex < 0 || toIndex < 0) {
+    return; // No operations
+  }
+
+  int start = qMin(fromIndex, toIndex);
+  int end = qMax(fromIndex, toIndex);
+
+  // Add all indices in range to selection
+  for (int i = start; i <= end; ++i) {
+    _selectedOperations.insert(i);
+  }
+
+  _lastClickedIndex = toIndex;
+  set_selectedOperationIndex(toIndex);
+
+  emit selectedOperationsChanged();
+}
+
+void BudgetData::clearSelection() {
+  if (!_selectedOperations.isEmpty()) {
+    _selectedOperations.clear();
+    _lastClickedIndex = -1;
+    emit selectedOperationsChanged();
+  }
+}
+
+int BudgetData::selectionCount() const {
+  return _selectedOperations.size();
+}
+
+double BudgetData::selectedOperationsTotal() const {
+  double total = 0.0;
+  Account *account = currentAccount();
+  if (!account) {
+    return total;
+  }
+
+  for (int index : _selectedOperations) {
+    Operation *op = account->getOperation(index);
+    if (op) {
+      total += op->amount();
+    }
+  }
+  return total;
 }

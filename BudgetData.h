@@ -5,6 +5,7 @@
 #include "PropertyMacros.h"
 #include <QList>
 #include <QObject>
+#include <QSet>
 #include <QString>
 #include <QVariant>
 
@@ -13,10 +14,12 @@ class BudgetData : public QObject {
 
   // UI state properties (macro-generated)
   PROPERTY_RW(int, selectedOperationIndex, 0)
-  PROPERTY_RW(int, lastImportedOperationIndex, -1)
   PROPERTY_RW(int, currentTabIndex, 0)
   PROPERTY_RW(int, budgetYear, 0)
   PROPERTY_RW(int, budgetMonth, 0)
+
+  // Multi-selection support
+  Q_PROPERTY(int selectionCount READ selectionCount NOTIFY selectedOperationsChanged)
 
   // Data properties (macro-generated)
   PROPERTY_RW(QString, currentFilePath, {})
@@ -66,11 +69,23 @@ public:
   // Clear all data
   Q_INVOKABLE void clear();
 
+  // Multi-selection management
+  Q_INVOKABLE bool isOperationSelected(int index) const;
+  Q_INVOKABLE void selectOperation(int index, bool extend = false);
+  Q_INVOKABLE void toggleOperationSelection(int index);
+  Q_INVOKABLE void selectRange(int fromIndex, int toIndex);
+  Q_INVOKABLE void clearSelection();
+  int selectionCount() const;
+  Q_INVOKABLE double selectedOperationsTotal() const;
+
 signals:
   void dataLoaded();
   void dataSaved();
+  void selectedOperationsChanged();
 
 private:
   QList<Account *> _accounts;
   QList<Category *> _categories;
+  QSet<int> _selectedOperations;
+  int _lastClickedIndex = -1;
 };

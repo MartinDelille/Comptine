@@ -8,6 +8,9 @@ Rectangle {
     required property var operation
     required property double balance
 
+    // Multi-selection state
+    readonly property bool multipleSelected: budgetData.selectionCount > 1
+
     radius: Theme.cardRadius
     border.width: Theme.cardBorderWidth
     border.color: Theme.border
@@ -19,7 +22,7 @@ Rectangle {
         spacing: Theme.spacingLarge
 
         Label {
-            text: qsTr("Operation Details")
+            text: root.multipleSelected ? qsTr("Multiple Operations") : qsTr("Operation Details")
             font.pixelSize: Theme.fontSizeLarge
             font.bold: true
             color: Theme.textPrimary
@@ -31,11 +34,49 @@ Rectangle {
             color: Theme.border
         }
 
+        // Multi-selection summary
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: Theme.spacingNormal
+            visible: root.multipleSelected
+
+            Label {
+                text: qsTr("Selected:")
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: Theme.textSecondary
+            }
+
+            Label {
+                Layout.fillWidth: true
+                text: qsTr("%n operation(s)", "", budgetData.selectionCount)
+                font.pixelSize: Theme.fontSizeNormal
+                color: Theme.textPrimary
+            }
+
+            Label {
+                text: qsTr("Total Amount:")
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: Theme.textSecondary
+                Layout.topMargin: Theme.spacingSmall
+            }
+
+            Label {
+                Layout.fillWidth: true
+                text: Theme.formatAmount(budgetData.selectedOperationsTotal())
+                font.pixelSize: Theme.fontSizeLarge
+                font.bold: true
+                color: Theme.amountColor(budgetData.selectedOperationsTotal())
+            }
+        }
+
+        // Single operation details
         GridLayout {
             Layout.fillWidth: true
             columns: 1
             rowSpacing: Theme.spacingNormal
-            visible: root.operation !== null
+            visible: root.operation !== null && !root.multipleSelected
 
             Label {
                 text: qsTr("Date:")
@@ -122,7 +163,7 @@ Rectangle {
         Label {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: root.operation === null ? qsTr("Select an operation to view details") : ""
+            text: root.operation === null && !root.multipleSelected ? qsTr("Select an operation to view details") : ""
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.textMuted
             horizontalAlignment: Text.AlignHCenter
