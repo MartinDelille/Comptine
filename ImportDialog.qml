@@ -21,8 +21,12 @@ Dialog {
     onOpened: {
         // Enable "New account" option
         budgetData.accountModel.includeNewAccountOption = true;
-        // Default to "New account" (last item in the list)
-        accountComboBox.currentIndex = budgetData.accountModel.count - 1;
+        // Default to current account, or "New account" if none selected
+        if (budgetData.currentAccountIndex >= 0) {
+            accountComboBox.currentIndex = budgetData.currentAccountIndex;
+        } else {
+            accountComboBox.currentIndex = budgetData.accountModel.count - 1;
+        }
     }
 
     onClosed: {

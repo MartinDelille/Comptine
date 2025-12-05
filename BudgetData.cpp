@@ -219,7 +219,7 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
       ryml::NodeRef opNode = operations.append_child();
       opNode |= ryml::MAP;
       opNode["date"] << toStdString(op->date().toString("yyyy-MM-dd"));
-      opNode["amount"] << op->amount();
+      opNode["amount"] << toStdString(QString::number(op->amount(), 'f', 2));
       opNode["category"] << toStdString(op->category());
       opNode["description"] << toStdString(op->description());
     }
