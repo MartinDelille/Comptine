@@ -39,6 +39,12 @@
 - **Category Tracking**: Track spending by category with budget limits
 - **Month Navigation**: Navigate between months to view historical data
 
+## Undo/Redo
+
+- **Undo**: Undo the last action (Edit > Undo or Cmd+Z)
+- **Redo**: Redo the last undone action (Edit > Redo or Cmd+Shift+Z)
+- **Supported Actions**: Account rename, CSV import
+
 ## User Interface
 
 - **Tabs**: Switch between Operations view and Budget view

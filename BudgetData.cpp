@@ -8,6 +8,7 @@
 #include "AccountListModel.h"
 #include "CsvParser.h"
 #include "OperationListModel.h"
+#include "UndoCommands.h"
 #include <QClipboard>
 #include <QDate>
 #include <QDebug>
@@ -20,7 +21,8 @@ using namespace CsvParser;
 BudgetData::BudgetData(QObject *parent)
     : QObject(parent),
       _operationModel(new OperationListModel(this)),
-      _accountModel(new AccountListModel(this)) {
+      _accountModel(new AccountListModel(this)),
+      _undoStack(new QUndoStack(this)) {
   _accountModel->setAccounts(&_accounts);
 }
 
@@ -54,9 +56,9 @@ Account *BudgetData::getAccountByName(const QString &name) const {
 
 void BudgetData::renameCurrentAccount(const QString &newName) {
   Account *account = currentAccount();
-  if (account && !newName.isEmpty()) {
-    account->set_name(newName);
-    _accountModel->refresh();
+  if (account && !newName.isEmpty() && account->name() != newName) {
+    _undoStack->push(new RenameAccountCommand(account, _accountModel,
+                                               account->name(), newName));
     emit currentAccountChanged();
   }
 }
@@ -356,6 +358,7 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   // Create or get account
   QString name = accountName.isEmpty() ? "Imported Account" : accountName;
   Account *account = getAccountByName(name);
+  bool isNewAccount = (account == nullptr);
   if (!account) {
     account = new Account(name, this);
     _accounts.append(account);
@@ -410,7 +413,7 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
     return false;
   }
 
-  int importCount = 0;
+  QList<Operation *> importedOperations;
   int skippedCount = 0;
   double totalBalance = 0.0;
   Operation *lastImportedOperation = nullptr;
@@ -481,8 +484,7 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
     operation->set_category(category);
     totalBalance += amount;
 
-    account->addOperation(operation);
-    importCount++;
+    importedOperations.append(operation);
 
     // Track the most recent imported operation
     if (!lastImportedOperation || operation->date() > lastImportedOperation->date()) {
@@ -493,12 +495,14 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   file.close();
 
   qDebug() << "Import complete:";
-  qDebug() << "  Imported:" << importCount << "operations";
+  qDebug() << "  Imported:" << importedOperations.size() << "operations";
   qDebug() << "  Skipped:" << skippedCount << "rows";
   qDebug() << "  Total balance delta:" << totalBalance;
 
-  // Note: We preserve the account balance from the YAML file.
-  // The balance represents the current balance after all operations.
+  // Add operations via undo command (if any were imported)
+  if (!importedOperations.isEmpty()) {
+    _undoStack->push(new ImportOperationsCommand(account, _operationModel, importedOperations));
+  }
 
   // Set as current account
   int accountIndex = _accounts.indexOf(account);
@@ -529,4 +533,12 @@ void BudgetData::copySelectedOperationsToClipboard() const {
   if (!csv.isEmpty()) {
     QGuiApplication::clipboard()->setText(csv);
   }
+}
+
+void BudgetData::undo() {
+  _undoStack->undo();
+}
+
+void BudgetData::redo() {
+  _undoStack->redo();
 }

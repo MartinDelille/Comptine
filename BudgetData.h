@@ -8,6 +8,7 @@
 #include <QList>
 #include <QObject>
 #include <QString>
+#include <QUndoStack>
 #include <QVariant>
 
 class BudgetData : public QObject {
@@ -32,6 +33,7 @@ class BudgetData : public QObject {
   // Models exposed to QML
   Q_PROPERTY(OperationListModel *operationModel READ operationModel CONSTANT)
   Q_PROPERTY(AccountListModel *accountModel READ accountModel CONSTANT)
+  Q_PROPERTY(QUndoStack *undoStack READ undoStack CONSTANT)
 
 public:
   explicit BudgetData(QObject *parent = nullptr);
@@ -40,6 +42,7 @@ public:
   // Model accessors
   OperationListModel *operationModel() const { return _operationModel; }
   AccountListModel *accountModel() const { return _accountModel; }
+  QUndoStack *undoStack() const { return _undoStack; }
 
   // Account management
   QList<Account *> accounts() const;
@@ -73,6 +76,10 @@ public:
   // Clipboard operations (delegates to operationModel)
   Q_INVOKABLE void copySelectedOperationsToClipboard() const;
 
+  // Undo/Redo
+  Q_INVOKABLE void undo();
+  Q_INVOKABLE void redo();
+
 signals:
   void dataLoaded();
   void dataSaved();
@@ -82,4 +89,5 @@ private:
   QList<Category *> _categories;
   OperationListModel *_operationModel;
   AccountListModel *_accountModel;
+  QUndoStack *_undoStack;
 };

@@ -67,9 +67,22 @@ ApplicationWindow {
         Menu {
             title: qsTr("&Edit")
             Action {
+                text: qsTr("&Undo")
+                shortcut: StandardKey.Undo
+                enabled: budgetData.undoStack.canUndo
+                onTriggered: budgetData.undo()
+            }
+            Action {
+                text: qsTr("&Redo")
+                shortcut: StandardKey.Redo
+                enabled: budgetData.undoStack.canRedo
+                onTriggered: budgetData.redo()
+            }
+            MenuSeparator {}
+            Action {
                 text: qsTr("&Copy")
                 shortcut: StandardKey.Copy
-                enabled: budgetData.selectionCount > 0
+                enabled: budgetData.operationModel.selectionCount > 0
                 onTriggered: budgetData.copySelectedOperationsToClipboard()
             }
         }

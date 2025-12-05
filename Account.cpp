@@ -34,6 +34,16 @@ void Account::removeOperation(int index) {
   }
 }
 
+bool Account::removeOperation(Operation *operation) {
+  int index = _operations.indexOf(operation);
+  if (index >= 0) {
+    _operations.removeAt(index);
+    emit operationCountChanged();
+    return true;
+  }
+  return false;
+}
+
 void Account::clearOperations() {
   qDeleteAll(_operations);
   _operations.clear();

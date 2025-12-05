@@ -38,6 +38,8 @@ qt_add_executable(Comptine
   AccountListModel.cpp
   AppSettings.h
   AppSettings.cpp
+  UndoCommands.h
+  UndoCommands.cpp
 )
 
 # Generate macOS icon from PNG at build time

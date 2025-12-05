@@ -50,3 +50,8 @@ When done, you can run the application as shown above to show the progress.
 ## Documentation
 
 - **FEATURES.md**: When adding new features, update `FEATURES.md` to document them.
+
+## Undo/Redo
+
+- **Undoable Actions**: When adding new actions that modify data (e.g., adding/removing operations, renaming, importing), make them undoable using `QUndoCommand` subclasses in `UndoCommands.h/.cpp`.
+- **When in doubt**: Ask if an action should be undoable. Generally, any action that modifies user data should support undo/redo.
