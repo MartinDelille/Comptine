@@ -52,6 +52,15 @@ Account *BudgetData::getAccountByName(const QString &name) const {
   return nullptr;
 }
 
+void BudgetData::renameCurrentAccount(const QString &newName) {
+  Account *account = currentAccount();
+  if (account && !newName.isEmpty()) {
+    account->set_name(newName);
+    _accountModel->refresh();
+    emit currentAccountChanged();
+  }
+}
+
 void BudgetData::addAccount(Account *account) {
   if (account) {
     account->setParent(this);

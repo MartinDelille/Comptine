@@ -13,6 +13,7 @@
 - **Multiple Accounts**: Support for multiple accounts in a single budget file
 - **Account Selector**: ComboBox to switch between accounts (disabled when no accounts exist)
 - **Account Creation**: Create new accounts when importing CSV data
+- **Rename Account**: Rename the current account via the Rename button
 
 ## Operations
 

@@ -45,6 +45,7 @@ public:
   QList<Account *> accounts() const;
   Q_INVOKABLE Account *getAccount(int index) const;
   Q_INVOKABLE Account *getAccountByName(const QString &name) const;
+  Q_INVOKABLE void renameCurrentAccount(const QString &newName);
   void addAccount(Account *account);
   void removeAccount(int index);
   void clearAccounts();
