@@ -12,6 +12,36 @@ ApplicationWindow {
     color: Theme.background
 
     property bool fileDialogOpen: openDialog.visible || saveDialog.visible || csvDialog.visible
+    property string pendingAction: ""  // "quit", "new", or "open"
+
+    function performPendingAction() {
+        if (pendingAction === "quit") {
+            Qt.quit();
+        } else if (pendingAction === "new") {
+            budgetData.clear();
+            budgetData.currentFilePath = "";
+        } else if (pendingAction === "open") {
+            openDialog.open();
+        }
+        pendingAction = "";
+    }
+
+    function checkUnsavedChanges(action) {
+        if (!budgetData.undoStack.clean) {
+            pendingAction = action;
+            unsavedChangesDialog.open();
+            return true;  // Has unsaved changes, action deferred
+        }
+        return false;  // No unsaved changes, proceed
+    }
+
+    onClosing: function (close) {
+        if (!budgetData.undoStack.clean) {
+            close.accepted = false;
+            pendingAction = "quit";
+            unsavedChangesDialog.open();
+        }
+    }
 
     menuBar: MenuBar {
         Menu {
@@ -20,14 +50,20 @@ ApplicationWindow {
                 text: qsTr("&New...")
                 shortcut: StandardKey.New
                 onTriggered: {
-                    budgetData.clear();
-                    budgetData.currentFilePath = "";
+                    if (!checkUnsavedChanges("new")) {
+                        budgetData.clear();
+                        budgetData.currentFilePath = "";
+                    }
                 }
             }
             Action {
                 text: qsTr("&Open...")
                 shortcut: StandardKey.Open
-                onTriggered: openDialog.open()
+                onTriggered: {
+                    if (!checkUnsavedChanges("open")) {
+                        openDialog.open();
+                    }
+                }
             }
             Action {
                 text: qsTr("&Save")
@@ -61,7 +97,11 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Quit")
                 shortcut: StandardKey.Quit
-                onTriggered: Qt.quit()
+                onTriggered: {
+                    if (!checkUnsavedChanges("quit")) {
+                        Qt.quit();
+                    }
+                }
             }
         }
         Menu {
@@ -155,7 +195,13 @@ ApplicationWindow {
             var filePath = selectedFile.toString().replace("file://", "");
             if (budgetData.saveToYaml(filePath)) {
                 budgetData.currentFilePath = filePath;
+                if (window.pendingAction !== "") {
+                    window.performPendingAction();
+                }
             }
+        }
+        onRejected: {
+            window.pendingAction = "";
         }
     }
 
@@ -188,6 +234,28 @@ ApplicationWindow {
     PreferencesDialog {
         id: preferencesDialog
         anchors.centerIn: parent
+    }
+
+    MessageDialog {
+        id: unsavedChangesDialog
+        title: qsTr("Unsaved Changes")
+        text: qsTr("You have unsaved changes. Do you want to save before continuing?")
+        buttons: MessageDialog.Save | MessageDialog.Discard | MessageDialog.Cancel
+        onButtonClicked: function (button, role) {
+            if (button === MessageDialog.Save) {
+                if (budgetData.currentFilePath.length > 0) {
+                    budgetData.saveToYaml(budgetData.currentFilePath);
+                    window.performPendingAction();
+                } else {
+                    saveDialog.open();
+                }
+            } else if (button === MessageDialog.Discard) {
+                window.performPendingAction();
+            } else {
+                // Cancel: clear pending action
+                window.pendingAction = "";
+            }
+        }
     }
 
     ColumnLayout {

@@ -194,6 +194,8 @@ QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
 void BudgetData::clear() {
   clearAccounts();
   clearCategories();
+  _undoStack->clear();
+  _undoStack->setClean();
 }
 
 // Helper to convert QString to std::string for ryml
@@ -252,6 +254,7 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
   file.close();
 
   qDebug() << "Budget data saved to:" << filePath;
+  _undoStack->setClean();
   emit const_cast<BudgetData *>(this)->dataSaved();
   return true;
 }
@@ -338,6 +341,8 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
   }
 
   set_currentFilePath(filePath);
+  _undoStack->clear();
+  _undoStack->setClean();
   emit dataLoaded();
   qDebug() << "Budget data loaded from:" << filePath;
   qDebug() << "  Accounts:" << _accounts.size();
