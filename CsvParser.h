@@ -11,20 +11,20 @@ namespace CsvParser {
 // Parse amount string handling French format (e.g., "-5 428,69 €" or "-5428.69")
 inline double parseAmount(const QString &str) {
   QString cleaned = str.trimmed();
-  cleaned.remove(' ');         // Remove regular spaces (thousand separators)
-  cleaned.remove(QChar(0xA0)); // Remove non-breaking space (U+00A0)
-  cleaned.remove(QChar(0x202F)); // Remove narrow no-break space (U+202F) - used by French banks
-  cleaned.remove(QChar(0x20AC)); // Remove Euro symbol (€)
-  cleaned.remove('"');         // Remove quotes
-  
+  cleaned.remove(' ');            // Remove regular spaces (thousand separators)
+  cleaned.remove(QChar(0xA0));    // Remove non-breaking space (U+00A0)
+  cleaned.remove(QChar(0x202F));  // Remove narrow no-break space (U+202F) - used by French banks
+  cleaned.remove(QChar(0x20AC));  // Remove Euro symbol (€)
+  cleaned.remove('"');            // Remove quotes
+
   // Handle plus sign for positive amounts (e.g., "+45,00")
   bool isPositive = cleaned.startsWith('+');
   if (isPositive) {
     cleaned = cleaned.mid(1);
   }
-  
-  cleaned.replace(',', '.'); // French decimal to standard
-  
+
+  cleaned.replace(',', '.');  // French decimal to standard
+
   double value = cleaned.toDouble();
   return isPositive ? qAbs(value) : value;
 }
@@ -53,7 +53,7 @@ inline QStringList parseCsvLine(const QString &line, QChar delimiter) {
       field += c;
     }
   }
-  fields.append(field); // Add last field
+  fields.append(field);  // Add last field
 
   return fields;
 }
@@ -69,8 +69,7 @@ struct CsvFieldIndices {
   int amount = -1;
 
   bool isValid() const {
-    return date >= 0 && description >= 0 &&
-           (debit >= 0 || credit >= 0 || amount >= 0);
+    return date >= 0 && description >= 0 && (debit >= 0 || credit >= 0 || amount >= 0);
   }
 };
 
@@ -108,25 +107,19 @@ inline CsvFieldIndices parseHeader(const QStringList &headerFields) {
     QString h = normalizeHeader(headerFields[i]);
 
     // Date column (check multiple variants)
-    if (indices.date < 0 && 
-        (h == "date" || h == "date de comptabilisation")) {
+    if (indices.date < 0 && (h == "date" || h == "date de comptabilisation")) {
       indices.date = i;
     }
     // Description column (first match wins)
-    else if (indices.description < 0 &&
-             (h == "libelle simplifie" || h == "libelle" ||
-              h == "description" || h == "label")) {
+    else if (indices.description < 0 && (h == "libelle simplifie" || h == "libelle" || h == "description" || h == "label")) {
       indices.description = i;
     }
     // Sub-category column (checked before category)
-    else if (indices.subCategory < 0 &&
-             (h == "sous categorie ce" || h == "sous categorie" ||
-              h == "sub-category" || h == "subcategory")) {
+    else if (indices.subCategory < 0 && (h == "sous categorie ce" || h == "sous categorie" || h == "sub-category" || h == "subcategory")) {
       indices.subCategory = i;
     }
     // Category column
-    else if (indices.category < 0 &&
-             (h == "categorie ce" || h == "categorie" || h == "category")) {
+    else if (indices.category < 0 && (h == "categorie ce" || h == "categorie" || h == "category")) {
       indices.category = i;
     }
     // Debit column
@@ -154,6 +147,6 @@ inline bool isEmptyLine(const QString &line, QChar delimiter) {
   return stripped.trimmed().isEmpty();
 }
 
-} // namespace CsvParser
+}  // namespace CsvParser
 
-#endif // CSVPARSER_H
+#endif  // CSVPARSER_H

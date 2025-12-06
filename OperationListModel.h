@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Account.h"
 #include <QAbstractListModel>
 #include <QPointer>
 #include <QSet>
+#include "Account.h"
 
 class OperationListModel : public QAbstractListModel {
   Q_OBJECT

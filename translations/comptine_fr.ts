@@ -50,12 +50,12 @@
         <translation>Importer CSV</translation>
     </message>
     <message>
-        <location filename="../ImportDialog.qml" line="54"/>
+        <location filename="../ImportDialog.qml" line="62"/>
         <source>Import into account:</source>
         <translation>Importer dans le compte :</translation>
     </message>
     <message>
-        <location filename="../ImportDialog.qml" line="24"/>
+        <location filename="../ImportDialog.qml" line="29"/>
         <source>New account</source>
         <translation>Nouveau compte</translation>
     </message>
@@ -405,12 +405,12 @@ Importez et gérez vos données bancaires.</translation>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../UndoCommands.cpp" line="13"/>
+        <location filename="../UndoCommands.cpp" line="12"/>
         <source>Rename account to &quot;%1&quot;</source>
         <translation>Renommer le compte en « %1 »</translation>
     </message>
     <message numerus="yes">
-        <location filename="../UndoCommands.cpp" line="40"/>
+        <location filename="../UndoCommands.cpp" line="38"/>
         <source>Import %n operation(s)</source>
         <translation>
             <numerusform>Importer %n opération</numerusform>

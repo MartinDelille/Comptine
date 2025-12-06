@@ -1,9 +1,9 @@
 #pragma once
 
-#include "PropertyMacros.h"
 #include <QDate>
 #include <QObject>
 #include <QString>
+#include "PropertyMacros.h"
 
 class Operation : public QObject {
   Q_OBJECT

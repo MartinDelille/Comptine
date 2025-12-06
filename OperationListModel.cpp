@@ -1,7 +1,7 @@
 #include "OperationListModel.h"
 
-OperationListModel::OperationListModel(QObject *parent)
-    : QAbstractListModel(parent) {}
+OperationListModel::OperationListModel(QObject *parent) :
+    QAbstractListModel(parent) {}
 
 int OperationListModel::rowCount(const QModelIndex &parent) const {
   if (parent.isValid() || !_account)
@@ -22,27 +22,27 @@ QVariant OperationListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 
   switch (role) {
-  case DateRole:
-    return op->date();
-  case AmountRole:
-    return op->amount();
-  case DescriptionRole:
-    return op->description();
-  case CategoryRole:
-    return op->category();
-  case BalanceRole:
-    return (row >= 0 && row < _balances.size()) ? _balances[row] : 0.0;
-  case SelectedRole:
-    return _selection.contains(row);
-  case OperationRole:
-    return QVariant::fromValue(op);
-  default:
-    return QVariant();
+    case DateRole:
+      return op->date();
+    case AmountRole:
+      return op->amount();
+    case DescriptionRole:
+      return op->description();
+    case CategoryRole:
+      return op->category();
+    case BalanceRole:
+      return (row >= 0 && row < _balances.size()) ? _balances[row] : 0.0;
+    case SelectedRole:
+      return _selection.contains(row);
+    case OperationRole:
+      return QVariant::fromValue(op);
+    default:
+      return QVariant();
   }
 }
 
 bool OperationListModel::setData(const QModelIndex &index, const QVariant &value,
-                                  int role) {
+                                 int role) {
   if (!index.isValid() || role != SelectedRole)
     return false;
 
@@ -55,20 +55,20 @@ bool OperationListModel::setData(const QModelIndex &index, const QVariant &value
     _selection.remove(row);
   }
 
-  emit dataChanged(index, index, {SelectedRole});
+  emit dataChanged(index, index, { SelectedRole });
   emit selectionChanged();
   return true;
 }
 
 QHash<int, QByteArray> OperationListModel::roleNames() const {
   return {
-      {DateRole, "date"},
-      {AmountRole, "amount"},
-      {DescriptionRole, "description"},
-      {CategoryRole, "category"},
-      {BalanceRole, "balance"},
-      {SelectedRole, "selected"},
-      {OperationRole, "operation"}
+    { DateRole, "date" },
+    { AmountRole, "amount" },
+    { DescriptionRole, "description" },
+    { CategoryRole, "category" },
+    { BalanceRole, "balance" },
+    { SelectedRole, "selected" },
+    { OperationRole, "operation" }
   };
 }
 
@@ -151,7 +151,7 @@ void OperationListModel::select(int index, bool extend) {
     for (int i : oldSelection) {
       if (i != index) {
         QModelIndex mi = createIndex(i, 0);
-        emit dataChanged(mi, mi, {SelectedRole});
+        emit dataChanged(mi, mi, { SelectedRole });
       }
     }
   } else {
@@ -163,7 +163,7 @@ void OperationListModel::select(int index, bool extend) {
         _selection.insert(i);
       }
       // Emit dataChanged for range
-      emit dataChanged(createIndex(from, 0), createIndex(to, 0), {SelectedRole});
+      emit dataChanged(createIndex(from, 0), createIndex(to, 0), { SelectedRole });
     } else {
       _selection.insert(index);
     }
@@ -173,7 +173,7 @@ void OperationListModel::select(int index, bool extend) {
 
   // Emit dataChanged for newly selected item
   QModelIndex mi = createIndex(index, 0);
-  emit dataChanged(mi, mi, {SelectedRole});
+  emit dataChanged(mi, mi, { SelectedRole });
   emit selectionChanged();
 }
 
@@ -190,7 +190,7 @@ void OperationListModel::toggleSelection(int index) {
   _lastClickedIndex = index;
 
   QModelIndex mi = createIndex(index, 0);
-  emit dataChanged(mi, mi, {SelectedRole});
+  emit dataChanged(mi, mi, { SelectedRole });
   emit selectionChanged();
 }
 
@@ -205,7 +205,7 @@ void OperationListModel::selectRange(int fromIndex, int toIndex) {
     _selection.insert(i);
   }
 
-  emit dataChanged(createIndex(from, 0), createIndex(to, 0), {SelectedRole});
+  emit dataChanged(createIndex(from, 0), createIndex(to, 0), { SelectedRole });
   emit selectionChanged();
 }
 
@@ -219,7 +219,7 @@ void OperationListModel::clearSelection() {
 
   for (int i : oldSelection) {
     QModelIndex mi = createIndex(i, 0);
-    emit dataChanged(mi, mi, {SelectedRole});
+    emit dataChanged(mi, mi, { SelectedRole });
   }
 
   emit selectionChanged();
@@ -271,6 +271,6 @@ QString OperationListModel::selectedOperationsAsCsv() const {
 void OperationListModel::emitSelectionDataChanged() {
   for (int i : _selection) {
     QModelIndex mi = createIndex(i, 0);
-    emit dataChanged(mi, mi, {SelectedRole});
+    emit dataChanged(mi, mi, { SelectedRole });
   }
 }

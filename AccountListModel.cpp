@@ -1,7 +1,7 @@
 #include "AccountListModel.h"
 
-AccountListModel::AccountListModel(QObject *parent)
-    : QAbstractListModel(parent) {}
+AccountListModel::AccountListModel(QObject *parent) :
+    QAbstractListModel(parent) {}
 
 int AccountListModel::rowCount(const QModelIndex &parent) const {
   if (parent.isValid() || !_accounts)
@@ -25,22 +25,22 @@ QVariant AccountListModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 
   switch (role) {
-  case NameRole:
-    return account->name();
-  case OperationCountRole:
-    return account->operationCount();
-  case AccountRole:
-    return QVariant::fromValue(account);
-  default:
-    return QVariant();
+    case NameRole:
+      return account->name();
+    case OperationCountRole:
+      return account->operationCount();
+    case AccountRole:
+      return QVariant::fromValue(account);
+    default:
+      return QVariant();
   }
 }
 
 QHash<int, QByteArray> AccountListModel::roleNames() const {
   return {
-      {NameRole, "name"},
-      {OperationCountRole, "operationCount"},
-      {AccountRole, "account"}
+    { NameRole, "name" },
+    { OperationCountRole, "operationCount" },
+    { AccountRole, "account" }
   };
 }
 

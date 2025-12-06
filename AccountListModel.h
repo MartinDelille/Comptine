@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Account.h"
 #include <QAbstractListModel>
+#include "Account.h"
 
 class AccountListModel : public QAbstractListModel {
   Q_OBJECT

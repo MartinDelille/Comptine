@@ -42,5 +42,5 @@ private:
   Account *_account;
   OperationListModel *_operationModel;
   QList<Operation *> _operations;
-  bool _ownsOperations; // True when operations are not in the account (after undo)
+  bool _ownsOperations;  // True when operations are not in the account (after undo)
 };

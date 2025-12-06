@@ -1,0 +1,10 @@
+---
+BasedOnStyle: Google
+AccessModifierOffset: -2
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterComma
+BreakBeforeBinaryOperators: NonAssignment
+SortIncludes: true
+IncludeBlocks: Preserve
+ColumnLimit: 0
+Cpp11BracedListStyle: false

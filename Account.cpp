@@ -1,9 +1,10 @@
 #include "Account.h"
 
-Account::Account(QObject *parent) : QObject(parent) {}
+Account::Account(QObject *parent) :
+    QObject(parent) {}
 
-Account::Account(const QString &name, QObject *parent)
-    : QObject(parent), _name(name) {}
+Account::Account(const QString &name, QObject *parent) :
+    QObject(parent), _name(name) {}
 
 int Account::operationCount() const {
   return _operations.size();
@@ -18,8 +19,7 @@ void Account::addOperation(Operation *operation) {
     operation->setParent(this);
     // Insert in sorted order (most recent first)
     int insertIndex = 0;
-    while (insertIndex < _operations.size() &&
-           _operations[insertIndex]->date() > operation->date()) {
+    while (insertIndex < _operations.size() && _operations[insertIndex]->date() > operation->date()) {
       insertIndex++;
     }
     _operations.insert(insertIndex, operation);

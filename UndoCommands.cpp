@@ -7,9 +7,8 @@ RenameAccountCommand::RenameAccountCommand(Account *account,
                                            AccountListModel *accountModel,
                                            const QString &oldName,
                                            const QString &newName,
-                                           QUndoCommand *parent)
-    : QUndoCommand(parent), _account(account), _accountModel(accountModel),
-      _oldName(oldName), _newName(newName) {
+                                           QUndoCommand *parent) :
+    QUndoCommand(parent), _account(account), _accountModel(accountModel), _oldName(oldName), _newName(newName) {
   setText(QObject::tr("Rename account to \"%1\"").arg(newName));
 }
 
@@ -34,9 +33,8 @@ void RenameAccountCommand::redo() {
 ImportOperationsCommand::ImportOperationsCommand(Account *account,
                                                  OperationListModel *operationModel,
                                                  const QList<Operation *> &operations,
-                                                 QUndoCommand *parent)
-    : QUndoCommand(parent), _account(account), _operationModel(operationModel),
-      _operations(operations), _ownsOperations(false) {
+                                                 QUndoCommand *parent) :
+    QUndoCommand(parent), _account(account), _operationModel(operationModel), _operations(operations), _ownsOperations(false) {
   setText(QObject::tr("Import %n operation(s)", "", operations.size()));
 }
 

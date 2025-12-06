@@ -1,6 +1,7 @@
 // Unit tests for CSV parsing functions
-#include "../CsvParser.h"
 #include <QTest>
+
+#include "../CsvParser.h"
 
 using namespace CsvParser;
 
@@ -9,13 +10,9 @@ class CsvParserTest : public QObject {
 
 private slots:
   // parseAmount tests
-  void parseAmount_SimpleNegative() {
-    QCOMPARE(parseAmount("-52,30"), -52.30);
-  }
+  void parseAmount_SimpleNegative() { QCOMPARE(parseAmount("-52,30"), -52.30); }
 
-  void parseAmount_SimplePositive() {
-    QCOMPARE(parseAmount("+45,00"), 45.00);
-  }
+  void parseAmount_SimplePositive() { QCOMPARE(parseAmount("+45,00"), 45.00); }
 
   void parseAmount_PositiveNoSign() {
     QCOMPARE(parseAmount("2500,00"), 2500.00);
@@ -48,7 +45,8 @@ private slots:
 
   void parseAmount_NarrowNoBreakSpace() {
     // Amount with narrow no-break space (U+202F) - used by French banks
-    QString amountWithNnbsp = QString("-5") + QChar(0x202F) + QString("428,69 €");
+    QString amountWithNnbsp =
+        QString("-5") + QChar(0x202F) + QString("428,69 €");
     QCOMPARE(parseAmount(amountWithNnbsp), -5428.69);
   }
 
@@ -57,25 +55,24 @@ private slots:
     // UTF-8: 22 2d 35 e2 80 af 34 32 38 2c 36 39 20 e2 82 ac 22
     QByteArray rawBytes;
     rawBytes.append("\"-5");
-    rawBytes.append("\xe2\x80\xaf"); // U+202F narrow no-break space
+    rawBytes.append("\xe2\x80\xaf");  // U+202F narrow no-break space
     rawBytes.append("428,69 ");
-    rawBytes.append("\xe2\x82\xac"); // € Euro sign
+    rawBytes.append("\xe2\x82\xac");  // € Euro sign
     rawBytes.append("\"");
     QString amountStr = QString::fromUtf8(rawBytes);
     QCOMPARE(parseAmount(amountStr), -5428.69);
   }
 
-  void parseAmount_Empty() {
-    QCOMPARE(parseAmount(""), 0.0);
-  }
+  void parseAmount_Empty() { QCOMPARE(parseAmount(""), 0.0); }
 
-  void parseAmount_Whitespace() {
-    QCOMPARE(parseAmount("   "), 0.0);
-  }
+  void parseAmount_Whitespace() { QCOMPARE(parseAmount("   "), 0.0); }
 
   // parseCsvLine tests
   void parseCsvLine_Semicolon() {
-    QString line = "28/11/2025;CARREFOUR MARKET;CB CARREFOUR MARKE FACT 261125;;;Carte bancaire;Alimentation;Hyper/supermarche;-52,30;;26/11/2025;28/11/2025;0";
+    QString line =
+        "28/11/2025;CARREFOUR MARKET;CB CARREFOUR MARKE FACT 261125;;;Carte "
+        "bancaire;Alimentation;Hyper/supermarche;-52,30;;26/11/2025;28/11/"
+        "2025;0";
     QStringList fields = parseCsvLine(line, ';');
     QCOMPARE(fields.size(), 13);
     QCOMPARE(fields[0], QString("28/11/2025"));
@@ -124,7 +121,11 @@ private slots:
   // parseHeader tests
   void parseHeader_SemicolonFormat() {
     // Header from example_import.csv
-    QString header = "Date de comptabilisation;Libelle simplifie;Libelle operation;Reference;Informations complementaires;Type operation;Categorie;Sous categorie;Debit;Credit;Date operation;Date de valeur;Pointage operation";
+    QString header =
+        "Date de comptabilisation;Libelle simplifie;Libelle "
+        "operation;Reference;Informations complementaires;Type "
+        "operation;Categorie;Sous categorie;Debit;Credit;Date "
+        "operation;Date de valeur;Pointage operation";
     QStringList fields = parseCsvLine(header, ';');
     CsvFieldIndices idx = parseHeader(fields);
 
@@ -139,7 +140,11 @@ private slots:
 
   void parseHeader_CommaFormat() {
     // Header from a.csv (with accents)
-    QString header = "Date,Libellé simplifié,Libellé,Réference,Informations complémentaires,Type opération,Catégorie CE,Sous catégorie CE,Débit,Crédit,Date opération,Date de valeur,Pointage opération,Montant,Solde";
+    QString header =
+        "Date,Libellé simplifié,Libellé,Réference,Informations "
+        "complémentaires,Type opération,Catégorie CE,Sous "
+        "catégorie CE,Débit,Crédit,Date opération,Date de "
+        "valeur,Pointage opération,Montant,Solde";
     QStringList fields = parseCsvLine(header, ',');
     CsvFieldIndices idx = parseHeader(fields);
 
@@ -157,55 +162,55 @@ private slots:
     QCOMPARE(normalizeHeader("Débit"), QString("debit"));
     QCOMPARE(normalizeHeader("Crédit"), QString("credit"));
     QCOMPARE(normalizeHeader("Catégorie"), QString("categorie"));
-    QCOMPARE(normalizeHeader("Libellé simplifié"), QString("libelle simplifie"));
+    QCOMPARE(normalizeHeader("Libellé simplifié"),
+             QString("libelle simplifie"));
   }
 
   // getField tests
   void getField_Valid() {
-    QStringList fields = {"a", "b", "c"};
+    QStringList fields = { "a", "b", "c" };
     QCOMPARE(getField(fields, 1), QString("b"));
   }
 
   void getField_OutOfBounds() {
-    QStringList fields = {"a", "b", "c"};
+    QStringList fields = { "a", "b", "c" };
     QCOMPARE(getField(fields, 10), QString(""));
   }
 
   void getField_Negative() {
-    QStringList fields = {"a", "b", "c"};
+    QStringList fields = { "a", "b", "c" };
     QCOMPARE(getField(fields, -1), QString(""));
   }
 
   void getField_Trimmed() {
-    QStringList fields = {"  value  "};
+    QStringList fields = { "  value  " };
     QCOMPARE(getField(fields, 0), QString("value"));
   }
 
   // isEmptyLine tests
-  void isEmptyLine_Empty() {
-    QVERIFY(isEmptyLine("", ';'));
-  }
+  void isEmptyLine_Empty() { QVERIFY(isEmptyLine("", ';')); }
 
-  void isEmptyLine_OnlyDelimiters() {
-    QVERIFY(isEmptyLine(";;;", ';'));
-  }
+  void isEmptyLine_OnlyDelimiters() { QVERIFY(isEmptyLine(";;;", ';')); }
 
-  void isEmptyLine_WithContent() {
-    QVERIFY(!isEmptyLine("a;b;c", ';'));
-  }
+  void isEmptyLine_WithContent() { QVERIFY(!isEmptyLine("a;b;c", ';')); }
 
-  void isEmptyLine_Whitespace() {
-    QVERIFY(isEmptyLine("  ;  ;  ", ';'));
-  }
+  void isEmptyLine_Whitespace() { QVERIFY(isEmptyLine("  ;  ;  ", ';')); }
 
   // Integration tests with actual CSV files
   void integration_ExampleImportCsv() {
     // Line 2 from example_import.csv
-    QString line = "28/11/2025;CARREFOUR MARKET;CB CARREFOUR MARKE FACT 261125;;;Carte bancaire;Alimentation;Hyper/supermarche;-52,30;;26/11/2025;28/11/2025;0";
+    QString line =
+        "28/11/2025;CARREFOUR MARKET;CB CARREFOUR MARKE FACT 261125;;;Carte "
+        "bancaire;Alimentation;Hyper/supermarche;-52,30;;26/11/2025;28/11/"
+        "2025;0";
     QStringList fields = parseCsvLine(line, ';');
 
     // Parse header first
-    QString header = "Date de comptabilisation;Libelle simplifie;Libelle operation;Reference;Informations complementaires;Type operation;Categorie;Sous categorie;Debit;Credit;Date operation;Date de valeur;Pointage operation";
+    QString header =
+        "Date de comptabilisation;Libelle simplifie;Libelle "
+        "operation;Reference;Informations complementaires;Type "
+        "operation;Categorie;Sous categorie;Debit;Credit;Date "
+        "operation;Date de valeur;Pointage operation";
     CsvFieldIndices idx = parseHeader(parseCsvLine(header, ';'));
 
     QCOMPARE(getField(fields, idx.date), QString("28/11/2025"));
@@ -217,11 +222,21 @@ private slots:
 
   void integration_ACsv() {
     // Line 2 from a.csv (with accents and quoted fields)
-    QString line = "26/11/2022,M NICK LARSONO,VIR SEPA M NICK LARSONO,9876543XY0012345,VIREMENT VERS CPT DEPOT PART.-,Virement,Transaction exclue,Virement interne,\"-5 428,69 €\",,26/11/2022,16/11/2022,0,\"-5 428,69 €\",\"9 103,13 €\",,01/12/2022,Virement interne,Livret A2,\"9 103,13 €\"";
+    QString line =
+        "26/11/2022,M NICK LARSONO,VIR SEPA M NICK "
+        "LARSONO,9876543XY0012345,VIREMENT VERS CPT DEPOT "
+        "PART.-,Virement,Transaction exclue,Virement interne,\"-5 428,69 "
+        "€\",,26/11/2022,16/11/2022,0,\"-5 428,69 €\",\"9 103,13 "
+        "€\",,01/12/2022,Virement interne,Livret A2,\"9 103,13 €\"";
     QStringList fields = parseCsvLine(line, ',');
 
     // Parse header first
-    QString header = "Date,Libellé simplifié,Libellé,Réference,Informations complémentaires,Type opération,Catégorie CE,Sous catégorie CE,Débit,Crédit,Date opération,Date de valeur,Pointage opération,Montant,Solde,\"559,87 €\",Date budget,Catégorie,Compte,Check";
+    QString header =
+        "Date,Libellé simplifié,Libellé,Réference,Informations "
+        "complémentaires,Type opération,Catégorie CE,Sous "
+        "catégorie CE,Débit,Crédit,Date opération,Date de "
+        "valeur,Pointage opération,Montant,Solde,\"559,87 "
+        "€\",Date budget,Catégorie,Compte,Check";
     CsvFieldIndices idx = parseHeader(parseCsvLine(header, ','));
 
     QCOMPARE(getField(fields, idx.date), QString("26/11/2022"));
@@ -240,10 +255,17 @@ private slots:
 
   void integration_PositiveCredit() {
     // Line with positive credit from example_import.csv
-    QString line = "02/11/2025;ENTREPRISE MARTIN SA;VIR SEPA ENTREPRISE MARTIN SA;2528285K10567890;SALAIRE NOVEMBRE 2025-;Virement recu;Revenus et rentrees d'argent;Salaires;;+2500,00;02/11/2025;02/11/2025;0";
+    QString line =
+        "02/11/2025;ENTREPRISE MARTIN SA;VIR SEPA ENTREPRISE MARTIN "
+        "SA;2528285K10567890;SALAIRE NOVEMBRE 2025-;Virement recu;Revenus et "
+        "rentrees d'argent;Salaires;;+2500,00;02/11/2025;02/11/2025;0";
     QStringList fields = parseCsvLine(line, ';');
 
-    QString header = "Date de comptabilisation;Libelle simplifie;Libelle operation;Reference;Informations complementaires;Type operation;Categorie;Sous categorie;Debit;Credit;Date operation;Date de valeur;Pointage operation";
+    QString header =
+        "Date de comptabilisation;Libelle simplifie;Libelle "
+        "operation;Reference;Informations complementaires;Type "
+        "operation;Categorie;Sous categorie;Debit;Credit;Date "
+        "operation;Date de valeur;Pointage operation";
     CsvFieldIndices idx = parseHeader(parseCsvLine(header, ';'));
 
     QString debitStr = getField(fields, idx.debit);

@@ -1,0 +1,36 @@
+repos:
+  # Common checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # C++ formatting with clang-format
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.6
+    hooks:
+      - id: clang-format
+        types_or: [c++, c]
+
+  # QML formatting and translation checks
+  - repo: local
+    hooks:
+      - id: qmlformat
+        name: qmlformat
+        entry: qmlformat -i
+        language: system
+        files: '\.qml$'
+        types: [file]
+
+      - id: check-translations
+        name: check translations complete
+        entry: ./scripts/check-translations.sh
+        language: script
+        files: '\.(qml|cpp|h|ts)$'
+        pass_filenames: false

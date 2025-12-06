@@ -19,9 +19,17 @@ Dialog {
         importAccountModel.clear();
         for (var i = 0; i < budgetData.accountCount; i++) {
             var account = budgetData.getAccount(i);
-            importAccountModel.append({"name": account.name, "isNewAccount": false, "accountIndex": i});
+            importAccountModel.append({
+                "name": account.name,
+                "isNewAccount": false,
+                "accountIndex": i
+            });
         }
-        importAccountModel.append({"name": qsTr("New account"), "isNewAccount": true, "accountIndex": -1});
+        importAccountModel.append({
+            "name": qsTr("New account"),
+            "isNewAccount": true,
+            "accountIndex": -1
+        });
     }
 
     onOpened: {

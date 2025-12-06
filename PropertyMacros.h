@@ -9,19 +9,20 @@
 //   - void nameChanged() signal
 //   - Type _name member variable with default value
 
-#define PROPERTY_RW(Type, name, defaultValue)                                  \
-  Q_PROPERTY(Type name READ name WRITE set_##name NOTIFY name##Changed)        \
-public:                                                                        \
-  Type name() const { return _##name; }                                        \
-  Q_INVOKABLE void set_##name(Type value) {                                    \
-    if (_##name != value) {                                                    \
-      _##name = value;                                                         \
-      emit name##Changed();                                                    \
-    }                                                                          \
-  }                                                                            \
-Q_SIGNALS:                                                                     \
-  void name##Changed();                                                        \
-private:                                                                       \
+#define PROPERTY_RW(Type, name, defaultValue)                           \
+  Q_PROPERTY(Type name READ name WRITE set_##name NOTIFY name##Changed) \
+public:                                                                 \
+  Type name() const { return _##name; }                                 \
+  Q_INVOKABLE void set_##name(Type value) {                             \
+    if (_##name != value) {                                             \
+      _##name = value;                                                  \
+      emit name##Changed();                                             \
+    }                                                                   \
+  }                                                                     \
+Q_SIGNALS:                                                              \
+  void name##Changed();                                                 \
+                                                                        \
+private:                                                                \
   Type _##name = defaultValue;
 
 // Macro for read-only Qt properties with declared getter (implemented in .cpp)
@@ -31,12 +32,13 @@ private:                                                                       \
 //   - Type name() const getter declaration (you implement in .cpp)
 //   - void nameChanged() signal
 
-#define PROPERTY_RO(Type, name)                                                \
-  Q_PROPERTY(Type name READ name NOTIFY name##Changed)                         \
-public:                                                                        \
-  Type name() const;                                                           \
-Q_SIGNALS:                                                                     \
-  void name##Changed();                                                        \
+#define PROPERTY_RO(Type, name)                        \
+  Q_PROPERTY(Type name READ name NOTIFY name##Changed) \
+public:                                                \
+  Type name() const;                                   \
+Q_SIGNALS:                                             \
+  void name##Changed();                                \
+                                                       \
 private:
 
 // Macro for read-write Qt properties with custom getter/setter (implemented in .cpp)
@@ -48,12 +50,13 @@ private:
 //   - void nameChanged() signal
 //   - Type _name member variable with default value
 
-#define PROPERTY_RW_CUSTOM(Type, name, defaultValue)                           \
-  Q_PROPERTY(Type name READ name WRITE set_##name NOTIFY name##Changed)        \
-public:                                                                        \
-  Type name() const;                                                           \
-  Q_INVOKABLE void set_##name(Type value);                                     \
-Q_SIGNALS:                                                                     \
-  void name##Changed();                                                        \
-private:                                                                       \
+#define PROPERTY_RW_CUSTOM(Type, name, defaultValue)                    \
+  Q_PROPERTY(Type name READ name WRITE set_##name NOTIFY name##Changed) \
+public:                                                                 \
+  Type name() const;                                                    \
+  Q_INVOKABLE void set_##name(Type value);                              \
+Q_SIGNALS:                                                              \
+  void name##Changed();                                                 \
+                                                                        \
+private:                                                                \
   Type _##name = defaultValue;

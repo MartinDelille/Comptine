@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Account.h"
-#include "AccountListModel.h"
-#include "Category.h"
-#include "OperationListModel.h"
-#include "PropertyMacros.h"
 #include <QList>
 #include <QObject>
 #include <QString>
 #include <QUndoStack>
 #include <QVariant>
+#include "Account.h"
+#include "AccountListModel.h"
+#include "Category.h"
+#include "OperationListModel.h"
+#include "PropertyMacros.h"
 
 class BudgetData : public QObject {
   Q_OBJECT
@@ -81,8 +81,8 @@ public:
   Q_INVOKABLE void redo();
 
 signals:
-  void dataLoaded();       // Emitted after any data load (YAML or CSV import)
-  void yamlFileLoaded();   // Emitted only after YAML file load (for UI state restore)
+  void dataLoaded();      // Emitted after any data load (YAML or CSV import)
+  void yamlFileLoaded();  // Emitted only after YAML file load (for UI state restore)
   void dataSaved();
 
 private:

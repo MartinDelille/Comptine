@@ -1,28 +1,28 @@
 // Must be included before Qt headers to avoid 'emit' keyword conflict
 #define RYML_NO_DEFAULT_CALLBACKS
+#include <c4/format.hpp>
 #include <ryml.hpp>
 #include <ryml_std.hpp>
-#include <c4/format.hpp>
 
-#include "BudgetData.h"
-#include "AccountListModel.h"
-#include "CsvParser.h"
-#include "OperationListModel.h"
-#include "UndoCommands.h"
 #include <QClipboard>
 #include <QDate>
 #include <QDebug>
 #include <QFile>
 #include <QGuiApplication>
 #include <QTextStream>
+#include "AccountListModel.h"
+#include "BudgetData.h"
+#include "CsvParser.h"
+#include "OperationListModel.h"
+#include "UndoCommands.h"
 
 using namespace CsvParser;
 
-BudgetData::BudgetData(QObject *parent)
-    : QObject(parent),
-      _operationModel(new OperationListModel(this)),
-      _accountModel(new AccountListModel(this)),
-      _undoStack(new QUndoStack(this)) {
+BudgetData::BudgetData(QObject *parent) :
+    QObject(parent),
+    _operationModel(new OperationListModel(this)),
+    _accountModel(new AccountListModel(this)),
+    _undoStack(new QUndoStack(this)) {
   _accountModel->setAccounts(&_accounts);
 }
 
@@ -58,7 +58,7 @@ void BudgetData::renameCurrentAccount(const QString &newName) {
   Account *account = currentAccount();
   if (account && !newName.isEmpty() && account->name() != newName) {
     _undoStack->push(new RenameAccountCommand(account, _accountModel,
-                                               account->name(), newName));
+                                              account->name(), newName));
     emit currentAccountChanged();
   }
 }
@@ -161,11 +161,8 @@ double BudgetData::spentInCategory(const QString &categoryName, int year, int mo
   double spent = 0.0;
   for (const Account *account : _accounts) {
     for (const Operation *op : account->operations()) {
-      if (op->category() == categoryName &&
-          op->date().year() == year &&
-          op->date().month() == month &&
-          op->amount() < 0) {
-        spent += op->amount(); // Already negative
+      if (op->category() == categoryName && op->date().year() == year && op->date().month() == month && op->amount() < 0) {
+        spent += op->amount();  // Already negative
       }
     }
   }
@@ -175,7 +172,7 @@ double BudgetData::spentInCategory(const QString &categoryName, int year, int mo
 QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
   QVariantList result;
   for (const Category *category : _categories) {
-    double spent = -spentInCategory(category->name(), year, month); // Make positive
+    double spent = -spentInCategory(category->name(), year, month);  // Make positive
     double budgetLimit = category->budgetLimit();
     double remaining = budgetLimit - spent;
     double percentUsed = budgetLimit > 0 ? (spent / budgetLimit) * 100.0 : 0.0;
