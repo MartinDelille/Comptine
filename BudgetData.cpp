@@ -419,7 +419,6 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   QList<Operation *> importedOperations;
   int skippedCount = 0;
   double totalBalance = 0.0;
-  Operation *lastImportedOperation = nullptr;
 
   while (!in.atEnd()) {
     QString line = in.readLine();
@@ -488,11 +487,6 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
     totalBalance += amount;
 
     importedOperations.append(operation);
-
-    // Track the most recent imported operation
-    if (!lastImportedOperation || operation->date() > lastImportedOperation->date()) {
-      lastImportedOperation = operation;
-    }
   }
 
   file.close();
@@ -516,12 +510,14 @@ bool BudgetData::importFromCsv(const QString &filePath, const QString &accountNa
   emit accountCountChanged();
   _accountModel->refresh();
 
-  // Select the last imported operation (most recent one)
-  if (lastImportedOperation) {
+  // Select all imported operations
+  if (!importedOperations.isEmpty()) {
+    QSet<Operation *> importedSet(importedOperations.begin(), importedOperations.end());
+    bool firstSelected = false;
     for (int i = 0; i < account->operationCount(); i++) {
-      if (account->getOperation(i) == lastImportedOperation) {
-        _operationModel->select(i, false);
-        break;
+      if (importedSet.contains(account->getOperation(i))) {
+        _operationModel->select(i, firstSelected);  // First one clears, rest extend
+        firstSelected = true;
       }
     }
   }

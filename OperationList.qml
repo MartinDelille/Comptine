@@ -23,15 +23,24 @@ FocusScope {
         keyNavigationEnabled: false  // We handle key navigation ourselves
         highlightFollowsCurrentItem: false  // Don't auto-scroll highlight
 
-        // Restore focus when data is loaded
+        // Restore focus when YAML file is loaded (not after CSV import, which handles its own selection)
         Connections {
             target: budgetData
-            function onDataLoaded() {
+            function onYamlFileLoaded() {
                 if (listView.count > 0) {
                     listView.currentIndex = 0;
                     budgetData.operationModel.select(0, false);
                     listView.positionViewAtIndex(0, ListView.Beginning);
                 }
+                listView.forceActiveFocus();
+            }
+            function onDataLoaded() {
+                // For CSV import: sync ListView currentIndex with model selection
+                // The model already has the correct selection, just update the view
+                if (listView.count > 0 && listView.currentIndex < 0) {
+                    listView.currentIndex = 0;
+                }
+                listView.positionViewAtIndex(0, ListView.Beginning);
                 listView.forceActiveFocus();
             }
         }
