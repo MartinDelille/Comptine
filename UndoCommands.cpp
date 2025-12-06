@@ -3,6 +3,7 @@
 #include "AccountListModel.h"
 #include "BudgetData.h"
 #include "Category.h"
+#include "Operation.h"
 #include "OperationListModel.h"
 
 RenameAccountCommand::RenameAccountCommand(Account *account,
@@ -28,6 +29,73 @@ void RenameAccountCommand::redo() {
     _account->set_name(_newName);
     if (_accountModel) {
       _accountModel->refresh();
+    }
+  }
+}
+
+EditCategoryCommand::EditCategoryCommand(Category *category,
+                                         BudgetData *budgetData,
+                                         const QString &oldName,
+                                         const QString &newName,
+                                         double oldBudgetLimit,
+                                         double newBudgetLimit,
+                                         QUndoCommand *parent) :
+    QUndoCommand(parent),
+    _category(category),
+    _budgetData(budgetData),
+    _oldName(oldName),
+    _newName(newName),
+    _oldBudgetLimit(oldBudgetLimit),
+    _newBudgetLimit(newBudgetLimit) {
+  if (oldName != newName && oldBudgetLimit != newBudgetLimit) {
+    setText(QObject::tr("Edit category \"%1\"").arg(newName));
+  } else if (oldName != newName) {
+    setText(QObject::tr("Rename category to \"%1\"").arg(newName));
+  } else {
+    setText(QObject::tr("Change budget limit of \"%1\"").arg(newName));
+  }
+}
+
+void EditCategoryCommand::renameOperationsCategory(const QString &fromName, const QString &toName) {
+  if (!_budgetData || fromName == toName) return;
+
+  // Update all operations that use this category
+  for (Account *account : _budgetData->accounts()) {
+    for (Operation *op : account->operations()) {
+      if (op->category() == fromName) {
+        op->set_category(toName);
+      }
+    }
+  }
+}
+
+void EditCategoryCommand::undo() {
+  if (_category) {
+    // Rename operations back to old category name
+    if (_oldName != _newName) {
+      renameOperationsCategory(_newName, _oldName);
+    }
+
+    _category->set_name(_oldName);
+    _category->set_budgetLimit(_oldBudgetLimit);
+    if (_budgetData) {
+      emit _budgetData->categoryCountChanged();  // Trigger UI refresh
+    }
+  }
+}
+
+void EditCategoryCommand::redo() {
+  if (_category) {
+    _category->set_name(_newName);
+    _category->set_budgetLimit(_newBudgetLimit);
+
+    // Rename operations to new category name
+    if (_oldName != _newName) {
+      renameOperationsCategory(_oldName, _newName);
+    }
+
+    if (_budgetData) {
+      emit _budgetData->categoryCountChanged();  // Trigger UI refresh
     }
   }
 }

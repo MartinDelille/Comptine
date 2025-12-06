@@ -35,6 +35,10 @@ Rectangle {
         }
     }
 
+    EditCategoryDialog {
+        id: editCategoryDialog
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Theme.spacingXLarge
@@ -83,6 +87,19 @@ Rectangle {
                             font.pixelSize: Theme.fontSizeNormal
                             font.bold: true
                             color: Theme.textPrimary
+                        }
+
+                        // Edit button
+                        ToolButton {
+                            text: "✏️"
+                            font.pixelSize: Theme.fontSizeNormal
+                            opacity: hovered ? 1.0 : 0.5
+                            onClicked: {
+                                editCategoryDialog.categoryIndex = index;
+                                editCategoryDialog.originalName = modelData.name;
+                                editCategoryDialog.originalBudgetLimit = modelData.budgetLimit;
+                                editCategoryDialog.open();
+                            }
                         }
 
                         Item {

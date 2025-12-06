@@ -151,6 +151,21 @@ void BudgetData::removeCategory(int index) {
   }
 }
 
+void BudgetData::editCategory(int index, const QString &newName, double newBudgetLimit) {
+  Category *category = getCategory(index);
+  if (!category) return;
+
+  QString oldName = category->name();
+  double oldBudgetLimit = category->budgetLimit();
+
+  // Only create undo command if something changed
+  if (oldName != newName || oldBudgetLimit != newBudgetLimit) {
+    _undoStack->push(new EditCategoryCommand(category, this,
+                                             oldName, newName,
+                                             oldBudgetLimit, newBudgetLimit));
+  }
+}
+
 void BudgetData::clearCategories() {
   qDeleteAll(_categories);
   _categories.clear();

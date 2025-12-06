@@ -36,6 +36,29 @@
     </message>
 </context>
 <context>
+    <name>EditCategoryDialog</name>
+    <message>
+        <source>Edit Category</source>
+        <translation>Modifier la catégorie</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>Category name</source>
+        <translation>Nom de la catégorie</translation>
+    </message>
+    <message>
+        <source>Budget Limit</source>
+        <translation>Limite de budget</translation>
+    </message>
+    <message>
+        <source>0.00</source>
+        <translation>0,00</translation>
+    </message>
+</context>
+<context>
     <name>ImportDialog</name>
     <message>
         <source>Import CSV</source>
@@ -83,10 +106,6 @@
     <message>
         <source>&amp;Quit</source>
         <translation>Quitter</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="vanished">Aide</translation>
     </message>
     <message>
         <source>&amp;About</source>
@@ -337,6 +356,18 @@ Importez et gérez vos données bancaires.</translation>
     <message>
         <source>Rename account to &quot;%1&quot;</source>
         <translation>Renommer le compte en « %1 »</translation>
+    </message>
+    <message>
+        <source>Edit category &quot;%1&quot;</source>
+        <translation>Modifier la catégorie « %1 »</translation>
+    </message>
+    <message>
+        <source>Rename category to &quot;%1&quot;</source>
+        <translation>Renommer la catégorie en « %1 »</translation>
+    </message>
+    <message>
+        <source>Change budget limit of &quot;%1&quot;</source>
+        <translation>Modifier la limite de budget de « %1 »</translation>
     </message>
     <message numerus="yes">
         <source>Import %n operation(s)</source>

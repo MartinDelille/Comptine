@@ -28,6 +28,28 @@ private:
   QString _newName;
 };
 
+// Command for editing a category (name and/or budget limit)
+class EditCategoryCommand : public QUndoCommand {
+public:
+  EditCategoryCommand(Category *category, BudgetData *budgetData,
+                      const QString &oldName, const QString &newName,
+                      double oldBudgetLimit, double newBudgetLimit,
+                      QUndoCommand *parent = nullptr);
+
+  void undo() override;
+  void redo() override;
+
+private:
+  void renameOperationsCategory(const QString &fromName, const QString &toName);
+
+  Category *_category;
+  BudgetData *_budgetData;
+  QString _oldName;
+  QString _newName;
+  double _oldBudgetLimit;
+  double _newBudgetLimit;
+};
+
 // Command for importing operations from CSV
 class ImportOperationsCommand : public QUndoCommand {
 public:

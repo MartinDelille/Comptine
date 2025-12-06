@@ -57,6 +57,7 @@ public:
   QList<Category *> categories() const;
   Q_INVOKABLE Category *getCategory(int index) const;
   Q_INVOKABLE Category *getCategoryByName(const QString &name) const;
+  Q_INVOKABLE void editCategory(int index, const QString &newName, double newBudgetLimit);
   void addCategory(Category *category);
   void removeCategory(int index);
   Category *takeCategoryByName(const QString &name);  // Remove without deleting
