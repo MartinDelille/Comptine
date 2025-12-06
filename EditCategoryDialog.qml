@@ -18,6 +18,7 @@ Dialog {
         categoryNameField.text = originalName;
         budgetLimitField.text = originalBudgetLimit.toFixed(2);
         categoryNameField.forceActiveFocus();
+        categoryNameField.selectAll();
     }
 
     onAccepted: {
@@ -40,6 +41,8 @@ Dialog {
             Layout.fillWidth: true
             placeholderText: qsTr("Category name")
             font.pixelSize: Theme.fontSizeNormal
+            onActiveFocusChanged: if (activeFocus)
+                selectAll()
         }
 
         Label {
@@ -54,6 +57,8 @@ Dialog {
             placeholderText: qsTr("0.00")
             font.pixelSize: Theme.fontSizeNormal
             inputMethodHints: Qt.ImhFormattedNumbersOnly
+            onActiveFocusChanged: if (activeFocus)
+                selectAll()
         }
     }
 }

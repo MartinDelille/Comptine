@@ -41,6 +41,8 @@ ColumnLayout {
                 Layout.preferredWidth: 250
                 placeholderText: qsTr("Enter account name")
                 onAccepted: renameDialog.accept()
+                onActiveFocusChanged: if (activeFocus)
+                    selectAll()
             }
         }
     }
