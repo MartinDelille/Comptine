@@ -72,3 +72,24 @@ private:
   bool _ownsOperations;  // True when operations are not in the account (after undo)
   bool _ownsCategories;  // True when categories are not in budgetData (after undo)
 };
+
+// Command for setting an operation's category
+class SetOperationCategoryCommand : public QUndoCommand {
+public:
+  SetOperationCategoryCommand(Operation *operation,
+                              OperationListModel *operationModel,
+                              BudgetData *budgetData,
+                              const QString &oldCategory,
+                              const QString &newCategory,
+                              QUndoCommand *parent = nullptr);
+
+  void undo() override;
+  void redo() override;
+
+private:
+  Operation *_operation;
+  OperationListModel *_operationModel;
+  BudgetData *_budgetData;
+  QString _oldCategory;
+  QString _newCategory;
+};

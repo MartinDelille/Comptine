@@ -383,5 +383,13 @@ Importez et gérez vos données bancaires.</translation>
             <numerusform>Importer %n opérations avec %1 nouvelle(s) catégorie(s)</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Clear operation category</source>
+        <translation>Effacer la catégorie de l&apos;opération</translation>
+    </message>
+    <message>
+        <source>Set operation category to &quot;%1&quot;</source>
+        <translation>Définir la catégorie de l&apos;opération à « %1 »</translation>
+    </message>
 </context>
 </TS>

@@ -184,6 +184,28 @@ Category *BudgetData::takeCategoryByName(const QString &name) {
   return nullptr;
 }
 
+QStringList BudgetData::categoryNames() const {
+  QStringList names;
+  for (const Category *category : _categories) {
+    names.append(category->name());
+  }
+  return names;
+}
+
+void BudgetData::setOperationCategory(int operationIndex, const QString &newCategory) {
+  Account *account = currentAccount();
+  if (!account) return;
+
+  Operation *operation = account->getOperation(operationIndex);
+  if (!operation) return;
+
+  QString oldCategory = operation->category();
+  if (oldCategory != newCategory) {
+    _undoStack->push(new SetOperationCategoryCommand(operation, _operationModel, this,
+                                                     oldCategory, newCategory));
+  }
+}
+
 double BudgetData::spentInCategory(const QString &categoryName, int year, int month) const {
   double spent = 0.0;
   for (const Account *account : _accounts) {

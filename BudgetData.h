@@ -58,10 +58,14 @@ public:
   Q_INVOKABLE Category *getCategory(int index) const;
   Q_INVOKABLE Category *getCategoryByName(const QString &name) const;
   Q_INVOKABLE void editCategory(int index, const QString &newName, double newBudgetLimit);
+  Q_INVOKABLE QStringList categoryNames() const;
   void addCategory(Category *category);
   void removeCategory(int index);
   Category *takeCategoryByName(const QString &name);  // Remove without deleting
   void clearCategories();
+
+  // Operation category editing
+  Q_INVOKABLE void setOperationCategory(int operationIndex, const QString &newCategory);
 
   // Budget calculations (aggregates across all accounts)
   Q_INVOKABLE double spentInCategory(const QString &categoryName, int year, int month) const;
@@ -88,6 +92,7 @@ signals:
   void dataLoaded();      // Emitted after any data load (YAML or CSV import)
   void yamlFileLoaded();  // Emitted only after YAML file load (for UI state restore)
   void dataSaved();
+  void operationDataChanged();  // Emitted when operation data changes (e.g., category edit)
 
 private:
   QList<Account *> _accounts;

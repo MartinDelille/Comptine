@@ -33,6 +33,9 @@ Rectangle {
             monthSelector.selectedMonth = budgetData.budgetMonth;
             updateBudgetSummary();
         }
+        function onOperationDataChanged() {
+            updateBudgetSummary();
+        }
     }
 
     EditCategoryDialog {

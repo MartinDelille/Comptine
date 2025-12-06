@@ -14,6 +14,16 @@ Rectangle {
     // Multi-selection state
     readonly property bool multipleSelected: budgetData.operationModel.selectionCount > 1
 
+    // Category list for ComboBox (reactive to category changes)
+    property var categoryList: [""].concat(budgetData.categoryNames())
+
+    Connections {
+        target: budgetData
+        function onCategoryCountChanged() {
+            root.categoryList = [""].concat(budgetData.categoryNames());
+        }
+    }
+
     radius: Theme.cardRadius
     border.width: Theme.cardBorderWidth
     border.color: Theme.border
@@ -120,12 +130,31 @@ Rectangle {
                 Layout.topMargin: Theme.spacingSmall
             }
 
-            Label {
+            RowLayout {
                 Layout.fillWidth: true
-                text: root.operation?.category ?? qsTr("Uncategorized")
-                font.pixelSize: Theme.fontSizeSmall
-                color: root.operation?.category ? Theme.textPrimary : Theme.textMuted
-                wrapMode: Text.WordWrap
+                spacing: Theme.spacingSmall
+
+                ComboBox {
+                    id: categoryComboBox
+                    Layout.fillWidth: true
+                    model: root.categoryList
+                    currentIndex: {
+                        if (!root.operation)
+                            return 0;
+                        let cat = root.operation.category ?? "";
+                        if (cat === "")
+                            return 0;
+                        let idx = root.categoryList.indexOf(cat);
+                        return idx >= 0 ? idx : 0;
+                    }
+                    displayText: currentIndex === 0 ? qsTr("Uncategorized") : currentText
+                    onActivated: index => {
+                        if (root.currentIndex >= 0) {
+                            let newCategory = index === 0 ? "" : root.categoryList[index];
+                            budgetData.setOperationCategory(root.currentIndex, newCategory);
+                        }
+                    }
+                }
             }
 
             Label {

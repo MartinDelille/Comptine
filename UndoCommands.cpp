@@ -178,3 +178,46 @@ void ImportOperationsCommand::redo() {
     _operationModel->refresh();
   }
 }
+
+SetOperationCategoryCommand::SetOperationCategoryCommand(Operation *operation,
+                                                         OperationListModel *operationModel,
+                                                         BudgetData *budgetData,
+                                                         const QString &oldCategory,
+                                                         const QString &newCategory,
+                                                         QUndoCommand *parent) :
+    QUndoCommand(parent),
+    _operation(operation),
+    _operationModel(operationModel),
+    _budgetData(budgetData),
+    _oldCategory(oldCategory),
+    _newCategory(newCategory) {
+  if (newCategory.isEmpty()) {
+    setText(QObject::tr("Clear operation category"));
+  } else {
+    setText(QObject::tr("Set operation category to \"%1\"").arg(newCategory));
+  }
+}
+
+void SetOperationCategoryCommand::undo() {
+  if (_operation) {
+    _operation->set_category(_oldCategory);
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}
+
+void SetOperationCategoryCommand::redo() {
+  if (_operation) {
+    _operation->set_category(_newCategory);
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}
