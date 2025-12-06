@@ -2,7 +2,8 @@
 # Check that all translations are complete
 
 # Update translation file with current source strings
-lupdate *.qml *.cpp *.h -ts translations/comptine_fr.ts 2>/dev/null
+# Use -locations none to avoid noisy diffs when line numbers change
+lupdate -locations none *.qml *.cpp *.h -ts translations/comptine_fr.ts 2>/dev/null
 
 # Check for unfinished translations
 if grep -q 'type="unfinished"' translations/comptine_fr.ts; then
