@@ -189,6 +189,7 @@ QStringList BudgetData::categoryNames() const {
   for (const Category *category : _categories) {
     names.append(category->name());
   }
+  names.sort(Qt::CaseInsensitive);
   return names;
 }
 
@@ -250,6 +251,12 @@ QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
     item["percentUsed"] = percentUsed;
     result.append(item);
   }
+
+  // Sort by category name
+  std::sort(result.begin(), result.end(), [](const QVariant &a, const QVariant &b) {
+    return a.toMap()["name"].toString().compare(b.toMap()["name"].toString(), Qt::CaseInsensitive) < 0;
+  });
+
   return result;
 }
 
