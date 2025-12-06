@@ -125,28 +125,16 @@
         <translation>Nom de la catégorie</translation>
     </message>
     <message>
-        <source>Income category</source>
-        <translation>Catégorie de revenu</translation>
-    </message>
-    <message>
         <source>Budget Limit</source>
         <translation>Limite de budget</translation>
-    </message>
-    <message>
-        <source>Expected Income</source>
-        <translation>Revenu attendu</translation>
     </message>
     <message>
         <source>0.00</source>
         <translation>0,00</translation>
     </message>
     <message>
-        <source>Track positive transactions (salary, etc.)</source>
-        <translation>Suivre les transactions positives (salaire, etc.)</translation>
-    </message>
-    <message>
-        <source>Track negative transactions (expenses)</source>
-        <translation>Suivre les transactions négatives (dépenses)</translation>
+        <source>Negative = expense, Positive = income</source>
+        <translation>Négatif = dépense, Positif = revenu</translation>
     </message>
 </context>
 <context>

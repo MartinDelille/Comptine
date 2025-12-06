@@ -151,8 +151,8 @@ void BudgetData::removeCategory(int index) {
   }
 }
 
-void BudgetData::editCategory(int index, const QString &newName, double newBudgetLimit) {
-  Category *category = getCategory(index);
+void BudgetData::editCategory(const QString &originalName, const QString &newName, double newBudgetLimit) {
+  Category *category = getCategoryByName(originalName);
   if (!category) return;
 
   QString oldName = category->name();
@@ -253,6 +253,7 @@ QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
     QVariantMap item;
     item["name"] = category->name();
     item["budgetLimit"] = displayLimit;
+    item["signedBudgetLimit"] = budgetLimit;  // Original signed value for editing
     item["amount"] = displayAmount;
     item["remaining"] = remaining;
     item["percentUsed"] = percentUsed;

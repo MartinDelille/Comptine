@@ -105,10 +105,8 @@ Rectangle {
                             font.pixelSize: Theme.fontSizeNormal
                             opacity: hovered ? 1.0 : 0.5
                             onClicked: {
-                                editCategoryDialog.categoryIndex = index;
                                 editCategoryDialog.originalName = modelData.name;
-                                // Pass signed limit: positive for income, negative for expense
-                                editCategoryDialog.originalBudgetLimit = modelData.isIncome ? modelData.budgetLimit : -modelData.budgetLimit;
+                                editCategoryDialog.originalBudgetLimit = modelData.signedBudgetLimit;
                                 editCategoryDialog.open();
                             }
                         }
