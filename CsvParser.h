@@ -63,6 +63,7 @@ struct CsvFieldIndices {
   int date = -1;
   int description = -1;
   int category = -1;  // Last matching category column (most specific)
+  int budgetDate = -1;
   int debit = -1;
   int credit = -1;
   int amount = -1;
@@ -109,6 +110,10 @@ inline CsvFieldIndices parseHeader(const QStringList &headerFields) {
     // Date column (first match wins)
     if (indices.date < 0 && (h == "date" || h == "date de comptabilisation")) {
       indices.date = i;
+    }
+    // Budget date column (first match wins)
+    else if (indices.budgetDate < 0 && (h == "date budget" || h == "budget date")) {
+      indices.budgetDate = i;
     }
     // Description column (first match wins)
     else if (indices.description < 0 && (h == "libelle simplifie" || h == "libelle" || h == "description" || h == "label")) {

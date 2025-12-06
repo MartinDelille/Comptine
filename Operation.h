@@ -13,6 +13,9 @@ class Operation : public QObject {
   PROPERTY_RW(QString, category, {})
   PROPERTY_RW(QString, description, {})
 
+  // Budget date: returns date if not explicitly set
+  PROPERTY_RW_CUSTOM(QDate, budgetDate, {})
+
 public:
   explicit Operation(QObject *parent = nullptr);
   Operation(const QDate &date, double amount, const QString &category,

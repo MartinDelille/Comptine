@@ -173,7 +173,9 @@ double BudgetData::spentInCategory(const QString &categoryName, int year, int mo
   double spent = 0.0;
   for (const Account *account : _accounts) {
     for (const Operation *op : account->operations()) {
-      if (op->category() == categoryName && op->date().year() == year && op->date().month() == month && op->amount() < 0) {
+      // Use budgetDate for budget calculations (falls back to date if not set)
+      QDate budgetDate = op->budgetDate();
+      if (op->category() == categoryName && budgetDate.year() == year && budgetDate.month() == month && op->amount() < 0) {
         spent += op->amount();  // Already negative
       }
     }
@@ -244,6 +246,10 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
       opNode["amount"] << toStdString(QString::number(op->amount(), 'f', 2));
       opNode["category"] << toStdString(op->category());
       opNode["description"] << toStdString(op->description());
+      // Only save budget_date if explicitly set (different from operation date)
+      if (op->budgetDate() != op->date()) {
+        opNode["budget_date"] << toStdString(op->budgetDate().toString("yyyy-MM-dd"));
+      }
     }
   }
 
@@ -327,6 +333,10 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
             if (opNode.has_child("description")) {
               auto val = opNode["description"].val();
               op->set_description(QString::fromUtf8(val.str, val.len));
+            }
+            if (opNode.has_child("budget_date")) {
+              auto val = opNode["budget_date"].val();
+              op->set_budgetDate(QDate::fromString(QString::fromUtf8(val.str, val.len), "yyyy-MM-dd"));
             }
             account->addOperation(op);
           }
@@ -412,6 +422,7 @@ bool BudgetData::importFromCsv(const QString &filePath,
   // Log detected columns
   qDebug() << "Detected columns:";
   qDebug() << "  date:" << idx.date;
+  qDebug() << "  budgetDate:" << idx.budgetDate;
   qDebug() << "  description:" << idx.description;
   qDebug() << "  category:" << idx.category;
   qDebug() << "  debit:" << idx.debit;
@@ -512,6 +523,18 @@ bool BudgetData::importFromCsv(const QString &filePath,
     operation->set_amount(amount);
     operation->set_description(description);
     operation->set_category(category);
+
+    // Parse budget date (optional - falls back to date if not set)
+    if (idx.budgetDate >= 0) {
+      QString budgetDateStr = getField(fields, idx.budgetDate);
+      if (!budgetDateStr.isEmpty()) {
+        QDate budgetDate = QDate::fromString(budgetDateStr, "dd/MM/yyyy");
+        if (budgetDate.isValid()) {
+          operation->set_budgetDate(budgetDate);
+        }
+      }
+    }
+
     totalBalance += amount;
 
     importedOperations.append(operation);

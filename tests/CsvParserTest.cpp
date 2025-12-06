@@ -179,6 +179,24 @@ private slots:
     QVERIFY(idx.isValid());
   }
 
+  void parseHeader_DateVsDateBudget() {
+    // "Date budget" should NOT match as the date column - only "Date" should
+    // Header from real CSV with both "Date" (0) and "Date budget" (15)
+    QString header =
+        "Date,Libellé simplifié,Libellé,Réference,Informations "
+        "complémentaires,Type opération,Catégorie CE,Sous "
+        "catégorie CE,Débit,Crédit,Date opération,Date de "
+        "valeur,Pointage opération,Montant,Solde,Date budget,Catégorie,Compte,Check";
+    QStringList fields = parseCsvLine(header, ',');
+    CsvFieldIndices idx = parseHeader(fields);
+
+    // Date should be index 0 ("Date"), not index 15 ("Date budget")
+    QCOMPARE(idx.date, 0);
+    QCOMPARE(idx.budgetDate, 15);  // "Date budget" is detected separately
+    QCOMPARE(fields[0], QString("Date"));
+    QCOMPARE(fields[15], QString("Date budget"));
+  }
+
   void parseHeader_NormalizeAccents() {
     QCOMPARE(normalizeHeader("Débit"), QString("debit"));
     QCOMPARE(normalizeHeader("Crédit"), QString("credit"));
