@@ -42,14 +42,16 @@ qt_add_executable(Comptine
   UndoCommands.cpp
 )
 
-# Generate macOS icon from PNG at build time (macOS only)
+# Generate macOS icon from WebP at build time (macOS only)
 if(APPLE)
-  set(APP_ICON_PNG ${CMAKE_CURRENT_SOURCE_DIR}/comptine.png)
+  set(APP_ICON_WEBP ${CMAKE_CURRENT_SOURCE_DIR}/comptine.webp)
+  set(APP_ICON_PNG ${CMAKE_CURRENT_BINARY_DIR}/comptine.png)
   set(APP_ICON_ICNS ${CMAKE_CURRENT_BINARY_DIR}/comptine.icns)
   set(APP_ICONSET_DIR ${CMAKE_CURRENT_BINARY_DIR}/comptine.iconset)
 
   add_custom_command(
     OUTPUT ${APP_ICON_ICNS}
+    COMMAND sips -s format png ${APP_ICON_WEBP} --out ${APP_ICON_PNG}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_ICONSET_DIR}
     COMMAND sips -z 16 16 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_16x16.png
     COMMAND sips -z 32 32 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_16x16@2x.png
@@ -62,8 +64,8 @@ if(APPLE)
     COMMAND sips -z 512 512 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_512x512.png
     COMMAND sips -z 1024 1024 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_512x512@2x.png
     COMMAND iconutil -c icns ${APP_ICONSET_DIR} -o ${APP_ICON_ICNS}
-    DEPENDS ${APP_ICON_PNG}
-    COMMENT "Generating macOS icon from comptine.png"
+    DEPENDS ${APP_ICON_WEBP}
+    COMMENT "Generating macOS icon from comptine.webp"
   )
 
   set_source_files_properties(${APP_ICON_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")

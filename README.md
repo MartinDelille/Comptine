@@ -2,4 +2,4 @@
 
 La Compta qui Chante !
 
-![Comptine](comptine.png)
+![Comptine](comptine.webp)
