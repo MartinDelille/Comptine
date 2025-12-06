@@ -1,20 +1,28 @@
 # Comptine Budget Data Format
 # This file stores personal budget information including bank accounts,
 # operations, and budget categories.
+#
+# Budget limits use signed values:
+#   - Negative limit = Expense category (spending budget)
+#   - Positive limit = Income category (expected income)
 
 categories:
   - name: Alimentation
-    budget_limit: 400.00
+    budget_limit: -400.00
   - name: Transports
-    budget_limit: 150.00
+    budget_limit: -150.00
   - name: Logement
-    budget_limit: 1200.00
+    budget_limit: -1200.00
   - name: Loisirs
-    budget_limit: 200.00
+    budget_limit: -200.00
   - name: Sante
-    budget_limit: 100.00
+    budget_limit: -100.00
   - name: Shopping
-    budget_limit: 150.00
+    budget_limit: -150.00
+  - name: Revenus
+    budget_limit: 2500.00
+  - name: Epargne
+    budget_limit: 100.00
 
 accounts:
   - name: Compte Courant

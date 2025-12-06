@@ -222,33 +222,41 @@ void BudgetData::setOperationBudgetDate(int operationIndex, const QDate &newBudg
 }
 
 double BudgetData::spentInCategory(const QString &categoryName, int year, int month) const {
-  double spent = 0.0;
+  double total = 0.0;
   for (const Account *account : _accounts) {
     for (const Operation *op : account->operations()) {
       // Use budgetDate for budget calculations (falls back to date if not set)
       QDate budgetDate = op->budgetDate();
-      if (op->category() == categoryName && budgetDate.year() == year && budgetDate.month() == month && op->amount() < 0) {
-        spent += op->amount();  // Already negative
+      if (op->category() == categoryName && budgetDate.year() == year && budgetDate.month() == month) {
+        total += op->amount();
       }
     }
   }
-  return spent;
+  return total;
 }
 
 QVariantList BudgetData::monthlyBudgetSummary(int year, int month) const {
   QVariantList result;
   for (const Category *category : _categories) {
-    double spent = -spentInCategory(category->name(), year, month);  // Make positive
+    double total = spentInCategory(category->name(), year, month);
     double budgetLimit = category->budgetLimit();
-    double remaining = budgetLimit - spent;
-    double percentUsed = budgetLimit > 0 ? (spent / budgetLimit) * 100.0 : 0.0;
+    bool isIncome = budgetLimit > 0;
+
+    // For display: show positive values
+    // - Expenses: total is negative, we show as positive "spent"
+    // - Income: total is positive, we show as positive "received"
+    double displayAmount = isIncome ? total : -total;
+    double displayLimit = std::abs(budgetLimit);
+    double remaining = displayLimit - displayAmount;
+    double percentUsed = displayLimit > 0 ? (displayAmount / displayLimit) * 100.0 : 0.0;
 
     QVariantMap item;
     item["name"] = category->name();
-    item["budgetLimit"] = budgetLimit;
-    item["spent"] = spent;
+    item["budgetLimit"] = displayLimit;
+    item["amount"] = displayAmount;
     item["remaining"] = remaining;
     item["percentUsed"] = percentUsed;
+    item["isIncome"] = isIncome;
     result.append(item);
   }
 

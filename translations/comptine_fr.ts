@@ -31,6 +31,22 @@
         <translation>Pas de budget défini</translation>
     </message>
     <message>
+        <source>(income)</source>
+        <translation>(revenu)</translation>
+    </message>
+    <message>
+        <source>PENDING</source>
+        <translation>EN ATTENTE</translation>
+    </message>
+    <message>
+        <source>Expected: %1</source>
+        <translation>Attendu : %1</translation>
+    </message>
+    <message>
+        <source>Received: %1 extra</source>
+        <translation>Reçu : %1 en plus</translation>
+    </message>
+    <message>
         <source>No categories defined</source>
         <translation>Aucune catégorie définie</translation>
     </message>
@@ -109,12 +125,28 @@
         <translation>Nom de la catégorie</translation>
     </message>
     <message>
+        <source>Income category</source>
+        <translation>Catégorie de revenu</translation>
+    </message>
+    <message>
         <source>Budget Limit</source>
         <translation>Limite de budget</translation>
     </message>
     <message>
+        <source>Expected Income</source>
+        <translation>Revenu attendu</translation>
+    </message>
+    <message>
         <source>0.00</source>
         <translation>0,00</translation>
+    </message>
+    <message>
+        <source>Track positive transactions (salary, etc.)</source>
+        <translation>Suivre les transactions positives (salaire, etc.)</translation>
+    </message>
+    <message>
+        <source>Track negative transactions (expenses)</source>
+        <translation>Suivre les transactions négatives (dépenses)</translation>
     </message>
 </context>
 <context>

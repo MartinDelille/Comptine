@@ -93,6 +93,12 @@ Rectangle {
                             color: Theme.textPrimary
                         }
 
+                        Label {
+                            text: modelData.isIncome ? qsTr("(income)") : ""
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.textMuted
+                        }
+
                         // Edit button
                         ToolButton {
                             text: "✏️"
@@ -101,7 +107,8 @@ Rectangle {
                             onClicked: {
                                 editCategoryDialog.categoryIndex = index;
                                 editCategoryDialog.originalName = modelData.name;
-                                editCategoryDialog.originalBudgetLimit = modelData.budgetLimit;
+                                // Pass signed limit: positive for income, negative for expense
+                                editCategoryDialog.originalBudgetLimit = modelData.isIncome ? modelData.budgetLimit : -modelData.budgetLimit;
                                 editCategoryDialog.open();
                             }
                         }
@@ -111,14 +118,22 @@ Rectangle {
                         }
 
                         Label {
-                            text: modelData.budgetLimit > 0 && modelData.percentUsed > 100 ? qsTr("EXCEEDED") : ""
+                            text: {
+                                if (modelData.budgetLimit <= 0)
+                                    return "";
+                                if (modelData.isIncome && modelData.percentUsed < 100)
+                                    return qsTr("PENDING");
+                                if (!modelData.isIncome && modelData.percentUsed > 100)
+                                    return qsTr("EXCEEDED");
+                                return "";
+                            }
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
-                            color: Theme.negative
+                            color: modelData.isIncome ? Theme.warning : Theme.negative
                         }
 
                         Label {
-                            text: Theme.formatAmount(modelData.spent) + " / " + Theme.formatAmount(modelData.budgetLimit)
+                            text: Theme.formatAmount(modelData.amount) + " / " + Theme.formatAmount(modelData.budgetLimit)
                             font.pixelSize: Theme.fontSizeNormal
                             color: Theme.textSecondary
                         }
@@ -138,19 +153,41 @@ Rectangle {
                             color: {
                                 if (modelData.budgetLimit <= 0)
                                     return Theme.textMuted;
-                                if (modelData.percentUsed > 100)
-                                    return Theme.negative;
-                                if (modelData.percentUsed > 80)
-                                    return Theme.warning;
-                                return Theme.positive;
+                                if (modelData.isIncome) {
+                                    // Income: green when complete, warning when pending
+                                    return modelData.percentUsed >= 100 ? Theme.positive : Theme.warning;
+                                } else {
+                                    // Expense: red when exceeded, warning when close
+                                    if (modelData.percentUsed > 100)
+                                        return Theme.negative;
+                                    if (modelData.percentUsed > 80)
+                                        return Theme.warning;
+                                    return Theme.positive;
+                                }
                             }
                         }
                     }
 
                     Label {
-                        text: modelData.budgetLimit > 0 ? (modelData.remaining >= 0 ? qsTr("Remaining: %1").arg(Theme.formatAmount(modelData.remaining)) : qsTr("Exceeded: %1").arg(Theme.formatAmount(-modelData.remaining))) : qsTr("No budget defined")
+                        text: {
+                            if (modelData.budgetLimit <= 0)
+                                return qsTr("No budget defined");
+                            if (modelData.isIncome) {
+                                return modelData.remaining > 0 ? qsTr("Expected: %1").arg(Theme.formatAmount(modelData.remaining)) : qsTr("Received: %1 extra").arg(Theme.formatAmount(-modelData.remaining));
+                            } else {
+                                return modelData.remaining >= 0 ? qsTr("Remaining: %1").arg(Theme.formatAmount(modelData.remaining)) : qsTr("Exceeded: %1").arg(Theme.formatAmount(-modelData.remaining));
+                            }
+                        }
                         font.pixelSize: Theme.fontSizeSmall
-                        color: modelData.remaining >= 0 ? Theme.textSecondary : Theme.negative
+                        color: {
+                            if (modelData.budgetLimit <= 0)
+                                return Theme.textSecondary;
+                            if (modelData.isIncome) {
+                                return modelData.remaining > 0 ? Theme.warning : Theme.positive;
+                            } else {
+                                return modelData.remaining >= 0 ? Theme.textSecondary : Theme.negative;
+                            }
+                        }
                     }
                 }
             }

@@ -1,27 +1,31 @@
 # Comptine Budget Data Format - Extended Example
 # This file contains a larger dataset for testing and demonstration purposes.
+#
+# Budget limits use signed values:
+#   - Negative limit = Expense category (spending budget)
+#   - Positive limit = Income category (expected income)
 
 categories:
   - name: Alimentation
-    budget_limit: 400.00
+    budget_limit: -400.00
   - name: Transports
-    budget_limit: 150.00
+    budget_limit: -150.00
   - name: Logement
-    budget_limit: 1200.00
+    budget_limit: -1200.00
   - name: Loisirs
-    budget_limit: 200.00
+    budget_limit: -200.00
   - name: Sante
-    budget_limit: 100.00
+    budget_limit: -100.00
   - name: Shopping
-    budget_limit: 150.00
+    budget_limit: -150.00
   - name: Revenus
-    budget_limit: 0.00
+    budget_limit: 2800.00
   - name: Epargne
     budget_limit: 300.00
   - name: Restaurants
-    budget_limit: 150.00
+    budget_limit: -150.00
   - name: Abonnements
-    budget_limit: 80.00
+    budget_limit: -80.00
 
 accounts:
   - name: Compte Courant

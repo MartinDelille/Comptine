@@ -12,18 +12,21 @@ Dialog {
 
     property int categoryIndex: -1
     property string originalName: ""
-    property real originalBudgetLimit: 0
+    property real originalBudgetLimit: 0  // Signed: positive = income, negative = expense
 
     onOpened: {
         categoryNameField.text = originalName;
-        budgetLimitField.text = originalBudgetLimit.toFixed(2);
+        incomeSwitch.checked = originalBudgetLimit > 0;
+        budgetLimitField.text = Math.abs(originalBudgetLimit).toFixed(2);
         categoryNameField.forceActiveFocus();
         categoryNameField.selectAll();
     }
 
     onAccepted: {
-        let newBudgetLimit = parseFloat(budgetLimitField.text.replace(",", ".")) || 0;
-        budgetData.editCategory(categoryIndex, categoryNameField.text, newBudgetLimit);
+        let limitValue = parseFloat(budgetLimitField.text.replace(",", ".")) || 0;
+        // Apply sign: positive for income, negative for expense
+        let signedLimit = incomeSwitch.checked ? limitValue : -limitValue;
+        budgetData.editCategory(categoryIndex, categoryNameField.text, signedLimit);
     }
 
     ColumnLayout {
@@ -45,8 +48,27 @@ Dialog {
                 selectAll()
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Theme.spacingNormal
+
+            Label {
+                text: qsTr("Income category")
+                font.pixelSize: Theme.fontSizeNormal
+                color: Theme.textPrimary
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            Switch {
+                id: incomeSwitch
+            }
+        }
+
         Label {
-            text: qsTr("Budget Limit")
+            text: incomeSwitch.checked ? qsTr("Expected Income") : qsTr("Budget Limit")
             font.pixelSize: Theme.fontSizeNormal
             color: Theme.textPrimary
         }
@@ -59,6 +81,14 @@ Dialog {
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             onActiveFocusChanged: if (activeFocus)
                 selectAll()
+        }
+
+        Label {
+            text: incomeSwitch.checked ? qsTr("Track positive transactions (salary, etc.)") : qsTr("Track negative transactions (expenses)")
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.textMuted
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
     }
 }
