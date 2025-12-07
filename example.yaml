@@ -26,28 +26,32 @@ accounts:
     operations:
       - date: 2025-10-08
         amount: -45.00
-        category: Alimentation
         description: Supermarche Carrefour
+        allocations:
+          - category: Alimentation
+            amount: -40.00
+          - category: Loisirs
+            amount: -5.00
       - date: 2025-10-07
         amount: -9.99
-        category: Loisirs
         description: Abonnement Libération
+        category: Loisirs
       - date: 2025-10-06
         amount: -85.00
-        category: Logement
         description: Electricite EDF
-        current: true
+        category: Logement
       - date: 2025-10-03
         amount: 25.00
-        category: Sante
         description: Remboursement mutuelle
+        category: Sante
       - date: 2025-09-29
         amount: 2500.00
-        category: Revenus
         description: Salaire Octobre
+        category: Revenus
+        current: true
   - name: Livret A
     operations:
       - date: 2025-09-15
         amount: 100.00
-        category: Epargne
         description: Virement mensuel epargne
+        category: Epargne

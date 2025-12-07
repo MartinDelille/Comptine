@@ -23,6 +23,12 @@
 - **Keyboard Navigation**: Up/Down arrows to navigate, with Shift for extending selection
 - **Balance Calculation**: Running balance calculated and displayed for each operation
 - **Copy to Clipboard**: Copy selected operations as CSV (Cmd+C)
+- **Split Operation**: Split a single operation across multiple categories with specific amounts
+  - Click the split button (✂️) next to the category selector
+  - Add multiple category allocations with amounts
+  - Allocations must sum to the total operation amount
+  - Split operations are saved with allocations in YAML format
+  - Budget calculations correctly attribute amounts to each category
 
 ## Import
 
@@ -45,7 +51,7 @@
 
 - **Undo**: Undo the last action (Edit > Undo or Cmd+Z)
 - **Redo**: Redo the last undone action (Edit > Redo or Cmd+Shift+Z)
-- **Supported Actions**: Account rename, CSV import (including any new categories created)
+- **Supported Actions**: Account rename, CSV import (including any new categories created), category changes, split operations
 
 ## User Interface
 

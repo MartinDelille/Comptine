@@ -260,3 +260,68 @@ void SetOperationBudgetDateCommand::redo() {
     }
   }
 }
+
+SplitOperationCommand::SplitOperationCommand(Operation *operation,
+                                             OperationListModel *operationModel,
+                                             BudgetData *budgetData,
+                                             const QString &oldCategory,
+                                             const QList<CategoryAllocation> &oldAllocations,
+                                             const QList<CategoryAllocation> &newAllocations,
+                                             QUndoCommand *parent) :
+    QUndoCommand(parent),
+    _operation(operation),
+    _operationModel(operationModel),
+    _budgetData(budgetData),
+    _oldCategory(oldCategory),
+    _oldAllocations(oldAllocations),
+    _newAllocations(newAllocations) {
+  if (newAllocations.size() > 1) {
+    setText(QObject::tr("Split operation into %1 categories").arg(newAllocations.size()));
+  } else if (newAllocations.size() == 1) {
+    setText(QObject::tr("Set operation category to \"%1\"").arg(newAllocations.first().category));
+  } else {
+    setText(QObject::tr("Clear operation split"));
+  }
+}
+
+void SplitOperationCommand::undo() {
+  if (_operation) {
+    if (_oldAllocations.isEmpty()) {
+      // Was a single category, restore it
+      _operation->clearAllocations();
+      _operation->set_category(_oldCategory);
+    } else {
+      // Was already split, restore old allocations
+      _operation->setAllocations(_oldAllocations);
+    }
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}
+
+void SplitOperationCommand::redo() {
+  if (_operation) {
+    if (_newAllocations.size() == 1) {
+      // Single category - use regular category field
+      _operation->clearAllocations();
+      _operation->set_category(_newAllocations.first().category);
+    } else if (_newAllocations.isEmpty()) {
+      // Clear everything
+      _operation->clearAllocations();
+      _operation->set_category(QString());
+    } else {
+      // Multiple categories - use allocations
+      _operation->setAllocations(_newAllocations);
+    }
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}

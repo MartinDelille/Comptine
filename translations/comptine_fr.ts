@@ -143,10 +143,6 @@
         <translation>Limite de budget</translation>
     </message>
     <message>
-        <source>0.00</source>
-        <translation>0,00</translation>
-    </message>
-    <message>
         <source>This is an income category</source>
         <translation>Ceci est une catégorie de revenu</translation>
     </message>
@@ -231,6 +227,10 @@
     <message>
         <source>&amp;Redo</source>
         <translation>Rétablir</translation>
+    </message>
+    <message>
+        <source>&amp;Split Operation...</source>
+        <translation>Diviser l&apos;opération...</translation>
     </message>
     <message>
         <source>Edit &amp;Category...</source>
@@ -417,6 +417,14 @@ Importez et gérez vos données bancaires.</translation>
         <source>Balance:</source>
         <translation>Solde :</translation>
     </message>
+    <message>
+        <source>Split between categories...</source>
+        <translation>Diviser entre catégories...</translation>
+    </message>
+    <message>
+        <source>Edit Split...</source>
+        <translation>Modifier la division...</translation>
+    </message>
 </context>
 <context>
     <name>OperationView</name>
@@ -511,6 +519,53 @@ Importez et gérez vos données bancaires.</translation>
     <message>
         <source>Set operation budget date to %1</source>
         <translation>Définir la date budget de l&apos;opération à %1</translation>
+    </message>
+    <message>
+        <source>Split operation into %1 categories</source>
+        <translation>Diviser l&apos;opération en %1 catégories</translation>
+    </message>
+    <message>
+        <source>Clear operation split</source>
+        <translation>Effacer la division de l&apos;opération</translation>
+    </message>
+</context>
+<context>
+    <name>SplitOperationDialog</name>
+    <message>
+        <source>Split Operation</source>
+        <translation>Diviser l&apos;opération</translation>
+    </message>
+    <message>
+        <source>Total Amount:</source>
+        <translation>Montant total :</translation>
+    </message>
+    <message>
+        <source>Remaining:</source>
+        <translation>Restant :</translation>
+    </message>
+    <message>
+        <source>Select category...</source>
+        <translation>Sélectionner une catégorie...</translation>
+    </message>
+    <message>
+        <source>+ Add Category</source>
+        <translation>+ Ajouter une catégorie</translation>
+    </message>
+    <message>
+        <source>Allocations must equal the total amount</source>
+        <translation>Les allocations doivent être égales au montant total</translation>
+    </message>
+    <message>
+        <source>All allocations must have a category</source>
+        <translation>Toutes les allocations doivent avoir une catégorie</translation>
+    </message>
+    <message>
+        <source>Each category can only be used once</source>
+        <translation>Chaque catégorie ne peut être utilisée qu&apos;une seule fois</translation>
+    </message>
+    <message>
+        <source>At least one allocation is required</source>
+        <translation>Au moins une allocation est requise</translation>
     </message>
 </context>
 </TS>

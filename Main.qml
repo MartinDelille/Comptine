@@ -129,6 +129,12 @@ ApplicationWindow {
             }
             MenuSeparator {}
             Action {
+                text: qsTr("&Split Operation...")
+                shortcut: "Ctrl+B"
+                enabled: budgetData.currentTabIndex === 0 && budgetData.operationModel.selectionCount === 1
+                onTriggered: operationView.openSplitDialog()
+            }
+            Action {
                 text: qsTr("Edit &Category...")
                 shortcut: "Ctrl+E"
                 enabled: budgetData.currentTabIndex === 1 && budgetData.currentCategoryIndex >= 0

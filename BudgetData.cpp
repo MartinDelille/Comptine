@@ -235,14 +235,43 @@ void BudgetData::setOperationBudgetDate(int operationIndex, const QDate &newBudg
   }
 }
 
+void BudgetData::splitOperation(int operationIndex, const QVariantList &allocations) {
+  Account *account = currentAccount();
+  if (!account) return;
+
+  Operation *operation = account->getOperation(operationIndex);
+  if (!operation) return;
+
+  // Convert QVariantList to QList<CategoryAllocation>
+  QList<CategoryAllocation> newAllocations;
+  for (const QVariant &v : allocations) {
+    QVariantMap m = v.toMap();
+    CategoryAllocation alloc;
+    alloc.category = m["category"].toString();
+    alloc.amount = m["amount"].toDouble();
+    newAllocations.append(alloc);
+  }
+
+  // Get current state
+  QString oldCategory = operation->category();
+  QList<CategoryAllocation> oldAllocations = operation->allocationsList();
+
+  // Only create command if something changed
+  if (newAllocations != oldAllocations || (newAllocations.size() == 1 && newAllocations.first().category != oldCategory)) {
+    _undoStack->push(new SplitOperationCommand(operation, _operationModel, this,
+                                               oldCategory, oldAllocations, newAllocations));
+  }
+}
+
 double BudgetData::spentInCategory(const QString &categoryName, int year, int month) const {
   double total = 0.0;
   for (const Account *account : _accounts) {
     for (const Operation *op : account->operations()) {
       // Use budgetDate for budget calculations (falls back to date if not set)
       QDate budgetDate = op->budgetDate();
-      if (op->category() == categoryName && budgetDate.year() == year && budgetDate.month() == month) {
-        total += op->amount();
+      if (budgetDate.year() == year && budgetDate.month() == month) {
+        // Use amountForCategory which handles both split and non-split operations
+        total += op->amountForCategory(categoryName);
       }
     }
   }
@@ -300,14 +329,20 @@ QVariantList BudgetData::operationsForCategory(const QString &categoryName, int 
   for (const Account *account : _accounts) {
     for (const Operation *op : account->operations()) {
       QDate budgetDate = op->budgetDate();
-      if (op->category() == categoryName && budgetDate.year() == year && budgetDate.month() == month) {
-        QVariantMap item;
-        item["date"] = op->date();
-        item["budgetDate"] = budgetDate;
-        item["description"] = op->description();
-        item["amount"] = op->amount();
-        item["accountName"] = account->name();
-        result.append(item);
+      if (budgetDate.year() == year && budgetDate.month() == month) {
+        // Check if this operation contributes to this category
+        double categoryAmount = op->amountForCategory(categoryName);
+        if (!qFuzzyIsNull(categoryAmount)) {
+          QVariantMap item;
+          item["date"] = op->date();
+          item["budgetDate"] = budgetDate;
+          item["description"] = op->description();
+          item["amount"] = categoryAmount;     // Show only the amount for this category
+          item["totalAmount"] = op->amount();  // Total operation amount
+          item["isSplit"] = op->isSplit();
+          item["accountName"] = account->name();
+          result.append(item);
+        }
       }
     }
   }
@@ -473,8 +508,22 @@ bool BudgetData::saveToYaml(const QString &filePath) const {
       opNode |= ryml::MAP;
       opNode["date"] << toStdString(op->date().toString("yyyy-MM-dd"));
       opNode["amount"] << toStdString(QString::number(op->amount(), 'f', 2));
-      opNode["category"] << toStdString(op->category());
       opNode["description"] << toStdString(op->description());
+
+      // Handle split operations vs single category
+      if (op->isSplit()) {
+        ryml::NodeRef allocsNode = opNode["allocations"];
+        allocsNode |= ryml::SEQ;
+        for (const auto &alloc : op->allocationsList()) {
+          ryml::NodeRef allocNode = allocsNode.append_child();
+          allocNode |= ryml::MAP;
+          allocNode["category"] << toStdString(alloc.category);
+          allocNode["amount"] << toStdString(QString::number(alloc.amount, 'f', 2));
+        }
+      } else {
+        opNode["category"] << toStdString(op->category());
+      }
+
       // Only save budget_date if explicitly set (different from operation date)
       if (op->budgetDate() != op->date()) {
         opNode["budget_date"] << toStdString(op->budgetDate().toString("yyyy-MM-dd"));
@@ -597,7 +646,23 @@ bool BudgetData::loadFromYaml(const QString &filePath) {
               auto val = opNode["amount"].val();
               op->set_amount(QString::fromUtf8(val.str, val.len).toDouble());
             }
-            if (opNode.has_child("category")) {
+            // Handle split operations (allocations) vs single category
+            if (opNode.has_child("allocations")) {
+              QList<CategoryAllocation> allocations;
+              for (ryml::ConstNodeRef allocNode : opNode["allocations"]) {
+                CategoryAllocation alloc;
+                if (allocNode.has_child("category")) {
+                  auto val = allocNode["category"].val();
+                  alloc.category = QString::fromUtf8(val.str, val.len);
+                }
+                if (allocNode.has_child("amount")) {
+                  auto val = allocNode["amount"].val();
+                  alloc.amount = QString::fromUtf8(val.str, val.len).toDouble();
+                }
+                allocations.append(alloc);
+              }
+              op->setAllocations(allocations);
+            } else if (opNode.has_child("category")) {
               auto val = opNode["category"].val();
               op->set_category(QString::fromUtf8(val.str, val.len));
             }

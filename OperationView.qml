@@ -13,6 +13,21 @@ FocusScope {
         }
     }
 
+    // Function to open split dialog from menu action
+    function openSplitDialog() {
+        if (operationList.currentIndex >= 0) {
+            let op = budgetData.operationModel.operationAt(operationList.currentIndex);
+            if (op) {
+                splitDialog.initialize(operationList.currentIndex, op.amount, op.isSplit ? op.allocations : [], op.category);
+                splitDialog.open();
+            }
+        }
+    }
+
+    SplitOperationDialog {
+        id: splitDialog
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: Theme.spacingNormal
@@ -89,7 +104,7 @@ FocusScope {
 
             BalanceHeader {
                 Layout.fillWidth: true
-                balance: budgetData.operationModel.count > 0 ? budgetData.operationModel.data(budgetData.operationModel.index(0, 0), 261) : 0
+                balance: budgetData.operationModel.count > 0 ? budgetData.operationModel.balanceAt(0) : 0
                 operationCount: budgetData.operationModel.count
             }
         }
@@ -106,9 +121,14 @@ FocusScope {
             }
 
             OperationDetails {
+                id: operationDetails
                 Layout.preferredWidth: 300
                 Layout.fillHeight: true
                 currentIndex: operationList.currentIndex
+                onSplitRequested: (operationIndex, amount, allocations, currentCategory) => {
+                    splitDialog.initialize(operationIndex, amount, allocations, currentCategory);
+                    splitDialog.open();
+                }
             }
         }
     }

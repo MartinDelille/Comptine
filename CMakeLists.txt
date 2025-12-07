@@ -76,6 +76,7 @@ set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 qt_add_qml_module(Comptine URI Comptine QML_FILES
     Main.qml
+    AmountField.qml
     BalanceHeader.qml
     BudgetView.qml
     CategoryDetailView.qml
@@ -88,6 +89,7 @@ qt_add_qml_module(Comptine URI Comptine QML_FILES
     OperationList.qml
     OperationView.qml
     PreferencesDialog.qml
+    SplitOperationDialog.qml
     Theme.qml
 )
 

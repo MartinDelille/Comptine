@@ -7,20 +7,22 @@ Rectangle {
 
     required property int currentIndex
 
-    // Get operation and balance from the model
-    readonly property var operation: currentIndex >= 0 ? budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 263) : null
-    readonly property double balance: {
-        if (currentIndex < 0)
-            return 0;
-        var val = budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 261);
-        return val !== undefined ? val : 0;
-    }
+    // Signal to request opening split dialog (handled by parent)
+    signal splitRequested(int operationIndex, double amount, var allocations, string currentCategory)
+
+    // Get operation and balance from the model using helper methods
+    readonly property var operation: currentIndex >= 0 ? budgetData.operationModel.operationAt(currentIndex) : null
+    readonly property double balance: currentIndex >= 0 ? budgetData.operationModel.balanceAt(currentIndex) : 0
 
     // Multi-selection state
     readonly property bool multipleSelected: budgetData.operationModel.selectionCount > 1
 
     // Category list for ComboBox (reactive to category changes)
-    property var categoryList: [""].concat(budgetData.categoryNames())
+    property var categoryList: []
+
+    Component.onCompleted: {
+        root.categoryList = [""].concat(budgetData.categoryNames());
+    }
 
     Connections {
         target: budgetData
@@ -33,6 +35,10 @@ Rectangle {
     border.width: Theme.cardBorderWidth
     border.color: Theme.border
     color: Theme.surface
+
+    EditBudgetDateDialog {
+        id: budgetDateDialog
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -135,6 +141,7 @@ Rectangle {
                 ToolButton {
                     text: "✏️"
                     font.pixelSize: Theme.fontSizeSmall
+                    focusPolicy: Qt.NoFocus
                     opacity: hovered ? 1.0 : 0.5
                     onClicked: {
                         budgetDateDialog.operationIndex = root.currentIndex;
@@ -142,10 +149,6 @@ Rectangle {
                         budgetDateDialog.open();
                     }
                 }
-            }
-
-            EditBudgetDateDialog {
-                id: budgetDateDialog
             }
 
             Label {
@@ -172,9 +175,11 @@ Rectangle {
                 Layout.topMargin: Theme.spacingSmall
             }
 
+            // Single category view (when not split)
             RowLayout {
                 Layout.fillWidth: true
                 spacing: Theme.spacingSmall
+                visible: !root.operation?.isSplit
 
                 ComboBox {
                     id: categoryComboBox
@@ -195,6 +200,60 @@ Rectangle {
                             let newCategory = index === 0 ? "" : root.categoryList[index];
                             budgetData.setOperationCategory(root.currentIndex, newCategory);
                         }
+                    }
+                }
+
+                ToolButton {
+                    text: "✂️"
+                    font.pixelSize: Theme.fontSizeSmall
+                    focusPolicy: Qt.NoFocus
+                    opacity: hovered ? 1.0 : 0.5
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Split between categories...")
+                    onClicked: {
+                        root.splitRequested(root.currentIndex, root.operation.amount, [], root.operation.category);
+                    }
+                }
+            }
+
+            // Split allocations view (when split)
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: Theme.spacingSmall
+                visible: root.operation?.isSplit ?? false
+
+                Repeater {
+                    model: root.operation?.allocations ?? []
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.spacingSmall
+
+                        required property var modelData
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: modelData.category || qsTr("Uncategorized")
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.textPrimary
+                            elide: Text.ElideRight
+                        }
+
+                        Label {
+                            text: Theme.formatAmount(modelData.amount)
+                            font.pixelSize: Theme.fontSizeSmall
+                            font.bold: true
+                            color: Theme.amountColor(modelData.amount)
+                        }
+                    }
+                }
+
+                Button {
+                    text: qsTr("Edit Split...")
+                    font.pixelSize: Theme.fontSizeSmall
+                    focusPolicy: Qt.NoFocus
+                    onClicked: {
+                        root.splitRequested(root.currentIndex, root.operation.amount, root.operation.allocations, "");
                     }
                 }
             }
