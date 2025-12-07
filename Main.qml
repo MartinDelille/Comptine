@@ -290,9 +290,21 @@ ApplicationWindow {
             target: budgetData
             function onDataLoaded() {
                 tabBar.currentIndex = budgetData.currentTabIndex;
+                // Focus the appropriate view after data load
+                if (budgetData.currentTabIndex === 0) {
+                    operationView.forceActiveFocus();
+                } else {
+                    budgetView.forceActiveFocus();
+                }
             }
             function onCurrentTabIndexChanged() {
                 tabBar.currentIndex = budgetData.currentTabIndex;
+                // Focus the appropriate view when tab changes
+                if (budgetData.currentTabIndex === 0) {
+                    operationView.forceActiveFocus();
+                } else {
+                    budgetView.forceActiveFocus();
+                }
             }
         }
 
@@ -303,12 +315,14 @@ ApplicationWindow {
 
             // Operations view
             OperationView {
+                id: operationView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
 
             // Budget view
             BudgetView {
+                id: budgetView
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }

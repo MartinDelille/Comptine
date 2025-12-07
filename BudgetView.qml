@@ -8,15 +8,29 @@ FocusScope {
     property var budgetSummary: []
     property int currentCategoryIndex: -1
 
+    // Forward focus to the category list
+    onActiveFocusChanged: {
+        if (activeFocus && budgetSummary.length > 0) {
+            if (currentCategoryIndex < 0) {
+                currentCategoryIndex = 0;
+            }
+            categoryListView.forceActiveFocus();
+        }
+    }
+
     function updateBudgetSummary() {
         budgetSummary = budgetData.monthlyBudgetSummary(budgetData.budgetYear, budgetData.budgetMonth);
-        // Reset current index if out of bounds
-        if (currentCategoryIndex >= budgetSummary.length) {
+        // Reset current index if out of bounds, or initialize to first item
+        if (currentCategoryIndex < 0 && budgetSummary.length > 0) {
+            currentCategoryIndex = 0;
+        } else if (currentCategoryIndex >= budgetSummary.length) {
             currentCategoryIndex = budgetSummary.length > 0 ? 0 : -1;
         }
     }
 
-    Component.onCompleted: updateBudgetSummary()
+    Component.onCompleted: {
+        updateBudgetSummary();
+    }
 
     Connections {
         target: budgetData
@@ -124,8 +138,8 @@ FocusScope {
                     width: ListView.view.width
                     implicitHeight: contentColumn.implicitHeight + 24
                     color: delegateMouseArea.containsMouse ? Theme.surface : Theme.surfaceElevated
-                    border.color: root.currentCategoryIndex === index && categoryListView.activeFocus ? Theme.accent : Theme.borderLight
-                    border.width: root.currentCategoryIndex === index && categoryListView.activeFocus ? 2 : Theme.cardBorderWidth
+                    border.color: root.currentCategoryIndex === index ? Theme.accent : Theme.borderLight
+                    border.width: root.currentCategoryIndex === index ? 2 : Theme.cardBorderWidth
                     radius: Theme.cardRadius
 
                     MouseArea {
