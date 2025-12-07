@@ -19,8 +19,8 @@ jobs:
             release-file: build/Comptine-macOS.zip
           - os: windows-latest
             name: Windows
-            artifact-path: build/Release/*.exe
-            zip-command: cd build/Release && 7z a ../Comptine-Windows.zip Comptine.exe
+            artifact-path: build/Release
+            zip-command: cd build && 7z a Comptine-Windows.zip Release
             release-file: build/Comptine-Windows.zip
             cmake-build-args: --config Release
             ctest-args: -C Release
@@ -62,6 +62,14 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure ${{ matrix.ctest-args }}
+
+      - name: Deploy Qt (macOS)
+        if: matrix.os == 'macos-latest'
+        run: macdeployqt build/Comptine.app -qmldir=.
+
+      - name: Deploy Qt (Windows)
+        if: matrix.os == 'windows-latest'
+        run: windeployqt build/Release/Comptine.exe --qmldir .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
