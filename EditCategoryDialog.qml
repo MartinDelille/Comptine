@@ -18,26 +18,27 @@ Dialog {
         let cleaned = str.trim();
         // Remove spaces (thousand separators), non-breaking spaces, and Euro symbol
         cleaned = cleaned.replace(/[\s\u00A0\u202F€]/g, "");
-        // Handle plus sign for positive amounts
-        let isPositive = cleaned.startsWith("+");
-        if (isPositive) {
-            cleaned = cleaned.substring(1);
-        }
+        // Remove any sign - we'll apply it based on the checkbox
+        cleaned = cleaned.replace(/^[+-]/, "");
         // French decimal comma to dot
         cleaned = cleaned.replace(",", ".");
-        let value = parseFloat(cleaned) || 0;
-        return isPositive ? Math.abs(value) : value;
+        return parseFloat(cleaned) || 0;
     }
 
     onOpened: {
         categoryNameField.text = originalName;
-        budgetLimitField.text = originalBudgetLimit.toFixed(2);
+        // Set checkbox based on sign (positive = income)
+        incomeCheckBox.checked = originalBudgetLimit > 0;
+        // Display absolute value
+        budgetLimitField.text = Math.abs(originalBudgetLimit).toFixed(2);
         categoryNameField.forceActiveFocus();
         categoryNameField.selectAll();
     }
 
     onAccepted: {
-        let newBudgetLimit = parseAmount(budgetLimitField.text);
+        let amount = parseAmount(budgetLimitField.text);
+        // Apply sign based on checkbox: income = positive, expense = negative
+        let newBudgetLimit = incomeCheckBox.checked ? amount : -amount;
         budgetData.editCategory(originalName, categoryNameField.text, newBudgetLimit);
     }
 
@@ -75,10 +76,9 @@ Dialog {
                 selectAll()
         }
 
-        Label {
-            text: qsTr("Negative = expense, Positive = income")
-            font.pixelSize: Theme.fontSizeSmall
-            color: Theme.textMuted
+        CheckBox {
+            id: incomeCheckBox
+            text: qsTr("This is an income category")
         }
     }
 }

@@ -151,8 +151,8 @@
         <translation>0,00</translation>
     </message>
     <message>
-        <source>Negative = expense, Positive = income</source>
-        <translation>Négatif = dépense, Positif = revenu</translation>
+        <source>This is an income category</source>
+        <translation>Ceci est une catégorie de revenu</translation>
     </message>
 </context>
 <context>
