@@ -12,6 +12,7 @@ ApplicationWindow {
     color: Theme.background
 
     property bool fileDialogOpen: openDialog.visible || saveDialog.visible || csvDialog.visible
+    property bool anyDialogOpen: fileDialogOpen || importDialog.visible || aboutDialog.visible || preferencesDialog.visible || unsavedChangesDialog.visible || budgetView.dialogOpen
     property string pendingAction: ""  // "quit", "new", or "open"
     property bool forceQuit: false  // Set to true when user confirmed quit without saving
 
@@ -150,7 +151,7 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Previous Month")
                 shortcut: "Left"
-                enabled: !fileDialogOpen
+                enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
                 onTriggered: {
                     if (budgetData.budgetMonth === 1) {
                         budgetData.budgetMonth = 12;
@@ -163,7 +164,7 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Next Month")
                 shortcut: "Right"
-                enabled: !fileDialogOpen
+                enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
                 onTriggered: {
                     if (budgetData.budgetMonth === 12) {
                         budgetData.budgetMonth = 1;

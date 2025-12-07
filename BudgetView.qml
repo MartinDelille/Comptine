@@ -6,6 +6,7 @@ FocusScope {
     id: root
 
     property var budgetSummary: []
+    property bool dialogOpen: editCategoryDialog.visible || categoryDetailView.visible
 
     // Forward focus to the category list
     onActiveFocusChanged: {
