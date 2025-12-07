@@ -294,6 +294,43 @@ QVariantList BudgetData::operationsForCategory(const QString &categoryName, int 
   return result;
 }
 
+void BudgetData::selectOperation(const QString &accountName, const QDate &date,
+                                 const QString &description, double amount) {
+  // Find the account index
+  int accountIndex = -1;
+  for (int i = 0; i < _accounts.size(); ++i) {
+    if (_accounts[i]->name() == accountName) {
+      accountIndex = i;
+      break;
+    }
+  }
+
+  if (accountIndex < 0) {
+    return;
+  }
+
+  // Switch to the account
+  set_currentAccountIndex(accountIndex);
+
+  // Find the operation in the account
+  Account *account = _accounts[accountIndex];
+  const QList<Operation *> &ops = account->operations();
+  for (int i = 0; i < ops.size(); ++i) {
+    Operation *op = ops[i];
+    if (op->date() == date && op->description() == description && qFuzzyCompare(op->amount(), amount)) {
+      // Select this operation
+      _operationModel->select(i);
+
+      // Emit signal so OperationList can focus the operation
+      emit operationSelected(i);
+
+      // Switch to Operations tab
+      set_currentTabIndex(0);
+      return;
+    }
+  }
+}
+
 void BudgetData::clear() {
   clearAccounts();
   clearCategories();

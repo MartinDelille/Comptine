@@ -73,8 +73,19 @@ Dialog {
 
                 width: ListView.view.width
                 height: contentRow.implicitHeight + 16
-                color: index % 2 === 0 ? Theme.surface : Theme.surfaceElevated
+                color: operationMouseArea.containsMouse ? Theme.borderLight : (index % 2 === 0 ? Theme.surface : Theme.surfaceElevated)
                 radius: Theme.cardRadius
+
+                MouseArea {
+                    id: operationMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        budgetData.selectOperation(modelData.accountName, modelData.date, modelData.description, modelData.amount);
+                        root.close();
+                    }
+                }
 
                 RowLayout {
                     id: contentRow

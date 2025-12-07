@@ -73,6 +73,9 @@ public:
   Q_INVOKABLE QVariantList monthlyBudgetSummary(int year, int month) const;
   Q_INVOKABLE QVariantList operationsForCategory(const QString &categoryName, int year, int month) const;
 
+  // Navigation
+  Q_INVOKABLE void selectOperation(const QString &accountName, const QDate &date, const QString &description, double amount);
+
   // File operations
   Q_INVOKABLE bool loadFromYaml(const QString &filePath);
   Q_INVOKABLE bool saveToYaml(const QString &filePath) const;
@@ -94,7 +97,8 @@ signals:
   void dataLoaded();      // Emitted after any data load (YAML or CSV import)
   void yamlFileLoaded();  // Emitted only after YAML file load (for UI state restore)
   void dataSaved();
-  void operationDataChanged();  // Emitted when operation data changes (e.g., category edit)
+  void operationDataChanged();        // Emitted when operation data changes (e.g., category edit)
+  void operationSelected(int index);  // Emitted when an operation is selected via selectOperation()
 
 private:
   QList<Account *> _accounts;

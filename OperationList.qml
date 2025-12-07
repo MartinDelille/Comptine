@@ -43,6 +43,12 @@ FocusScope {
                 listView.positionViewAtIndex(0, ListView.Beginning);
                 listView.forceActiveFocus();
             }
+            function onOperationSelected(index) {
+                // Navigate from CategoryDetailView: focus and scroll to the operation
+                listView.currentIndex = index;
+                listView.positionViewAtIndex(index, ListView.Center);
+                listView.forceActiveFocus();
+            }
         }
 
         Keys.onUpPressed: event => {
