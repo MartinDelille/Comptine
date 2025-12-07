@@ -26,6 +26,10 @@ FocusScope {
         } else if (currentCategoryIndex >= budgetSummary.length) {
             currentCategoryIndex = budgetSummary.length > 0 ? 0 : -1;
         }
+        // Restore scroll position to current category after model update
+        if (currentCategoryIndex >= 0) {
+            categoryListView.positionViewAtIndex(currentCategoryIndex, ListView.Contain);
+        }
     }
 
     Component.onCompleted: {
@@ -58,6 +62,9 @@ FocusScope {
 
     EditCategoryDialog {
         id: editCategoryDialog
+        onClosed: {
+            categoryListView.forceActiveFocus();
+        }
     }
 
     CategoryDetailView {
