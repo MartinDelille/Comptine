@@ -28,6 +28,8 @@ class BudgetData : public QObject {
   PROPERTY_RO(int, accountCount)
   PROPERTY_RO(int, categoryCount)
   PROPERTY_RO(Account *, currentAccount)
+  PROPERTY_RO(bool, hasUnsavedChanges)
+  PROPERTY_RO(QString, currentCategoryName)
 
   // Custom property with validation logic (implemented in .cpp)
   PROPERTY_RW_CUSTOM(int, currentAccountIndex, -1)
@@ -77,6 +79,14 @@ public:
 
   // Navigation
   Q_INVOKABLE void selectOperation(const QString &accountName, const QDate &date, const QString &description, double amount);
+  Q_INVOKABLE void previousMonth();
+  Q_INVOKABLE void nextMonth();
+  Q_INVOKABLE void previousCategory();
+  Q_INVOKABLE void nextCategory();
+  Q_INVOKABLE void previousOperation(bool extendSelection = false);
+  Q_INVOKABLE void nextOperation(bool extendSelection = false);
+  Q_INVOKABLE void showOperationsTab();
+  Q_INVOKABLE void showBudgetTab();
 
   // File operations
   Q_INVOKABLE bool loadFromYaml(const QString &filePath);

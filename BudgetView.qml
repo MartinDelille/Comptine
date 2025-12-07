@@ -48,20 +48,15 @@ FocusScope {
     Connections {
         target: budgetData
         function onDataLoaded() {
-            // Update MonthSelector to match loaded state
-            monthSelector.selectedYear = budgetData.budgetYear;
-            monthSelector.selectedMonth = budgetData.budgetMonth;
             updateBudgetSummary();
         }
         function onCategoryCountChanged() {
             updateBudgetSummary();
         }
         function onBudgetYearChanged() {
-            monthSelector.selectedYear = budgetData.budgetYear;
             updateBudgetSummary();
         }
         function onBudgetMonthChanged() {
-            monthSelector.selectedMonth = budgetData.budgetMonth;
             updateBudgetSummary();
         }
         function onOperationDataChanged() {
@@ -92,12 +87,6 @@ FocusScope {
             // Month navigation
             MonthSelector {
                 id: monthSelector
-                selectedYear: budgetData.budgetYear
-                selectedMonth: budgetData.budgetMonth
-                onMonthChanged: (year, month) => {
-                    budgetData.budgetYear = year;
-                    budgetData.budgetMonth = month;
-                }
             }
 
             ListView {
@@ -112,17 +101,13 @@ FocusScope {
                 keyNavigationEnabled: false
 
                 Keys.onUpPressed: {
-                    if (budgetData.currentCategoryIndex > 0) {
-                        budgetData.currentCategoryIndex--;
-                        categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
-                    }
+                    budgetData.previousCategory();
+                    categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
                 }
 
                 Keys.onDownPressed: {
-                    if (budgetData.currentCategoryIndex < budgetSummary.length - 1) {
-                        budgetData.currentCategoryIndex++;
-                        categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
-                    }
+                    budgetData.nextCategory();
+                    categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
                 }
 
                 Keys.onReturnPressed: {

@@ -29,7 +29,7 @@ ApplicationWindow {
     }
 
     function checkUnsavedChanges(action) {
-        if (!budgetData.undoStack.clean) {
+        if (budgetData.hasUnsavedChanges) {
             pendingAction = action;
             unsavedChangesDialog.open();
             return true;  // Has unsaved changes, action deferred
@@ -38,7 +38,7 @@ ApplicationWindow {
     }
 
     onClosing: function (close) {
-        if (!budgetData.undoStack.clean && !forceQuit) {
+        if (budgetData.hasUnsavedChanges && !forceQuit) {
             close.accepted = false;
             pendingAction = "quit";
             unsavedChangesDialog.open();
@@ -147,39 +147,25 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Operations")
                 shortcut: "Ctrl+1"
-                onTriggered: budgetData.currentTabIndex = 0
+                onTriggered: budgetData.showOperationsTab()
             }
             Action {
                 text: qsTr("&Budget")
                 shortcut: "Ctrl+2"
-                onTriggered: budgetData.currentTabIndex = 1
+                onTriggered: budgetData.showBudgetTab()
             }
             MenuSeparator {}
             Action {
                 text: qsTr("&Previous Month")
                 shortcut: "Left"
                 enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
-                onTriggered: {
-                    if (budgetData.budgetMonth === 1) {
-                        budgetData.budgetMonth = 12;
-                        budgetData.budgetYear--;
-                    } else {
-                        budgetData.budgetMonth--;
-                    }
-                }
+                onTriggered: budgetData.previousMonth()
             }
             Action {
                 text: qsTr("&Next Month")
                 shortcut: "Right"
                 enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
-                onTriggered: {
-                    if (budgetData.budgetMonth === 12) {
-                        budgetData.budgetMonth = 1;
-                        budgetData.budgetYear++;
-                    } else {
-                        budgetData.budgetMonth++;
-                    }
-                }
+                onTriggered: budgetData.nextMonth()
             }
         }
     }
@@ -297,7 +283,6 @@ ApplicationWindow {
         Connections {
             target: budgetData
             function onDataLoaded() {
-                tabBar.currentIndex = budgetData.currentTabIndex;
                 // Focus the appropriate view after data load
                 if (budgetData.currentTabIndex === 0) {
                     operationView.forceActiveFocus();
@@ -306,7 +291,6 @@ ApplicationWindow {
                 }
             }
             function onCurrentTabIndexChanged() {
-                tabBar.currentIndex = budgetData.currentTabIndex;
                 // Focus the appropriate view when tab changes
                 if (budgetData.currentTabIndex === 0) {
                     operationView.forceActiveFocus();

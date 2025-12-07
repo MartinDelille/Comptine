@@ -116,6 +116,20 @@ int BudgetData::categoryCount() const {
   return _categories.size();
 }
 
+bool BudgetData::hasUnsavedChanges() const {
+  return !_undoStack->isClean();
+}
+
+QString BudgetData::currentCategoryName() const {
+  // Categories are sorted alphabetically in monthlyBudgetSummary, so we need to
+  // get the sorted list and return the name at currentCategoryIndex
+  QVariantList summary = monthlyBudgetSummary(_budgetYear, _budgetMonth);
+  if (_currentCategoryIndex >= 0 && _currentCategoryIndex < summary.size()) {
+    return summary[_currentCategoryIndex].toMap()["name"].toString();
+  }
+  return QString();
+}
+
 QList<Category *> BudgetData::categories() const {
   return _categories;
 }
@@ -341,6 +355,63 @@ void BudgetData::selectOperation(const QString &accountName, const QDate &date,
       return;
     }
   }
+}
+
+void BudgetData::previousMonth() {
+  if (_budgetMonth == 1) {
+    set_budgetMonth(12);
+    set_budgetYear(_budgetYear - 1);
+  } else {
+    set_budgetMonth(_budgetMonth - 1);
+  }
+}
+
+void BudgetData::nextMonth() {
+  if (_budgetMonth == 12) {
+    set_budgetMonth(1);
+    set_budgetYear(_budgetYear + 1);
+  } else {
+    set_budgetMonth(_budgetMonth + 1);
+  }
+}
+
+void BudgetData::previousCategory() {
+  // Get sorted category count from budget summary
+  QVariantList summary = monthlyBudgetSummary(_budgetYear, _budgetMonth);
+  if (_currentCategoryIndex > 0) {
+    set_currentCategoryIndex(_currentCategoryIndex - 1);
+  }
+}
+
+void BudgetData::nextCategory() {
+  // Get sorted category count from budget summary
+  QVariantList summary = monthlyBudgetSummary(_budgetYear, _budgetMonth);
+  if (_currentCategoryIndex < summary.size() - 1) {
+    set_currentCategoryIndex(_currentCategoryIndex + 1);
+  }
+}
+
+void BudgetData::previousOperation(bool extendSelection) {
+  if (_currentOperationIndex > 0) {
+    set_currentOperationIndex(_currentOperationIndex - 1);
+    _operationModel->select(_currentOperationIndex, extendSelection);
+  }
+}
+
+void BudgetData::nextOperation(bool extendSelection) {
+  Account *account = currentAccount();
+  if (account && _currentOperationIndex < account->operationCount() - 1) {
+    set_currentOperationIndex(_currentOperationIndex + 1);
+    _operationModel->select(_currentOperationIndex, extendSelection);
+  }
+}
+
+void BudgetData::showOperationsTab() {
+  set_currentTabIndex(0);
+}
+
+void BudgetData::showBudgetTab() {
+  set_currentTabIndex(1);
 }
 
 void BudgetData::clear() {

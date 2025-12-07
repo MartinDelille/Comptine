@@ -9,7 +9,12 @@ Rectangle {
 
     // Get operation and balance from the model
     readonly property var operation: currentIndex >= 0 ? budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 263) : null
-    readonly property double balance: currentIndex >= 0 ? budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 261) : 0
+    readonly property double balance: {
+        if (currentIndex < 0)
+            return 0;
+        var val = budgetData.operationModel.data(budgetData.operationModel.index(currentIndex, 0), 261);
+        return val !== undefined ? val : 0;
+    }
 
     // Multi-selection state
     readonly property bool multipleSelected: budgetData.operationModel.selectionCount > 1

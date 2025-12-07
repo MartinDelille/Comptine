@@ -24,13 +24,6 @@ FocusScope {
         highlightFollowsCurrentItem: false  // Don't auto-scroll highlight
         currentIndex: budgetData.currentOperationIndex
 
-        // Sync currentIndex back to budgetData
-        onCurrentIndexChanged: {
-            if (currentIndex >= 0) {
-                budgetData.currentOperationIndex = currentIndex;
-            }
-        }
-
         // Restore focus when YAML file is loaded (not after CSV import, which handles its own selection)
         Connections {
             target: budgetData
@@ -40,7 +33,7 @@ FocusScope {
                     let idx = Math.min(budgetData.currentOperationIndex, listView.count - 1);
                     if (idx < 0)
                         idx = 0;
-                    listView.currentIndex = idx;
+                    budgetData.currentOperationIndex = idx;
                     budgetData.operationModel.select(idx, false);
                     listView.positionViewAtIndex(idx, ListView.Contain);
                 }
@@ -49,46 +42,28 @@ FocusScope {
             function onDataLoaded() {
                 // For CSV import: sync ListView currentIndex with model selection
                 // The model already has the correct selection, just update the view
-                if (listView.count > 0 && listView.currentIndex < 0) {
-                    listView.currentIndex = 0;
+                if (listView.count > 0 && budgetData.currentOperationIndex < 0) {
+                    budgetData.currentOperationIndex = 0;
                 }
-                listView.positionViewAtIndex(listView.currentIndex >= 0 ? listView.currentIndex : 0, ListView.Contain);
+                listView.positionViewAtIndex(budgetData.currentOperationIndex >= 0 ? budgetData.currentOperationIndex : 0, ListView.Contain);
                 listView.forceActiveFocus();
             }
             function onOperationSelected(index) {
                 // Navigate from CategoryDetailView: focus and scroll to the operation
-                listView.currentIndex = index;
+                budgetData.currentOperationIndex = index;
                 listView.positionViewAtIndex(index, ListView.Center);
                 listView.forceActiveFocus();
             }
         }
 
         Keys.onUpPressed: event => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                if (event.modifiers & Qt.ShiftModifier) {
-                    // Shift+Up: extend selection
-                    budgetData.operationModel.select(currentIndex, true);
-                } else {
-                    // Plain Up: single selection
-                    budgetData.operationModel.select(currentIndex, false);
-                }
-                positionViewAtIndex(currentIndex, ListView.Contain);
-            }
+            budgetData.previousOperation(event.modifiers & Qt.ShiftModifier);
+            positionViewAtIndex(budgetData.currentOperationIndex, ListView.Contain);
         }
 
         Keys.onDownPressed: event => {
-            if (currentIndex < count - 1) {
-                currentIndex++;
-                if (event.modifiers & Qt.ShiftModifier) {
-                    // Shift+Down: extend selection
-                    budgetData.operationModel.select(currentIndex, true);
-                } else {
-                    // Plain Down: single selection
-                    budgetData.operationModel.select(currentIndex, false);
-                }
-                positionViewAtIndex(currentIndex, ListView.Contain);
-            }
+            budgetData.nextOperation(event.modifiers & Qt.ShiftModifier);
+            positionViewAtIndex(budgetData.currentOperationIndex, ListView.Contain);
         }
 
         // Cmd+A to select all
@@ -112,7 +87,7 @@ FocusScope {
             MouseArea {
                 anchors.fill: parent
                 onClicked: mouse => {
-                    listView.currentIndex = parent.index;
+                    budgetData.currentOperationIndex = parent.index;
                     listView.forceActiveFocus();
 
                     if (mouse.modifiers & Qt.ControlModifier) {
@@ -120,7 +95,7 @@ FocusScope {
                         budgetData.operationModel.toggleSelection(parent.index);
                     } else if (mouse.modifiers & Qt.ShiftModifier) {
                         // Shift+click: range selection from current
-                        budgetData.operationModel.selectRange(listView.currentIndex, parent.index);
+                        budgetData.operationModel.selectRange(budgetData.currentOperationIndex, parent.index);
                     } else {
                         // Plain click: single selection (clear others)
                         budgetData.operationModel.select(parent.index, false);
