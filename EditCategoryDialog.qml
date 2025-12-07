@@ -31,8 +31,8 @@ Dialog {
         incomeCheckBox.checked = originalBudgetLimit > 0;
         // Display absolute value
         budgetLimitField.text = Math.abs(originalBudgetLimit).toFixed(2);
-        categoryNameField.forceActiveFocus();
-        categoryNameField.selectAll();
+        budgetLimitField.forceActiveFocus();
+        budgetLimitField.selectAll();
     }
 
     onAccepted: {
