@@ -131,7 +131,7 @@ jobs:
               run_id: context.runId
             });
             const links = artifacts.artifacts.map(a =>
-              `- [${a.name}](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${a.id})`
+              `- [${a.name}](https://nightly.link/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/${a.name}.zip)`
             ).join('\n');
             core.setOutput('links', links);
 
