@@ -518,11 +518,36 @@ bool BudgetData::importFromCsv(const QString &filePath,
   qDebug() << "Importing CSV from:" << filePath;
   qDebug() << "  Use categories:" << useCategories;
 
+  // First pass: detect delimiter from first line
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     qDebug() << "Failed to open file:" << file.errorString();
     return false;
   }
+
+  QTextStream firstPass(&file);
+  QString headerLine = firstPass.readLine();
+  file.close();
+
+  qDebug() << "Header (raw):" << headerLine;
+
+  // Auto-detect delimiter: if header contains semicolons, use semicolon; otherwise use comma
+  QChar delimiter = headerLine.contains(';') ? ';' : ',';
+  qDebug() << "Detected delimiter:" << delimiter;
+
+  // Semicolon-separated files from French banks typically use Latin1
+  // Re-open and re-read with correct encoding
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    qDebug() << "Failed to reopen file:" << file.errorString();
+    return false;
+  }
+
+  QTextStream in(&file);
+  if (delimiter == ';') {
+    in.setEncoding(QStringConverter::Latin1);
+  }
+  headerLine = in.readLine();
+  qDebug() << "Header (decoded):" << headerLine;
 
   // Create or get account
   QString name = accountName.isEmpty() ? "Imported Account" : accountName;
@@ -530,30 +555,6 @@ bool BudgetData::importFromCsv(const QString &filePath,
   if (!account) {
     account = new Account(name, this);
     _accounts.append(account);
-  }
-
-  QTextStream in(&file);
-  // Default to UTF-8 for reading header (most modern files use UTF-8)
-  in.setEncoding(QStringConverter::Utf8);
-
-  // Read header line to detect format
-  if (in.atEnd()) {
-    qDebug() << "Empty CSV file";
-    file.close();
-    return false;
-  }
-
-  QString headerLine = in.readLine();
-  qDebug() << "Header:" << headerLine;
-
-  // Auto-detect delimiter: if header contains semicolons, use semicolon; otherwise use comma
-  QChar delimiter = headerLine.contains(';') ? ';' : ',';
-  qDebug() << "Detected delimiter:" << delimiter;
-
-  // Adjust encoding for remaining lines based on format
-  // Semicolon-separated files from French banks typically use Latin1
-  if (delimiter == ';') {
-    in.setEncoding(QStringConverter::Latin1);
   }
 
   // Parse header to detect column indices
