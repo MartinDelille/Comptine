@@ -1,11 +1,116 @@
 cmake_minimum_required(VERSION 3.16)
 
+# Extract version from git tags
+# Format: x.y for release, x.y-N for dev (N commits since tag), x.y-N.dirty for uncommitted changes
+set(DEFAULT_VERSION "0.0")
+set(APP_VERSION "${DEFAULT_VERSION}")
+set(APP_VERSION_SUFFIX "")
+set(APP_COMMIT_HASH "")
+set(APP_IS_DIRTY FALSE)
+
+find_package(Git QUIET)
+if(GIT_FOUND)
+  # Get the nearest tag
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+    RESULT_VARIABLE GIT_TAG_RESULT
+  )
+
+  if(GIT_TAG_RESULT EQUAL 0 AND GIT_TAG)
+    set(APP_VERSION "${GIT_TAG}")
+
+    # Get number of commits since tag
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} rev-list ${GIT_TAG}..HEAD --count
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE COMMITS_SINCE_TAG
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    # Get short commit hash
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE APP_COMMIT_HASH
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    # Check if working tree is dirty
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} status --porcelain
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE GIT_STATUS
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+
+    if(GIT_STATUS)
+      set(APP_IS_DIRTY TRUE)
+    endif()
+
+    # Build version suffix: -N for dev builds, .dirty for uncommitted changes
+    if(COMMITS_SINCE_TAG GREATER 0)
+      set(APP_VERSION_SUFFIX "-${COMMITS_SINCE_TAG}")
+    endif()
+    if(APP_IS_DIRTY)
+      set(APP_VERSION_SUFFIX "${APP_VERSION_SUFFIX}.dirty")
+    endif()
+  else()
+    # No tags found, use default with dev suffix
+    set(APP_VERSION_SUFFIX ".dev")
+    # Still try to get commit hash
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      OUTPUT_VARIABLE APP_COMMIT_HASH
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+  endif()
+else()
+  # Git not found, use default with dev suffix
+  set(APP_VERSION_SUFFIX ".dev")
+endif()
+
+set(APP_VERSION_FULL "${APP_VERSION}${APP_VERSION_SUFFIX}")
+message(STATUS "Comptine version: ${APP_VERSION_FULL} (commit: ${APP_COMMIT_HASH})")
+
+# Parse version for CMake project() - extract major.minor
+string(REGEX MATCH "^([0-9]+)\\.([0-9]+)" VERSION_MATCH "${APP_VERSION}")
+if(VERSION_MATCH)
+  set(VERSION_MAJOR "${CMAKE_MATCH_1}")
+  set(VERSION_MINOR "${CMAKE_MATCH_2}")
+else()
+  set(VERSION_MAJOR "0")
+  set(VERSION_MINOR "0")
+endif()
+
 project(
   Comptine
-  VERSION 0.1
+  VERSION ${VERSION_MAJOR}.${VERSION_MINOR}
   LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# On macOS, skip install rpath fixup since macdeployqt handles Qt library deployment
+# This prevents conflicts with duplicate rpath modifications during CPack
+if(APPLE)
+  set(CMAKE_SKIP_INSTALL_RPATH TRUE)
+endif()
+
+# Generate Version.h with version information
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Version.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Version.h
+  @ONLY
+)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Fetch rapidyaml (static library, no install)
 include(FetchContent)
@@ -114,6 +219,7 @@ set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
 qt_add_qml_module(Comptine URI Comptine QML_FILES
     Main.qml
+    AboutDialog.qml
     AmountField.qml
     BalanceHeader.qml
     BudgetView.qml

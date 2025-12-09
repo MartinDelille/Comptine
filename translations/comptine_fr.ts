@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr_FR">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About Comptine</source>
+        <translation>À propos de Comptine</translation>
+    </message>
+    <message>
+        <source>Comptine %1</source>
+        <translation>Comptine %1</translation>
+    </message>
+    <message>
+        <source>Personal Budget Management Software
+
+Import and manage your bank account data.</source>
+        <translation>Logiciel de gestion de budget personnel
+
+Importez et gérez vos données bancaires.</translation>
+    </message>
+    <message>
+        <source>Commit: %1</source>
+        <translation>Commit : %1</translation>
+    </message>
+</context>
+<context>
     <name>BalanceHeader</name>
     <message>
         <source>Balance:</source>
@@ -213,10 +236,6 @@
         <translation>Quitter</translation>
     </message>
     <message>
-        <source>&amp;About</source>
-        <translation>À propos</translation>
-    </message>
-    <message>
         <source>&amp;View</source>
         <translation>Affichage</translation>
     </message>
@@ -253,6 +272,18 @@
         <translation>Mois suivant</translation>
     </message>
     <message>
+        <source>&amp;Help</source>
+        <translation>&amp;Aide</translation>
+    </message>
+    <message>
+        <source>&amp;Project Page</source>
+        <translation>&amp;Page du projet</translation>
+    </message>
+    <message>
+        <source>&amp;About Comptine</source>
+        <translation>À &amp;propos de Comptine</translation>
+    </message>
+    <message>
         <source>Open Budget File</source>
         <translation>Ouvrir un fichier budget</translation>
     </message>
@@ -263,22 +294,6 @@
     <message>
         <source>Import CSV File</source>
         <translation>Importer un fichier CSV</translation>
-    </message>
-    <message>
-        <source>About Comptine</source>
-        <translation>À propos de Comptine</translation>
-    </message>
-    <message>
-        <source>Comptine v0.1
-
-Personal Budget Management Software
-
-Import and manage your bank account data.</source>
-        <translation>Comptine v0.1
-
-Logiciel de gestion de budget personnel
-
-Importez et gérez vos données bancaires.</translation>
     </message>
     <message>
         <source>Unsaved Changes</source>

@@ -91,12 +91,6 @@ ApplicationWindow {
             }
             MenuSeparator {}
             Action {
-                text: qsTr("&Preferences...")
-                shortcut: StandardKey.Preferences
-                onTriggered: preferencesDialog.open()
-            }
-            MenuSeparator {}
-            Action {
                 text: qsTr("&Quit")
                 shortcut: StandardKey.Quit
                 onTriggered: {
@@ -140,12 +134,11 @@ ApplicationWindow {
                 enabled: budgetData.currentTabIndex === 1 && budgetData.currentCategoryIndex >= 0
                 onTriggered: budgetView.editCurrentCategory()
             }
-        }
-        Menu {
-            title: qsTr("&View")
+            MenuSeparator {}
             Action {
-                text: qsTr("&About")
-                onTriggered: aboutDialog.open()
+                text: qsTr("&Preferences...")
+                shortcut: StandardKey.Preferences
+                onTriggered: preferencesDialog.open()
             }
         }
         Menu {
@@ -172,6 +165,18 @@ ApplicationWindow {
                 shortcut: "Right"
                 enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
                 onTriggered: budgetData.nextMonth()
+            }
+        }
+        Menu {
+            title: qsTr("&Help")
+            Action {
+                text: qsTr("&Project Page")
+                onTriggered: Qt.openUrlExternally("https://github.com/MartinDelille/Comptine")
+            }
+            MenuSeparator {}
+            Action {
+                text: qsTr("&About Comptine")
+                onTriggered: aboutDialog.open()
             }
         }
     }
@@ -222,14 +227,9 @@ ApplicationWindow {
         anchors.centerIn: parent
     }
 
-    Dialog {
+    AboutDialog {
         id: aboutDialog
-        title: qsTr("About Comptine")
-        standardButtons: Dialog.Ok
-
-        Label {
-            text: qsTr("Comptine v0.1\n\nPersonal Budget Management Software\n\nImport and manage your bank account data.")
-        }
+        anchors.centerIn: parent
     }
 
     PreferencesDialog {

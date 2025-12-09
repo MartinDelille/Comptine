@@ -8,6 +8,7 @@
 #include <QTranslator>
 #include "AppSettings.h"
 #include "BudgetData.h"
+#include "Version.h"
 
 int main(int argc, char *argv[]) {
   QGuiApplication app(argc, argv);
@@ -69,6 +70,8 @@ int main(int argc, char *argv[]) {
   QQmlApplicationEngine engine;
   engine.rootContext()->setContextProperty("budgetData", &budgetData);
   engine.rootContext()->setContextProperty("appSettings", &appSettings);
+  engine.rootContext()->setContextProperty("appVersion", APP_VERSION_FULL);
+  engine.rootContext()->setContextProperty("appCommitHash", APP_COMMIT_HASH);
 
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreationFailed, &app,
