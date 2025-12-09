@@ -235,6 +235,34 @@ void BudgetData::setOperationBudgetDate(int operationIndex, const QDate &newBudg
   }
 }
 
+void BudgetData::setOperationAmount(int operationIndex, double newAmount) {
+  Account *account = currentAccount();
+  if (!account) return;
+
+  Operation *operation = account->getOperation(operationIndex);
+  if (!operation) return;
+
+  double oldAmount = operation->amount();
+  if (!qFuzzyCompare(oldAmount, newAmount)) {
+    _undoStack->push(new SetOperationAmountCommand(operation, _operationModel, this,
+                                                   oldAmount, newAmount));
+  }
+}
+
+void BudgetData::setOperationDate(int operationIndex, const QDate &newDate) {
+  Account *account = currentAccount();
+  if (!account) return;
+
+  Operation *operation = account->getOperation(operationIndex);
+  if (!operation) return;
+
+  QDate oldDate = operation->date();
+  if (oldDate != newDate) {
+    _undoStack->push(new SetOperationDateCommand(operation, _operationModel, this,
+                                                 oldDate, newDate));
+  }
+}
+
 void BudgetData::splitOperation(int operationIndex, const QVariantList &allocations) {
   Account *account = currentAccount();
   if (!account) return;

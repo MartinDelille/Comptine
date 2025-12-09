@@ -325,3 +325,81 @@ void SplitOperationCommand::redo() {
     }
   }
 }
+
+SetOperationAmountCommand::SetOperationAmountCommand(Operation *operation,
+                                                     OperationListModel *operationModel,
+                                                     BudgetData *budgetData,
+                                                     double oldAmount,
+                                                     double newAmount,
+                                                     QUndoCommand *parent) :
+    QUndoCommand(parent),
+    _operation(operation),
+    _operationModel(operationModel),
+    _budgetData(budgetData),
+    _oldAmount(oldAmount),
+    _newAmount(newAmount) {
+  setText(QObject::tr("Set operation amount to %1").arg(newAmount, 0, 'f', 2));
+}
+
+void SetOperationAmountCommand::undo() {
+  if (_operation) {
+    _operation->set_amount(_oldAmount);
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}
+
+void SetOperationAmountCommand::redo() {
+  if (_operation) {
+    _operation->set_amount(_newAmount);
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}
+
+SetOperationDateCommand::SetOperationDateCommand(Operation *operation,
+                                                 OperationListModel *operationModel,
+                                                 BudgetData *budgetData,
+                                                 const QDate &oldDate,
+                                                 const QDate &newDate,
+                                                 QUndoCommand *parent) :
+    QUndoCommand(parent),
+    _operation(operation),
+    _operationModel(operationModel),
+    _budgetData(budgetData),
+    _oldDate(oldDate),
+    _newDate(newDate) {
+  setText(QObject::tr("Set operation date to %1").arg(newDate.toString("dd/MM/yyyy")));
+}
+
+void SetOperationDateCommand::undo() {
+  if (_operation) {
+    _operation->set_date(_oldDate);
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}
+
+void SetOperationDateCommand::redo() {
+  if (_operation) {
+    _operation->set_date(_newDate);
+    if (_operationModel) {
+      _operationModel->refresh();
+    }
+    if (_budgetData) {
+      emit _budgetData->operationDataChanged();
+    }
+  }
+}

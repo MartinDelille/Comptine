@@ -13,19 +13,20 @@ FocusScope {
         }
     }
 
-    // Function to open split dialog from menu action
-    function openSplitDialog() {
+    // Function to edit the current operation from menu action
+    function editCurrentOperation() {
         if (operationList.currentIndex >= 0) {
             let op = budgetData.operationModel.operationAt(operationList.currentIndex);
             if (op) {
-                splitDialog.initialize(operationList.currentIndex, op.amount, op.isSplit ? op.allocations : [], op.category);
-                splitDialog.open();
+                editOperationDialog.initialize(operationList.currentIndex, op.amount, op.date, op.budgetDate, op.isSplit ? op.allocations : [], op.category ?? "");
+                editOperationDialog.open();
             }
         }
     }
 
-    SplitOperationDialog {
-        id: splitDialog
+    EditOperationDialog {
+        id: editOperationDialog
+        onClosed: operationList.forceActiveFocus()
     }
 
     ColumnLayout {
@@ -125,9 +126,9 @@ FocusScope {
                 Layout.preferredWidth: 300
                 Layout.fillHeight: true
                 currentIndex: operationList.currentIndex
-                onSplitRequested: (operationIndex, amount, allocations, currentCategory) => {
-                    splitDialog.initialize(operationIndex, amount, allocations, currentCategory);
-                    splitDialog.open();
+                onEditRequested: (operationIndex, amount, operationDate, budgetDate, allocations, currentCategory) => {
+                    editOperationDialog.initialize(operationIndex, amount, operationDate, budgetDate, allocations, currentCategory);
+                    editOperationDialog.open();
                 }
             }
         }

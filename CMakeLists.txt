@@ -224,8 +224,8 @@ qt_add_qml_module(Comptine URI Comptine QML_FILES
     BalanceHeader.qml
     BudgetView.qml
     CategoryDetailView.qml
-    EditBudgetDateDialog.qml
     EditCategoryDialog.qml
+    EditOperationDialog.qml
     ImportDialog.qml
     MonthSelector.qml
     OperationDelegate.qml
@@ -233,7 +233,6 @@ qt_add_qml_module(Comptine URI Comptine QML_FILES
     OperationList.qml
     OperationView.qml
     PreferencesDialog.qml
-    SplitOperationDialog.qml
     Theme.qml
 )
 

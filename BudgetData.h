@@ -68,9 +68,11 @@ public:
   Category *takeCategoryByName(const QString &name);  // Remove without deleting
   void clearCategories();
 
-  // Operation category editing
+  // Operation editing
   Q_INVOKABLE void setOperationCategory(int operationIndex, const QString &newCategory);
   Q_INVOKABLE void setOperationBudgetDate(int operationIndex, const QDate &newBudgetDate);
+  Q_INVOKABLE void setOperationAmount(int operationIndex, double newAmount);
+  Q_INVOKABLE void setOperationDate(int operationIndex, const QDate &newDate);
   Q_INVOKABLE void splitOperation(int operationIndex, const QVariantList &allocations);
 
   // Budget calculations (aggregates across all accounts)

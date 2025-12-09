@@ -138,3 +138,43 @@ private:
   QList<CategoryAllocation> _oldAllocations;
   QList<CategoryAllocation> _newAllocations;
 };
+
+// Command for setting an operation's amount
+class SetOperationAmountCommand : public QUndoCommand {
+public:
+  SetOperationAmountCommand(Operation *operation,
+                            OperationListModel *operationModel,
+                            BudgetData *budgetData, double oldAmount,
+                            double newAmount,
+                            QUndoCommand *parent = nullptr);
+
+  void undo() override;
+  void redo() override;
+
+private:
+  Operation *_operation;
+  OperationListModel *_operationModel;
+  BudgetData *_budgetData;
+  double _oldAmount;
+  double _newAmount;
+};
+
+// Command for setting an operation's date
+class SetOperationDateCommand : public QUndoCommand {
+public:
+  SetOperationDateCommand(Operation *operation,
+                          OperationListModel *operationModel,
+                          BudgetData *budgetData, const QDate &oldDate,
+                          const QDate &newDate,
+                          QUndoCommand *parent = nullptr);
+
+  void undo() override;
+  void redo() override;
+
+private:
+  Operation *_operation;
+  OperationListModel *_operationModel;
+  BudgetData *_budgetData;
+  QDate _oldDate;
+  QDate _newDate;
+};

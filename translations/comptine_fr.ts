@@ -89,14 +89,53 @@ Importez et gérez vos données bancaires.</translation>
     </message>
 </context>
 <context>
-    <name>EditBudgetDateDialog</name>
+    <name>EditCategoryDialog</name>
     <message>
-        <source>Edit Budget Date</source>
-        <translation>Modifier la date budget</translation>
+        <source>Edit Category</source>
+        <translation>Modifier la catégorie</translation>
     </message>
     <message>
-        <source>Select the month for budget calculation:</source>
-        <translation>Sélectionnez le mois pour le calcul du budget :</translation>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>Category name</source>
+        <translation>Nom de la catégorie</translation>
+    </message>
+    <message>
+        <source>Budget Limit</source>
+        <translation>Limite de budget</translation>
+    </message>
+    <message>
+        <source>This is an income category</source>
+        <translation>Ceci est une catégorie de revenu</translation>
+    </message>
+</context>
+<context>
+    <name>EditOperationDialog</name>
+    <message>
+        <source>Edit Operation</source>
+        <translation>Modifier l&apos;opération</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Montant :</translation>
+    </message>
+    <message>
+        <source>Date:</source>
+        <translation>Date :</translation>
+    </message>
+    <message>
+        <source>Budget Date:</source>
+        <translation>Date budget :</translation>
+    </message>
+    <message>
+        <source>Categories:</source>
+        <translation>Catégories :</translation>
+    </message>
+    <message>
+        <source>Remaining:</source>
+        <translation>Restant :</translation>
     </message>
     <message>
         <source>January</source>
@@ -146,28 +185,29 @@ Importez et gérez vos données bancaires.</translation>
         <source>December</source>
         <translation>Décembre</translation>
     </message>
-</context>
-<context>
-    <name>EditCategoryDialog</name>
     <message>
-        <source>Edit Category</source>
-        <translation>Modifier la catégorie</translation>
+        <source>Select category...</source>
+        <translation>Sélectionner une catégorie...</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
+        <source>+ Add Category</source>
+        <translation>+ Ajouter une catégorie</translation>
     </message>
     <message>
-        <source>Category name</source>
-        <translation>Nom de la catégorie</translation>
+        <source>Allocations must equal the total amount</source>
+        <translation>Les allocations doivent être égales au montant total</translation>
     </message>
     <message>
-        <source>Budget Limit</source>
-        <translation>Limite de budget</translation>
+        <source>All allocations must have a category</source>
+        <translation>Toutes les allocations doivent avoir une catégorie</translation>
     </message>
     <message>
-        <source>This is an income category</source>
-        <translation>Ceci est une catégorie de revenu</translation>
+        <source>Each category can only be used once</source>
+        <translation>Chaque catégorie ne peut être utilisée qu&apos;une seule fois</translation>
+    </message>
+    <message>
+        <source>At least one allocation is required</source>
+        <translation>Au moins une allocation est requise</translation>
     </message>
 </context>
 <context>
@@ -248,12 +288,12 @@ Importez et gérez vos données bancaires.</translation>
         <translation>Rétablir</translation>
     </message>
     <message>
-        <source>&amp;Split Operation...</source>
-        <translation>Diviser l&apos;opération...</translation>
+        <source>Edit &amp;Operation...</source>
+        <translation>Modifier l&apos;&amp;opération...</translation>
     </message>
     <message>
         <source>Edit &amp;Category...</source>
-        <translation>Modifier la catégorie...</translation>
+        <translation>Modifier la &amp;catégorie...</translation>
     </message>
     <message>
         <source>&amp;Operations</source>
@@ -433,12 +473,8 @@ Importez et gérez vos données bancaires.</translation>
         <translation>Solde :</translation>
     </message>
     <message>
-        <source>Split between categories...</source>
-        <translation>Diviser entre catégories...</translation>
-    </message>
-    <message>
-        <source>Edit Split...</source>
-        <translation>Modifier la division...</translation>
+        <source>Edit operation...</source>
+        <translation>Modifier l&apos;opération...</translation>
     </message>
 </context>
 <context>
@@ -543,44 +579,13 @@ Importez et gérez vos données bancaires.</translation>
         <source>Clear operation split</source>
         <translation>Effacer la division de l&apos;opération</translation>
     </message>
-</context>
-<context>
-    <name>SplitOperationDialog</name>
     <message>
-        <source>Split Operation</source>
-        <translation>Diviser l&apos;opération</translation>
+        <source>Set operation amount to %1</source>
+        <translation>Définir le montant de l&apos;opération à %1</translation>
     </message>
     <message>
-        <source>Total Amount:</source>
-        <translation>Montant total :</translation>
-    </message>
-    <message>
-        <source>Remaining:</source>
-        <translation>Restant :</translation>
-    </message>
-    <message>
-        <source>Select category...</source>
-        <translation>Sélectionner une catégorie...</translation>
-    </message>
-    <message>
-        <source>+ Add Category</source>
-        <translation>+ Ajouter une catégorie</translation>
-    </message>
-    <message>
-        <source>Allocations must equal the total amount</source>
-        <translation>Les allocations doivent être égales au montant total</translation>
-    </message>
-    <message>
-        <source>All allocations must have a category</source>
-        <translation>Toutes les allocations doivent avoir une catégorie</translation>
-    </message>
-    <message>
-        <source>Each category can only be used once</source>
-        <translation>Chaque catégorie ne peut être utilisée qu&apos;une seule fois</translation>
-    </message>
-    <message>
-        <source>At least one allocation is required</source>
-        <translation>Au moins une allocation est requise</translation>
+        <source>Set operation date to %1</source>
+        <translation>Définir la date de l&apos;opération à %1</translation>
     </message>
 </context>
 </TS>

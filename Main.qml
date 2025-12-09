@@ -123,16 +123,16 @@ ApplicationWindow {
             }
             MenuSeparator {}
             Action {
-                text: qsTr("&Split Operation...")
-                shortcut: "Ctrl+B"
-                enabled: budgetData.currentTabIndex === 0 && budgetData.operationModel.selectionCount === 1
-                onTriggered: operationView.openSplitDialog()
-            }
-            Action {
-                text: qsTr("Edit &Category...")
+                text: budgetData.currentTabIndex === 0 ? qsTr("Edit &Operation...") : qsTr("Edit &Category...")
                 shortcut: "Ctrl+E"
-                enabled: budgetData.currentTabIndex === 1 && budgetData.currentCategoryIndex >= 0
-                onTriggered: budgetView.editCurrentCategory()
+                enabled: (budgetData.currentTabIndex === 0 && budgetData.operationModel.selectionCount === 1) || (budgetData.currentTabIndex === 1 && budgetData.currentCategoryIndex >= 0)
+                onTriggered: {
+                    if (budgetData.currentTabIndex === 0) {
+                        operationView.editCurrentOperation();
+                    } else {
+                        budgetView.editCurrentCategory();
+                    }
+                }
             }
             MenuSeparator {}
             Action {
