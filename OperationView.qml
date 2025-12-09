@@ -18,14 +18,14 @@ FocusScope {
         if (operationList.currentIndex >= 0) {
             let op = budgetData.operationModel.operationAt(operationList.currentIndex);
             if (op) {
-                editOperationDialog.initialize(operationList.currentIndex, op.amount, op.date, op.budgetDate, op.isSplit ? op.allocations : [], op.category ?? "");
-                editOperationDialog.open();
+                operationEditDialog.initialize(operationList.currentIndex, op.amount, op.date, op.budgetDate, op.isSplit ? op.allocations : [], op.category ?? "");
+                operationEditDialog.open();
             }
         }
     }
 
-    EditOperationDialog {
-        id: editOperationDialog
+    OperationEditDialog {
+        id: operationEditDialog
         onClosed: operationList.forceActiveFocus()
     }
 
@@ -127,8 +127,8 @@ FocusScope {
                 Layout.fillHeight: true
                 currentIndex: operationList.currentIndex
                 onEditRequested: (operationIndex, amount, operationDate, budgetDate, allocations, currentCategory) => {
-                    editOperationDialog.initialize(operationIndex, amount, operationDate, budgetDate, allocations, currentCategory);
-                    editOperationDialog.open();
+                    operationEditDialog.initialize(operationIndex, amount, operationDate, budgetDate, allocations, currentCategory);
+                    operationEditDialog.open();
                 }
             }
         }

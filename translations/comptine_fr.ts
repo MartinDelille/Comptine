@@ -89,7 +89,7 @@ Importez et gérez vos données bancaires.</translation>
     </message>
 </context>
 <context>
-    <name>EditCategoryDialog</name>
+    <name>CategoryEditDialog</name>
     <message>
         <source>Edit Category</source>
         <translation>Modifier la catégorie</translation>
@@ -103,111 +103,12 @@ Importez et gérez vos données bancaires.</translation>
         <translation>Nom de la catégorie</translation>
     </message>
     <message>
-        <source>Budget Limit</source>
-        <translation>Limite de budget</translation>
-    </message>
-    <message>
         <source>This is an income category</source>
         <translation>Ceci est une catégorie de revenu</translation>
     </message>
-</context>
-<context>
-    <name>EditOperationDialog</name>
     <message>
-        <source>Edit Operation</source>
-        <translation>Modifier l&apos;opération</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>Montant :</translation>
-    </message>
-    <message>
-        <source>Date:</source>
-        <translation>Date :</translation>
-    </message>
-    <message>
-        <source>Budget Date:</source>
-        <translation>Date budget :</translation>
-    </message>
-    <message>
-        <source>Categories:</source>
-        <translation>Catégories :</translation>
-    </message>
-    <message>
-        <source>Remaining:</source>
-        <translation>Restant :</translation>
-    </message>
-    <message>
-        <source>January</source>
-        <translation>Janvier</translation>
-    </message>
-    <message>
-        <source>February</source>
-        <translation>Février</translation>
-    </message>
-    <message>
-        <source>March</source>
-        <translation>Mars</translation>
-    </message>
-    <message>
-        <source>April</source>
-        <translation>Avril</translation>
-    </message>
-    <message>
-        <source>May</source>
-        <translation>Mai</translation>
-    </message>
-    <message>
-        <source>June</source>
-        <translation>Juin</translation>
-    </message>
-    <message>
-        <source>July</source>
-        <translation>Juillet</translation>
-    </message>
-    <message>
-        <source>August</source>
-        <translation>Août</translation>
-    </message>
-    <message>
-        <source>September</source>
-        <translation>Septembre</translation>
-    </message>
-    <message>
-        <source>October</source>
-        <translation>Octobre</translation>
-    </message>
-    <message>
-        <source>November</source>
-        <translation>Novembre</translation>
-    </message>
-    <message>
-        <source>December</source>
-        <translation>Décembre</translation>
-    </message>
-    <message>
-        <source>Select category...</source>
-        <translation>Sélectionner une catégorie...</translation>
-    </message>
-    <message>
-        <source>+ Add Category</source>
-        <translation>+ Ajouter une catégorie</translation>
-    </message>
-    <message>
-        <source>Allocations must equal the total amount</source>
-        <translation>Les allocations doivent être égales au montant total</translation>
-    </message>
-    <message>
-        <source>All allocations must have a category</source>
-        <translation>Toutes les allocations doivent avoir une catégorie</translation>
-    </message>
-    <message>
-        <source>Each category can only be used once</source>
-        <translation>Chaque catégorie ne peut être utilisée qu&apos;une seule fois</translation>
-    </message>
-    <message>
-        <source>At least one allocation is required</source>
-        <translation>Au moins une allocation est requise</translation>
+        <source>Budget Limit</source>
+        <translation>Limite de budget</translation>
     </message>
 </context>
 <context>
@@ -475,6 +376,105 @@ Importez et gérez vos données bancaires.</translation>
     <message>
         <source>Edit operation...</source>
         <translation>Modifier l&apos;opération...</translation>
+    </message>
+</context>
+<context>
+    <name>OperationEditDialog</name>
+    <message>
+        <source>Edit Operation</source>
+        <translation>Modifier l&apos;opération</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Montant :</translation>
+    </message>
+    <message>
+        <source>Date:</source>
+        <translation>Date :</translation>
+    </message>
+    <message>
+        <source>January</source>
+        <translation>Janvier</translation>
+    </message>
+    <message>
+        <source>February</source>
+        <translation>Février</translation>
+    </message>
+    <message>
+        <source>March</source>
+        <translation>Mars</translation>
+    </message>
+    <message>
+        <source>April</source>
+        <translation>Avril</translation>
+    </message>
+    <message>
+        <source>May</source>
+        <translation>Mai</translation>
+    </message>
+    <message>
+        <source>June</source>
+        <translation>Juin</translation>
+    </message>
+    <message>
+        <source>July</source>
+        <translation>Juillet</translation>
+    </message>
+    <message>
+        <source>August</source>
+        <translation>Août</translation>
+    </message>
+    <message>
+        <source>September</source>
+        <translation>Septembre</translation>
+    </message>
+    <message>
+        <source>October</source>
+        <translation>Octobre</translation>
+    </message>
+    <message>
+        <source>November</source>
+        <translation>Novembre</translation>
+    </message>
+    <message>
+        <source>December</source>
+        <translation>Décembre</translation>
+    </message>
+    <message>
+        <source>Budget Date:</source>
+        <translation>Date budget :</translation>
+    </message>
+    <message>
+        <source>Categories:</source>
+        <translation>Catégories :</translation>
+    </message>
+    <message>
+        <source>Remaining:</source>
+        <translation>Restant :</translation>
+    </message>
+    <message>
+        <source>Select category...</source>
+        <translation>Sélectionner une catégorie...</translation>
+    </message>
+    <message>
+        <source>+ Add Category</source>
+        <translation>+ Ajouter une catégorie</translation>
+    </message>
+    <message>
+        <source>Allocations must equal the total amount</source>
+        <translation>Les allocations doivent être égales au montant total</translation>
+    </message>
+    <message>
+        <source>All allocations must have a category</source>
+        <translation>Toutes les allocations doivent avoir une catégorie</translation>
+    </message>
+    <message>
+        <source>Each category can only be used once</source>
+        <translation>Chaque catégorie ne peut être utilisée qu&apos;une seule fois</translation>
+    </message>
+    <message>
+        <source>At least one allocation is required</source>
+        <translation>Au moins une allocation est requise</translation>
     </message>
 </context>
 <context>

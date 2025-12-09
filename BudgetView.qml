@@ -6,14 +6,14 @@ FocusScope {
     id: root
 
     property var budgetSummary: []
-    property bool dialogOpen: editCategoryDialog.visible || categoryDetailView.visible
+    property bool dialogOpen: categoryEditDialog.visible || categoryDetailView.visible
 
     function editCurrentCategory() {
         if (budgetData.currentCategoryIndex >= 0 && budgetData.currentCategoryIndex < budgetSummary.length) {
             let category = budgetSummary[budgetData.currentCategoryIndex];
-            editCategoryDialog.originalName = category.name;
-            editCategoryDialog.originalBudgetLimit = category.signedBudgetLimit;
-            editCategoryDialog.open();
+            categoryEditDialog.originalName = category.name;
+            categoryEditDialog.originalBudgetLimit = category.signedBudgetLimit;
+            categoryEditDialog.open();
         }
     }
 
@@ -64,8 +64,8 @@ FocusScope {
         }
     }
 
-    EditCategoryDialog {
-        id: editCategoryDialog
+    CategoryEditDialog {
+        id: categoryEditDialog
         onClosed: {
             categoryListView.forceActiveFocus();
         }
@@ -176,9 +176,9 @@ FocusScope {
                                 opacity: hovered ? 1.0 : 0.5
                                 onClicked: {
                                     budgetData.currentCategoryIndex = index;
-                                    editCategoryDialog.originalName = modelData.name;
-                                    editCategoryDialog.originalBudgetLimit = modelData.signedBudgetLimit;
-                                    editCategoryDialog.open();
+                                    categoryEditDialog.originalName = modelData.name;
+                                    categoryEditDialog.originalBudgetLimit = modelData.signedBudgetLimit;
+                                    categoryEditDialog.open();
                                 }
                             }
 
