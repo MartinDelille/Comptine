@@ -45,21 +45,25 @@ qt_add_executable(Comptine
 
 # Generate platform-specific icons from SVG at build time
 set(APP_ICON_SVG ${CMAKE_CURRENT_SOURCE_DIR}/comptine.svg)
+set(APP_ICON_SMALL_SVG ${CMAKE_CURRENT_SOURCE_DIR}/comptine-small.svg)
 
 if(APPLE)
   set(APP_ICON_PNG ${CMAKE_CURRENT_BINARY_DIR}/comptine.png)
+  set(APP_ICON_SMALL_PNG ${CMAKE_CURRENT_BINARY_DIR}/comptine-small.png)
   set(APP_ICON_ICNS ${CMAKE_CURRENT_BINARY_DIR}/comptine.icns)
   set(APP_ICONSET_DIR ${CMAKE_CURRENT_BINARY_DIR}/comptine.iconset)
 
-  # Use ImageMagick to render SVG to PNG with transparency preserved
+  # Use ImageMagick to render SVGs to PNG with transparency preserved
+  # Use small version for icons < 128px, full version for >= 128px
   add_custom_command(
     OUTPUT ${APP_ICON_ICNS}
     COMMAND magick -background none ${APP_ICON_SVG} -resize 1024x1024 ${APP_ICON_PNG}
+    COMMAND magick -background none ${APP_ICON_SMALL_SVG} -resize 64x64 ${APP_ICON_SMALL_PNG}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_ICONSET_DIR}
-    COMMAND sips -z 16 16 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_16x16.png
-    COMMAND sips -z 32 32 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_16x16@2x.png
-    COMMAND sips -z 32 32 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_32x32.png
-    COMMAND sips -z 64 64 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_32x32@2x.png
+    COMMAND sips -z 16 16 ${APP_ICON_SMALL_PNG} --out ${APP_ICONSET_DIR}/icon_16x16.png
+    COMMAND sips -z 32 32 ${APP_ICON_SMALL_PNG} --out ${APP_ICONSET_DIR}/icon_16x16@2x.png
+    COMMAND sips -z 32 32 ${APP_ICON_SMALL_PNG} --out ${APP_ICONSET_DIR}/icon_32x32.png
+    COMMAND sips -z 64 64 ${APP_ICON_SMALL_PNG} --out ${APP_ICONSET_DIR}/icon_32x32@2x.png
     COMMAND sips -z 128 128 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_128x128.png
     COMMAND sips -z 256 256 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_128x128@2x.png
     COMMAND sips -z 256 256 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_256x256.png
@@ -67,8 +71,8 @@ if(APPLE)
     COMMAND sips -z 512 512 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_512x512.png
     COMMAND sips -z 1024 1024 ${APP_ICON_PNG} --out ${APP_ICONSET_DIR}/icon_512x512@2x.png
     COMMAND iconutil -c icns ${APP_ICONSET_DIR} -o ${APP_ICON_ICNS}
-    DEPENDS ${APP_ICON_SVG}
-    COMMENT "Generating macOS icon from comptine.svg"
+    DEPENDS ${APP_ICON_SVG} ${APP_ICON_SMALL_SVG}
+    COMMENT "Generating macOS icon from comptine.svg and comptine-small.svg"
   )
 
   set_source_files_properties(${APP_ICON_ICNS} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
@@ -76,13 +80,24 @@ if(APPLE)
 elseif(WIN32)
   set(APP_ICON_ICO ${CMAKE_CURRENT_BINARY_DIR}/comptine.ico)
   set(APP_ICON_RC ${CMAKE_CURRENT_BINARY_DIR}/comptine.rc)
+  set(APP_ICON_PNG ${CMAKE_CURRENT_BINARY_DIR}/comptine.png)
+  set(APP_ICON_SMALL_PNG ${CMAKE_CURRENT_BINARY_DIR}/comptine-small.png)
 
   # Use ImageMagick to create multi-resolution ICO file
+  # Use small version for icons < 128px, full version for >= 128px
   add_custom_command(
     OUTPUT ${APP_ICON_ICO}
-    COMMAND magick -background none ${APP_ICON_SVG} -define icon:auto-resize=256,128,64,48,32,16 ${APP_ICON_ICO}
-    DEPENDS ${APP_ICON_SVG}
-    COMMENT "Generating Windows icon from comptine.svg"
+    COMMAND magick -background none ${APP_ICON_SVG} -resize 256x256 ${APP_ICON_PNG}
+    COMMAND magick -background none ${APP_ICON_SMALL_SVG} -resize 64x64 ${APP_ICON_SMALL_PNG}
+    COMMAND magick ${APP_ICON_SMALL_PNG} -resize 16x16 ${CMAKE_CURRENT_BINARY_DIR}/icon_16.png
+    COMMAND magick ${APP_ICON_SMALL_PNG} -resize 32x32 ${CMAKE_CURRENT_BINARY_DIR}/icon_32.png
+    COMMAND magick ${APP_ICON_SMALL_PNG} -resize 48x48 ${CMAKE_CURRENT_BINARY_DIR}/icon_48.png
+    COMMAND magick ${APP_ICON_SMALL_PNG} -resize 64x64 ${CMAKE_CURRENT_BINARY_DIR}/icon_64.png
+    COMMAND magick ${APP_ICON_PNG} -resize 128x128 ${CMAKE_CURRENT_BINARY_DIR}/icon_128.png
+    COMMAND magick ${APP_ICON_PNG} -resize 256x256 ${CMAKE_CURRENT_BINARY_DIR}/icon_256.png
+    COMMAND magick ${CMAKE_CURRENT_BINARY_DIR}/icon_16.png ${CMAKE_CURRENT_BINARY_DIR}/icon_32.png ${CMAKE_CURRENT_BINARY_DIR}/icon_48.png ${CMAKE_CURRENT_BINARY_DIR}/icon_64.png ${CMAKE_CURRENT_BINARY_DIR}/icon_128.png ${CMAKE_CURRENT_BINARY_DIR}/icon_256.png ${APP_ICON_ICO}
+    DEPENDS ${APP_ICON_SVG} ${APP_ICON_SMALL_SVG}
+    COMMENT "Generating Windows icon from comptine.svg and comptine-small.svg"
   )
 
   # Generate RC file that references the icon
