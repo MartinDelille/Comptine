@@ -105,20 +105,6 @@ qt_standard_project_setup(REQUIRES 6.8)
 qt_add_executable(Comptine
   main.cpp
   PropertyMacros.h
-  Operation.h
-  Operation.cpp
-  Account.h
-  Account.cpp
-  Category.h
-  Category.cpp
-  BudgetData.h
-  BudgetData.cpp
-  OperationListModel.h
-  OperationListModel.cpp
-  AccountListModel.h
-  AccountListModel.cpp
-  AppSettings.h
-  AppSettings.cpp
   UndoCommands.h
   UndoCommands.cpp
 )
@@ -192,23 +178,37 @@ endif()
 
 set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-qt_add_qml_module(Comptine URI Comptine QML_FILES
-    Main.qml
-    AboutDialog.qml
-    AmountField.qml
-    BalanceHeader.qml
-    BudgetView.qml
-    CategoryDetailView.qml
-    CategoryEditDialog.qml
-    ImportDialog.qml
-    MonthSelector.qml
-    OperationDelegate.qml
-    OperationDetails.qml
-    OperationEditDialog.qml
-    OperationList.qml
-    OperationView.qml
-    PreferencesDialog.qml
-    Theme.qml
+qt_add_qml_module(Comptine URI Comptine
+    QML_FILES
+        Main.qml
+        AboutDialog.qml
+        AmountField.qml
+        BalanceHeader.qml
+        BudgetView.qml
+        CategoryDetailView.qml
+        CategoryEditDialog.qml
+        ImportDialog.qml
+        MonthSelector.qml
+        OperationDelegate.qml
+        OperationDetails.qml
+        OperationEditDialog.qml
+        OperationList.qml
+        OperationView.qml
+        PreferencesDialog.qml
+        Theme.qml
+    SOURCES
+        Operation.h Operation.cpp
+        Account.h Account.cpp
+        Category.h Category.cpp
+        BudgetData.h BudgetData.cpp
+        OperationListModel.h OperationListModel.cpp
+        AccountListModel.h AccountListModel.cpp
+        AppSettings.h AppSettings.cpp
+        AppState.h AppState.cpp
+        CategoryController.h CategoryController.cpp
+        ClipboardController.h ClipboardController.cpp
+        NavigationController.h NavigationController.cpp
+        FileController.h FileController.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1. If

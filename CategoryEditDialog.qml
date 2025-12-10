@@ -26,7 +26,7 @@ Dialog {
         let amount = budgetLimitField.value;
         // Apply sign based on checkbox: income = positive, expense = negative
         let newBudgetLimit = incomeCheckBox.checked ? amount : -amount;
-        budgetData.editCategory(originalName, categoryNameField.text, newBudgetLimit);
+        AppState.categories.editCategory(originalName, categoryNameField.text, newBudgetLimit);
     }
 
     ColumnLayout {

@@ -11,11 +11,11 @@ Rectangle {
     signal editRequested(int operationIndex, double amount, date operationDate, date budgetDate, var allocations, string currentCategory)
 
     // Get operation and balance from the model using helper methods
-    readonly property var operation: currentIndex >= 0 ? budgetData.operationModel.operationAt(currentIndex) : null
-    readonly property double balance: currentIndex >= 0 ? budgetData.operationModel.balanceAt(currentIndex) : 0
+    readonly property var operation: currentIndex >= 0 ? AppState.data.operationModel.operationAt(currentIndex) : null
+    readonly property double balance: currentIndex >= 0 ? AppState.data.operationModel.balanceAt(currentIndex) : 0
 
     // Multi-selection state
-    readonly property bool multipleSelected: budgetData.operationModel.selectionCount > 1
+    readonly property bool multipleSelected: AppState.data.operationModel.selectionCount > 1
 
     radius: Theme.cardRadius
     border.width: Theme.cardBorderWidth
@@ -80,7 +80,7 @@ Rectangle {
 
             Label {
                 Layout.fillWidth: true
-                text: qsTr("%n operation(s)", "", budgetData.operationModel.selectionCount)
+                text: qsTr("%n operation(s)", "", AppState.data.operationModel.selectionCount)
                 font.pixelSize: Theme.fontSizeNormal
                 color: Theme.textPrimary
             }
@@ -95,10 +95,10 @@ Rectangle {
 
             Label {
                 Layout.fillWidth: true
-                text: Theme.formatAmount(budgetData.operationModel.selectedTotal)
+                text: Theme.formatAmount(AppState.data.operationModel.selectedTotal)
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
-                color: Theme.amountColor(budgetData.operationModel.selectedTotal)
+                color: Theme.amountColor(AppState.data.operationModel.selectedTotal)
             }
         }
 

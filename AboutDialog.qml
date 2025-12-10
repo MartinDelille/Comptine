@@ -11,7 +11,7 @@ Dialog {
         spacing: 8
 
         Label {
-            text: qsTr("Comptine %1").arg(appVersion)
+            text: qsTr("Comptine %1").arg(AppState.data.appVersion)
             font.bold: true
             font.pointSize: 14
         }
@@ -21,7 +21,7 @@ Dialog {
         }
 
         Label {
-            text: qsTr("Commit: %1").arg(appCommitHash)
+            text: qsTr("Commit: %1").arg(AppState.data.appCommitHash)
             font.pointSize: 10
             opacity: 0.7
         }

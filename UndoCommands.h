@@ -6,10 +6,11 @@
 #include <QUndoCommand>
 #include "Operation.h"  // For CategoryAllocation
 
-class BudgetData;
 class Account;
 class AccountListModel;
+class BudgetData;
 class Category;
+class CategoryController;
 class OperationListModel;
 
 // Command for renaming an account
@@ -30,9 +31,12 @@ private:
 };
 
 // Command for editing a category (name and/or budget limit)
+// Note: This command still needs BudgetData because it:
+// 1. Iterates over all accounts to rename operations when category name changes
+// 2. Emits categoryCountChanged to refresh the UI
 class EditCategoryCommand : public QUndoCommand {
 public:
-  EditCategoryCommand(Category *category, BudgetData *budgetData,
+  EditCategoryCommand(Category *category, BudgetData *budgetData, CategoryController *categoryController,
                       const QString &oldName, const QString &newName,
                       double oldBudgetLimit, double newBudgetLimit,
                       QUndoCommand *parent = nullptr);
@@ -45,6 +49,7 @@ private:
 
   Category *_category;
   BudgetData *_budgetData;
+  CategoryController *_categoryController;
   QString _oldName;
   QString _newName;
   double _oldBudgetLimit;
@@ -52,10 +57,11 @@ private:
 };
 
 // Command for importing operations from CSV
+// Note: This command manages both operations (via Account) and categories (via CategoryController)
 class ImportOperationsCommand : public QUndoCommand {
 public:
   ImportOperationsCommand(Account *account, OperationListModel *operationModel,
-                          BudgetData *budgetData,
+                          CategoryController *categoryController,
                           const QList<Operation *> &operations,
                           const QList<Category *> &newCategories,
                           QUndoCommand *parent = nullptr);
@@ -67,11 +73,11 @@ public:
 private:
   Account *_account;
   OperationListModel *_operationModel;
-  BudgetData *_budgetData;
+  CategoryController *_categoryController;
   QList<Operation *> _operations;
   QList<Category *> _newCategories;
   bool _ownsOperations;  // True when operations are not in the account (after undo)
-  bool _ownsCategories;  // True when categories are not in budgetData (after undo)
+  bool _ownsCategories;  // True when categories are not in CategoryController (after undo)
 };
 
 // Command for setting an operation's category
@@ -79,7 +85,6 @@ class SetOperationCategoryCommand : public QUndoCommand {
 public:
   SetOperationCategoryCommand(Operation *operation,
                               OperationListModel *operationModel,
-                              BudgetData *budgetData,
                               const QString &oldCategory,
                               const QString &newCategory,
                               QUndoCommand *parent = nullptr);
@@ -90,7 +95,6 @@ public:
 private:
   Operation *_operation;
   OperationListModel *_operationModel;
-  BudgetData *_budgetData;
   QString _oldCategory;
   QString _newCategory;
 };
@@ -100,7 +104,6 @@ class SetOperationBudgetDateCommand : public QUndoCommand {
 public:
   SetOperationBudgetDateCommand(Operation *operation,
                                 OperationListModel *operationModel,
-                                BudgetData *budgetData,
                                 const QDate &oldBudgetDate,
                                 const QDate &newBudgetDate,
                                 QUndoCommand *parent = nullptr);
@@ -111,7 +114,6 @@ public:
 private:
   Operation *_operation;
   OperationListModel *_operationModel;
-  BudgetData *_budgetData;
   QDate _oldBudgetDate;
   QDate _newBudgetDate;
 };
@@ -121,7 +123,6 @@ class SplitOperationCommand : public QUndoCommand {
 public:
   SplitOperationCommand(Operation *operation,
                         OperationListModel *operationModel,
-                        BudgetData *budgetData,
                         const QString &oldCategory,
                         const QList<CategoryAllocation> &oldAllocations,
                         const QList<CategoryAllocation> &newAllocations,
@@ -133,7 +134,6 @@ public:
 private:
   Operation *_operation;
   OperationListModel *_operationModel;
-  BudgetData *_budgetData;
   QString _oldCategory;
   QList<CategoryAllocation> _oldAllocations;
   QList<CategoryAllocation> _newAllocations;
@@ -144,8 +144,7 @@ class SetOperationAmountCommand : public QUndoCommand {
 public:
   SetOperationAmountCommand(Operation *operation,
                             OperationListModel *operationModel,
-                            BudgetData *budgetData, double oldAmount,
-                            double newAmount,
+                            double oldAmount, double newAmount,
                             QUndoCommand *parent = nullptr);
 
   void undo() override;
@@ -154,7 +153,6 @@ public:
 private:
   Operation *_operation;
   OperationListModel *_operationModel;
-  BudgetData *_budgetData;
   double _oldAmount;
   double _newAmount;
 };
@@ -164,8 +162,7 @@ class SetOperationDateCommand : public QUndoCommand {
 public:
   SetOperationDateCommand(Operation *operation,
                           OperationListModel *operationModel,
-                          BudgetData *budgetData, const QDate &oldDate,
-                          const QDate &newDate,
+                          const QDate &oldDate, const QDate &newDate,
                           QUndoCommand *parent = nullptr);
 
   void undo() override;
@@ -174,7 +171,6 @@ public:
 private:
   Operation *_operation;
   OperationListModel *_operationModel;
-  BudgetData *_budgetData;
   QDate _oldDate;
   QDate _newDate;
 };

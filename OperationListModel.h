@@ -2,11 +2,13 @@
 
 #include <QAbstractListModel>
 #include <QPointer>
+#include <QQmlEngine>
 #include <QSet>
 #include "Account.h"
 
 class OperationListModel : public QAbstractListModel {
   Q_OBJECT
+  QML_ELEMENT
 
   Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
   Q_PROPERTY(int selectionCount READ selectionCount NOTIFY selectionChanged)
@@ -56,6 +58,7 @@ public:
 signals:
   void countChanged();
   void selectionChanged();
+  void operationDataChanged();  // Emitted when operation data is modified (used by undo commands)
 
 private:
   QPointer<Account> _account;

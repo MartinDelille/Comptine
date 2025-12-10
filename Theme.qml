@@ -9,9 +9,9 @@ QtObject {
 
     // Determine if we should use dark mode
     readonly property bool isDark: {
-        if (appSettings.theme === "dark")
+        if (AppState.settings.theme === "dark")
             return true;
-        if (appSettings.theme === "light")
+        if (AppState.settings.theme === "light")
             return false;
         return systemIsDark; // System default
     }

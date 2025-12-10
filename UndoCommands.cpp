@@ -3,6 +3,7 @@
 #include "AccountListModel.h"
 #include "BudgetData.h"
 #include "Category.h"
+#include "CategoryController.h"
 #include "Operation.h"
 #include "OperationListModel.h"
 
@@ -35,6 +36,7 @@ void RenameAccountCommand::redo() {
 
 EditCategoryCommand::EditCategoryCommand(Category *category,
                                          BudgetData *budgetData,
+                                         CategoryController *categoryController,
                                          const QString &oldName,
                                          const QString &newName,
                                          double oldBudgetLimit,
@@ -43,6 +45,7 @@ EditCategoryCommand::EditCategoryCommand(Category *category,
     QUndoCommand(parent),
     _category(category),
     _budgetData(budgetData),
+    _categoryController(categoryController),
     _oldName(oldName),
     _newName(newName),
     _oldBudgetLimit(oldBudgetLimit),
@@ -78,8 +81,8 @@ void EditCategoryCommand::undo() {
 
     _category->set_name(_oldName);
     _category->set_budgetLimit(_oldBudgetLimit);
-    if (_budgetData) {
-      emit _budgetData->categoryCountChanged();  // Trigger UI refresh
+    if (_categoryController) {
+      emit _categoryController->categoryCountChanged();  // Trigger UI refresh
     }
   }
 }
@@ -94,22 +97,22 @@ void EditCategoryCommand::redo() {
       renameOperationsCategory(_oldName, _newName);
     }
 
-    if (_budgetData) {
-      emit _budgetData->categoryCountChanged();  // Trigger UI refresh
+    if (_categoryController) {
+      emit _categoryController->categoryCountChanged();  // Trigger UI refresh
     }
   }
 }
 
 ImportOperationsCommand::ImportOperationsCommand(Account *account,
                                                  OperationListModel *operationModel,
-                                                 BudgetData *budgetData,
+                                                 CategoryController *categoryController,
                                                  const QList<Operation *> &operations,
                                                  const QList<Category *> &newCategories,
                                                  QUndoCommand *parent) :
     QUndoCommand(parent),
     _account(account),
     _operationModel(operationModel),
-    _budgetData(budgetData),
+    _categoryController(categoryController),
     _operations(operations),
     _newCategories(newCategories),
     _ownsOperations(false),
@@ -142,10 +145,10 @@ void ImportOperationsCommand::undo() {
   }
   _ownsOperations = true;
 
-  // Remove new categories from budgetData (take ownership back, don't delete)
-  if (_budgetData) {
+  // Remove new categories from CategoryController (take ownership back, don't delete)
+  if (_categoryController) {
     for (Category *cat : _newCategories) {
-      _budgetData->takeCategoryByName(cat->name());
+      _categoryController->takeCategoryByName(cat->name());
     }
   }
   _ownsCategories = true;
@@ -165,10 +168,10 @@ void ImportOperationsCommand::redo() {
   }
   _ownsOperations = false;
 
-  // Re-add categories to budgetData
-  if (_budgetData) {
+  // Re-add categories to CategoryController
+  if (_categoryController) {
     for (Category *cat : _newCategories) {
-      _budgetData->addCategory(cat);
+      _categoryController->addCategory(cat);
     }
   }
   _ownsCategories = false;
@@ -181,14 +184,12 @@ void ImportOperationsCommand::redo() {
 
 SetOperationCategoryCommand::SetOperationCategoryCommand(Operation *operation,
                                                          OperationListModel *operationModel,
-                                                         BudgetData *budgetData,
                                                          const QString &oldCategory,
                                                          const QString &newCategory,
                                                          QUndoCommand *parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
-    _budgetData(budgetData),
     _oldCategory(oldCategory),
     _newCategory(newCategory) {
   if (newCategory.isEmpty()) {
@@ -203,9 +204,7 @@ void SetOperationCategoryCommand::undo() {
     _operation->set_category(_oldCategory);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
@@ -215,23 +214,19 @@ void SetOperationCategoryCommand::redo() {
     _operation->set_category(_newCategory);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
 
 SetOperationBudgetDateCommand::SetOperationBudgetDateCommand(Operation *operation,
                                                              OperationListModel *operationModel,
-                                                             BudgetData *budgetData,
                                                              const QDate &oldBudgetDate,
                                                              const QDate &newBudgetDate,
                                                              QUndoCommand *parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
-    _budgetData(budgetData),
     _oldBudgetDate(oldBudgetDate),
     _newBudgetDate(newBudgetDate) {
   setText(QObject::tr("Set operation budget date to %1").arg(newBudgetDate.toString("dd/MM/yyyy")));
@@ -242,9 +237,7 @@ void SetOperationBudgetDateCommand::undo() {
     _operation->set_budgetDate(_oldBudgetDate);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
@@ -254,16 +247,13 @@ void SetOperationBudgetDateCommand::redo() {
     _operation->set_budgetDate(_newBudgetDate);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
 
 SplitOperationCommand::SplitOperationCommand(Operation *operation,
                                              OperationListModel *operationModel,
-                                             BudgetData *budgetData,
                                              const QString &oldCategory,
                                              const QList<CategoryAllocation> &oldAllocations,
                                              const QList<CategoryAllocation> &newAllocations,
@@ -271,7 +261,6 @@ SplitOperationCommand::SplitOperationCommand(Operation *operation,
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
-    _budgetData(budgetData),
     _oldCategory(oldCategory),
     _oldAllocations(oldAllocations),
     _newAllocations(newAllocations) {
@@ -296,9 +285,7 @@ void SplitOperationCommand::undo() {
     }
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
@@ -319,23 +306,19 @@ void SplitOperationCommand::redo() {
     }
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
 
 SetOperationAmountCommand::SetOperationAmountCommand(Operation *operation,
                                                      OperationListModel *operationModel,
-                                                     BudgetData *budgetData,
                                                      double oldAmount,
                                                      double newAmount,
                                                      QUndoCommand *parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
-    _budgetData(budgetData),
     _oldAmount(oldAmount),
     _newAmount(newAmount) {
   setText(QObject::tr("Set operation amount to %1").arg(newAmount, 0, 'f', 2));
@@ -346,9 +329,7 @@ void SetOperationAmountCommand::undo() {
     _operation->set_amount(_oldAmount);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
@@ -358,23 +339,19 @@ void SetOperationAmountCommand::redo() {
     _operation->set_amount(_newAmount);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
 
 SetOperationDateCommand::SetOperationDateCommand(Operation *operation,
                                                  OperationListModel *operationModel,
-                                                 BudgetData *budgetData,
                                                  const QDate &oldDate,
                                                  const QDate &newDate,
                                                  QUndoCommand *parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
-    _budgetData(budgetData),
     _oldDate(oldDate),
     _newDate(newDate) {
   setText(QObject::tr("Set operation date to %1").arg(newDate.toString("dd/MM/yyyy")));
@@ -385,9 +362,7 @@ void SetOperationDateCommand::undo() {
     _operation->set_date(_oldDate);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
@@ -397,9 +372,7 @@ void SetOperationDateCommand::redo() {
     _operation->set_date(_newDate);
     if (_operationModel) {
       _operationModel->refresh();
-    }
-    if (_budgetData) {
-      emit _budgetData->operationDataChanged();
+      emit _operationModel->operationDataChanged();
     }
   }
 }
