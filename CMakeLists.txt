@@ -283,6 +283,7 @@ if(APPLE)
   set(CPACK_DMG_VOLUME_NAME "Comptine")
   set(CPACK_DMG_FORMAT "UDZO")
   set(CPACK_PACKAGE_ICON "${APP_ICON_ICNS}")
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-MacOS")
 
   # Include the deployed app bundle
   set(CPACK_BUNDLE_NAME "Comptine")
@@ -290,6 +291,7 @@ if(APPLE)
 elseif(WIN32)
   # Windows: NSIS installer
   set(CPACK_GENERATOR "NSIS")
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-Windows")
 
   # Basic NSIS settings
   set(CPACK_NSIS_DISPLAY_NAME "Comptine")

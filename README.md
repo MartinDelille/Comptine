@@ -59,7 +59,7 @@ macdeployqt build/Comptine.app -qmldir=.
 cd build && cpack -G DragNDrop
 ```
 
-The installer will be at `build/Comptine-<version>-Darwin.dmg`
+The installer will be at `build/Comptine-<version>-MacOS.dmg`
 
 ### Windows (NSIS)
 
@@ -74,4 +74,4 @@ cd build
 cpack -G NSIS -C Release
 ```
 
-The installer will be at `build/Comptine-<version>-win64.exe`
+The installer will be at `build/Comptine-<version>-Windows.exe`
