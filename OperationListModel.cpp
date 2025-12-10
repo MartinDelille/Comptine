@@ -73,10 +73,9 @@ QHash<int, QByteArray> OperationListModel::roleNames() const {
 }
 
 void OperationListModel::setAccount(Account *account) {
-  if (_account == account)
+  if (_account == account) {
     return;
-
-  beginResetModel();
+  }
 
   // Disconnect from old account
   if (_account) {
@@ -94,6 +93,8 @@ void OperationListModel::setAccount(Account *account) {
   }
 
   recalculateBalances();
+
+  beginResetModel();
   endResetModel();
 
   emit countChanged();

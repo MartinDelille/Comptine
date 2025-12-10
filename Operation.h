@@ -3,6 +3,7 @@
 #include <QDate>
 #include <QList>
 #include <QObject>
+#include <QQmlEngine>
 #include <QString>
 #include <QVariantList>
 #include "PropertyMacros.h"
@@ -23,6 +24,7 @@ struct CategoryAllocation {
 
 class Operation : public QObject {
   Q_OBJECT
+  QML_ELEMENT
 
   PROPERTY_RW(QDate, date, {})
   PROPERTY_RW(double, amount, 0.0)

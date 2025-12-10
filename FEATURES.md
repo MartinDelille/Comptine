@@ -51,7 +51,26 @@
 
 - **Undo**: Undo the last action (Edit > Undo or Cmd+Z)
 - **Redo**: Redo the last undone action (Edit > Redo or Cmd+Shift+Z)
-- **Supported Actions**: Account rename, CSV import (including any new categories created), category changes, split operations, operation amount/date/budget date changes
+
+### Undoable Actions
+
+The following actions modify user data and support undo/redo:
+
+- **Account rename**: Renaming an account via the Rename button
+- **CSV import**: Importing operations (and any new categories created during import)
+- **Category edits**: Renaming a category or changing its budget limit
+- **Operation category**: Setting or clearing an operation's category
+- **Operation split**: Splitting an operation across multiple categories
+- **Operation amount**: Editing an operation's amount
+- **Operation date**: Editing an operation's date
+- **Operation budget date**: Changing when an operation counts in the budget
+
+### Non-Undoable Actions (by design)
+
+- **File operations**: Save, Save As, New, Open - these persist immediately to disk
+- **Navigation state**: Tab selection, month selection, operation selection - UI state, not data
+- **Account deletion**: Destructive action not yet implemented with undo support
+- **Preferences**: Theme and language changes take effect immediately
 
 ## User Interface
 

@@ -8,7 +8,7 @@ ApplicationWindow {
     width: 1200
     height: 800
     visible: true
-    title: budgetData.currentFilePath.length > 0 ? "Comptine - " + budgetData.currentFilePath.split('/').pop() : "Comptine"
+    title: AppState.file.currentFilePath.length > 0 ? "Comptine - " + AppState.file.currentFilePath.split('/').pop() : "Comptine"
     color: Theme.background
 
     property bool fileDialogOpen: openDialog.visible || saveDialog.visible || csvDialog.visible
@@ -20,8 +20,7 @@ ApplicationWindow {
         if (pendingAction === "quit") {
             Qt.quit();
         } else if (pendingAction === "new") {
-            budgetData.clear();
-            budgetData.currentFilePath = "";
+            AppState.file.clear();
         } else if (pendingAction === "open") {
             openDialog.open();
         }
@@ -29,7 +28,7 @@ ApplicationWindow {
     }
 
     function checkUnsavedChanges(action) {
-        if (budgetData.hasUnsavedChanges) {
+        if (AppState.file.hasUnsavedChanges) {
             pendingAction = action;
             unsavedChangesDialog.open();
             return true;  // Has unsaved changes, action deferred
@@ -38,7 +37,7 @@ ApplicationWindow {
     }
 
     onClosing: function (close) {
-        if (budgetData.hasUnsavedChanges && !forceQuit) {
+        if (AppState.file.hasUnsavedChanges && !forceQuit) {
             close.accepted = false;
             pendingAction = "quit";
             unsavedChangesDialog.open();
@@ -53,8 +52,7 @@ ApplicationWindow {
                 shortcut: StandardKey.New
                 onTriggered: {
                     if (!checkUnsavedChanges("new")) {
-                        budgetData.clear();
-                        budgetData.currentFilePath = "";
+                        AppState.file.clear();
                     }
                 }
             }
@@ -71,8 +69,8 @@ ApplicationWindow {
                 text: qsTr("&Save")
                 shortcut: StandardKey.Save
                 onTriggered: {
-                    if (budgetData.currentFilePath.length > 0) {
-                        budgetData.saveToYaml(budgetData.currentFilePath);
+                    if (AppState.file.currentFilePath.length > 0) {
+                        AppState.file.saveToYaml(AppState.file.currentFilePath);
                     } else {
                         saveDialog.open();
                     }
@@ -105,29 +103,29 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Undo")
                 shortcut: StandardKey.Undo
-                enabled: budgetData.undoStack.canUndo
-                onTriggered: budgetData.undo()
+                enabled: AppState.data.undoStack.canUndo
+                onTriggered: AppState.data.undo()
             }
             Action {
                 text: qsTr("&Redo")
                 shortcut: StandardKey.Redo
-                enabled: budgetData.undoStack.canRedo
-                onTriggered: budgetData.redo()
+                enabled: AppState.data.undoStack.canRedo
+                onTriggered: AppState.data.redo()
             }
             MenuSeparator {}
             Action {
                 text: qsTr("&Copy")
                 shortcut: StandardKey.Copy
-                enabled: budgetData.operationModel.selectionCount > 0
-                onTriggered: budgetData.copySelectedOperationsToClipboard()
+                enabled: AppState.data.operationModel.selectionCount > 0
+                onTriggered: AppState.clipboard.copySelectedOperations()
             }
             MenuSeparator {}
             Action {
-                text: budgetData.currentTabIndex === 0 ? qsTr("Edit &Operation...") : qsTr("Edit &Category...")
+                text: AppState.navigation.currentTabIndex === 0 ? qsTr("Edit &Operation...") : qsTr("Edit &Category...")
                 shortcut: "Ctrl+E"
-                enabled: (budgetData.currentTabIndex === 0 && budgetData.operationModel.selectionCount === 1) || (budgetData.currentTabIndex === 1 && budgetData.currentCategoryIndex >= 0)
+                enabled: (AppState.navigation.currentTabIndex === 0 && AppState.data.operationModel.selectionCount === 1) || (AppState.navigation.currentTabIndex === 1 && AppState.navigation.currentCategoryIndex >= 0)
                 onTriggered: {
-                    if (budgetData.currentTabIndex === 0) {
+                    if (AppState.navigation.currentTabIndex === 0) {
                         operationView.editCurrentOperation();
                     } else {
                         budgetView.editCurrentCategory();
@@ -146,25 +144,25 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Operations")
                 shortcut: "Ctrl+1"
-                onTriggered: budgetData.showOperationsTab()
+                onTriggered: AppState.navigation.showOperationsTab()
             }
             Action {
                 text: qsTr("&Budget")
                 shortcut: "Ctrl+2"
-                onTriggered: budgetData.showBudgetTab()
+                onTriggered: AppState.navigation.showBudgetTab()
             }
             MenuSeparator {}
             Action {
                 text: qsTr("&Previous Month")
                 shortcut: "Left"
-                enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
-                onTriggered: budgetData.previousMonth()
+                enabled: AppState.navigation.currentTabIndex === 1 && !anyDialogOpen
+                onTriggered: AppState.navigation.previousMonth()
             }
             Action {
                 text: qsTr("&Next Month")
                 shortcut: "Right"
-                enabled: budgetData.currentTabIndex === 1 && !anyDialogOpen
-                onTriggered: budgetData.nextMonth()
+                enabled: AppState.navigation.currentTabIndex === 1 && !anyDialogOpen
+                onTriggered: AppState.navigation.nextMonth()
             }
         }
         Menu {
@@ -187,7 +185,7 @@ ApplicationWindow {
         fileMode: FileDialog.OpenFile
         nameFilters: ["Comptine files (*.comptine)", "All files (*)"]
         onAccepted: {
-            budgetData.loadFromYaml(selectedFile.toString().replace("file://", ""));
+            AppState.file.loadFromYaml(selectedFile.toString().replace("file://", ""));
         }
     }
 
@@ -196,11 +194,11 @@ ApplicationWindow {
         title: qsTr("Save Budget File")
         fileMode: FileDialog.SaveFile
         nameFilters: ["Comptine files (*.comptine)", "All files (*)"]
-        currentFile: budgetData.currentFilePath.length > 0 ? "file://" + budgetData.currentFilePath : ""
+        currentFile: AppState.file.currentFilePath.length > 0 ? "file://" + AppState.file.currentFilePath : ""
         onAccepted: {
             var filePath = selectedFile.toString().replace("file://", "");
-            if (budgetData.saveToYaml(filePath)) {
-                budgetData.currentFilePath = filePath;
+            if (AppState.file.saveToYaml(filePath)) {
+                AppState.file.currentFilePath = filePath;
                 if (window.pendingAction !== "") {
                     window.performPendingAction();
                 }
@@ -244,8 +242,8 @@ ApplicationWindow {
         buttons: MessageDialog.Save | MessageDialog.Discard | MessageDialog.Cancel
         onButtonClicked: function (button, role) {
             if (button === MessageDialog.Save) {
-                if (budgetData.currentFilePath.length > 0) {
-                    budgetData.saveToYaml(budgetData.currentFilePath);
+                if (AppState.file.currentFilePath.length > 0) {
+                    AppState.file.saveToYaml(AppState.file.currentFilePath);
                     window.performPendingAction();
                 } else {
                     saveDialog.open();
@@ -268,8 +266,8 @@ ApplicationWindow {
         TabBar {
             id: tabBar
             Layout.fillWidth: true
-            currentIndex: budgetData.currentTabIndex
-            onCurrentIndexChanged: budgetData.currentTabIndex = currentIndex
+            currentIndex: AppState.navigation.currentTabIndex
+            onCurrentIndexChanged: AppState.navigation.currentTabIndex = currentIndex
             focusPolicy: Qt.NoFocus  // Prevent tab bar from stealing focus
 
             background: Rectangle {
@@ -287,18 +285,22 @@ ApplicationWindow {
         }
 
         Connections {
-            target: budgetData
+            target: AppState.file
             function onDataLoaded() {
                 // Focus the appropriate view after data load
-                if (budgetData.currentTabIndex === 0) {
+                if (AppState.navigation.currentTabIndex === 0) {
                     operationView.forceActiveFocus();
                 } else {
                     budgetView.forceActiveFocus();
                 }
             }
+        }
+
+        Connections {
+            target: AppState.navigation
             function onCurrentTabIndexChanged() {
                 // Focus the appropriate view when tab changes
-                if (budgetData.currentTabIndex === 0) {
+                if (AppState.navigation.currentTabIndex === 0) {
                     operationView.forceActiveFocus();
                 } else {
                     budgetView.forceActiveFocus();

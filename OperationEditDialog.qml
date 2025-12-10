@@ -63,7 +63,7 @@ Dialog {
     // Disable OK button when invalid
     onOpened: {
         // Refresh category list when dialog opens
-        root.categoryList = [""].concat(budgetData.categoryNames());
+        root.categoryList = [""].concat(AppState.categories.categoryNames());
 
         let okButton = footer.standardButton(Dialog.Ok);
         if (okButton) {
@@ -131,19 +131,19 @@ Dialog {
     onAccepted: {
         // Apply amount change if different
         if (Math.abs(editedAmount - originalAmount) > 0.001) {
-            budgetData.setOperationAmount(operationIndex, editedAmount);
+            AppState.data.setOperationAmount(operationIndex, editedAmount);
         }
 
         // Apply date change if different
         let newDate = new Date(dateYear.value, dateMonth.currentIndex, dateDay.value);
         if (newDate.getTime() !== originalDate.getTime()) {
-            budgetData.setOperationDate(operationIndex, newDate);
+            AppState.data.setOperationDate(operationIndex, newDate);
         }
 
         // Apply budget date change if different
         let newBudgetDate = new Date(budgetDateYear.value, budgetDateMonth.currentIndex, budgetDateDay.value);
         if (newBudgetDate.getTime() !== originalBudgetDate.getTime()) {
-            budgetData.setOperationBudgetDate(operationIndex, newBudgetDate);
+            AppState.data.setOperationBudgetDate(operationIndex, newBudgetDate);
         }
 
         // Build allocations array and call splitOperation
@@ -177,7 +177,7 @@ Dialog {
                 }
             }
             if (allocationsChanged) {
-                budgetData.splitOperation(operationIndex, allocations);
+                AppState.data.splitOperation(operationIndex, allocations);
             }
         }
     }

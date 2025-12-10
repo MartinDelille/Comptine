@@ -17,12 +17,12 @@ RowLayout {
     Button {
         text: "<"
         focusPolicy: Qt.NoFocus
-        onClicked: budgetData.previousMonth()
+        onClicked: AppState.navigation.previousMonth()
         implicitWidth: 40
     }
 
     Label {
-        text: monthName(budgetData.budgetMonth) + " " + budgetData.budgetYear
+        text: monthName(AppState.navigation.budgetMonth) + " " + AppState.navigation.budgetYear
         font.pixelSize: Theme.fontSizeXLarge
         font.bold: true
         color: Theme.textPrimary
@@ -33,7 +33,7 @@ RowLayout {
     Button {
         text: ">"
         focusPolicy: Qt.NoFocus
-        onClicked: budgetData.nextMonth()
+        onClicked: AppState.navigation.nextMonth()
         implicitWidth: 40
     }
 }

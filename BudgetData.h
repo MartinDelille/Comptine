@@ -7,46 +7,39 @@
 #include <QVariant>
 #include "Account.h"
 #include "AccountListModel.h"
-#include "Category.h"
 #include "OperationListModel.h"
 #include "PropertyMacros.h"
+
+class NavigationController;
 
 class BudgetData : public QObject {
   Q_OBJECT
 
-  // UI state properties (macro-generated)
-  PROPERTY_RW(int, currentTabIndex, 0)
-  PROPERTY_RW(int, budgetYear, 0)
-  PROPERTY_RW(int, budgetMonth, 0)
-  PROPERTY_RW(int, currentCategoryIndex, 0)
-  PROPERTY_RW(int, currentOperationIndex, 0)
-
-  // Data properties (macro-generated)
-  PROPERTY_RW(QString, currentFilePath, {})
+  Q_PROPERTY(QString appVersion READ appVersion CONSTANT)
+  Q_PROPERTY(QString appCommitHash READ appCommitHash CONSTANT)
 
   // Read-only computed properties (macro-generated, implemented in .cpp)
   PROPERTY_RO(int, accountCount)
-  PROPERTY_RO(int, categoryCount)
-  PROPERTY_RO(Account *, currentAccount)
-  PROPERTY_RO(bool, hasUnsavedChanges)
-  PROPERTY_RO(QString, currentCategoryName)
-
-  // Custom property with validation logic (implemented in .cpp)
-  PROPERTY_RW_CUSTOM(int, currentAccountIndex, -1)
 
   // Models exposed to QML
   Q_PROPERTY(OperationListModel *operationModel READ operationModel CONSTANT)
   Q_PROPERTY(AccountListModel *accountModel READ accountModel CONSTANT)
   Q_PROPERTY(QUndoStack *undoStack READ undoStack CONSTANT)
+  Q_PROPERTY(Account *currentAccount READ currentAccount NOTIFY currentAccountChanged)
 
 public:
   explicit BudgetData(QObject *parent = nullptr);
   ~BudgetData();
 
+  // Version info accessors
+  QString appVersion() const;
+  QString appCommitHash() const;
+
   // Model accessors
   OperationListModel *operationModel() const { return _operationModel; }
   AccountListModel *accountModel() const { return _accountModel; }
   QUndoStack *undoStack() const { return _undoStack; }
+  Account *currentAccount() const;
 
   // Account management
   QList<Account *> accounts() const;
@@ -57,17 +50,6 @@ public:
   void removeAccount(int index);
   void clearAccounts();
 
-  // Category management
-  QList<Category *> categories() const;
-  Q_INVOKABLE Category *getCategory(int index) const;
-  Q_INVOKABLE Category *getCategoryByName(const QString &name) const;
-  Q_INVOKABLE void editCategory(const QString &originalName, const QString &newName, double newBudgetLimit);
-  Q_INVOKABLE QStringList categoryNames() const;
-  void addCategory(Category *category);
-  void removeCategory(int index);
-  Category *takeCategoryByName(const QString &name);  // Remove without deleting
-  void clearCategories();
-
   // Operation editing
   Q_INVOKABLE void setOperationCategory(int operationIndex, const QString &newCategory);
   Q_INVOKABLE void setOperationBudgetDate(int operationIndex, const QDate &newBudgetDate);
@@ -75,50 +57,26 @@ public:
   Q_INVOKABLE void setOperationDate(int operationIndex, const QDate &newDate);
   Q_INVOKABLE void splitOperation(int operationIndex, const QVariantList &allocations);
 
-  // Budget calculations (aggregates across all accounts)
-  Q_INVOKABLE double spentInCategory(const QString &categoryName, int year, int month) const;
-  Q_INVOKABLE QVariantList monthlyBudgetSummary(int year, int month) const;
-  Q_INVOKABLE QVariantList operationsForCategory(const QString &categoryName, int year, int month) const;
-
-  // Navigation
-  Q_INVOKABLE void selectOperation(const QString &accountName, const QDate &date, const QString &description, double amount);
-  Q_INVOKABLE void previousMonth();
-  Q_INVOKABLE void nextMonth();
-  Q_INVOKABLE void previousCategory();
-  Q_INVOKABLE void nextCategory();
-  Q_INVOKABLE void previousOperation(bool extendSelection = false);
-  Q_INVOKABLE void nextOperation(bool extendSelection = false);
-  Q_INVOKABLE void showOperationsTab();
-  Q_INVOKABLE void showBudgetTab();
-
-  // File operations
-  Q_INVOKABLE bool loadFromYaml(const QString &filePath);
-  Q_INVOKABLE bool saveToYaml(const QString &filePath) const;
-  Q_INVOKABLE bool importFromCsv(const QString &filePath,
-                                 const QString &accountName = QString(),
-                                 bool useCategories = false);
-
-  // Clear all data
-  Q_INVOKABLE void clear();
-
-  // Clipboard operations (delegates to operationModel)
-  Q_INVOKABLE void copySelectedOperationsToClipboard() const;
+  // Clear all data (called by FileController)
+  void clear();
 
   // Undo/Redo
   Q_INVOKABLE void undo();
   Q_INVOKABLE void redo();
 
+  // Set reference to NavigationController (for current account access)
+  void setNavigationController(NavigationController *navController);
+
 signals:
-  void dataLoaded();      // Emitted after any data load (YAML or CSV import)
-  void yamlFileLoaded();  // Emitted only after YAML file load (for UI state restore)
-  void dataSaved();
-  void operationDataChanged();        // Emitted when operation data changes (e.g., category edit)
-  void operationSelected(int index);  // Emitted when an operation is selected via selectOperation()
+  void operationDataChanged();  // Emitted when operation data changes (e.g., category edit)
+  void currentAccountChanged();  // Emitted when current account changes (for QML binding)
 
 private:
   QList<Account *> _accounts;
-  QList<Category *> _categories;
   OperationListModel *_operationModel;
   AccountListModel *_accountModel;
   QUndoStack *_undoStack;
+  NavigationController *_navController = nullptr;
 };
+
+

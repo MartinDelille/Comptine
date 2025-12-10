@@ -16,7 +16,7 @@ Dialog {
     readonly property bool newAccountNameExists: {
         if (!newAccountRadio.checked || newAccountName === "")
             return false;
-        return budgetData.getAccountByName(newAccountName) !== null;
+        return AppState.data.getAccountByName(newAccountName) !== null;
     }
     readonly property bool isValid: existingAccountRadio.checked || (!newAccountNameEmpty && !newAccountNameExists)
 
@@ -27,9 +27,9 @@ Dialog {
 
     onOpened: {
         // Default to existing account if one is selected, otherwise new account
-        if (budgetData.currentAccountIndex >= 0) {
+        if (AppState.navigation.currentAccountIndex >= 0) {
             existingAccountRadio.checked = true;
-            accountComboBox.currentIndex = budgetData.currentAccountIndex;
+            accountComboBox.currentIndex = AppState.navigation.currentAccountIndex;
         } else {
             newAccountRadio.checked = true;
         }
@@ -45,12 +45,12 @@ Dialog {
             accountName = newAccountName;
         } else {
             // Existing account
-            var account = budgetData.getAccount(accountComboBox.currentIndex);
+            var account = AppState.data.getAccount(accountComboBox.currentIndex);
             accountName = account ? account.name : "";
         }
 
-        budgetData.importFromCsv(filePath, accountName, useCategoriesCheckBox.checked);
-        budgetData.currentTabIndex = 0;
+        AppState.file.importFromCsv(filePath, accountName, useCategoriesCheckBox.checked);
+        AppState.navigation.currentTabIndex = 0;
     }
 
     ColumnLayout {
@@ -69,7 +69,7 @@ Dialog {
             id: existingAccountRadio
             text: qsTr("Existing account")
             ButtonGroup.group: accountButtonGroup
-            enabled: budgetData.accountCount > 0
+            enabled: AppState.data.accountCount > 0
         }
 
         ComboBox {
@@ -77,7 +77,7 @@ Dialog {
             Layout.fillWidth: true
             Layout.leftMargin: Theme.spacingXLarge
             enabled: existingAccountRadio.checked
-            model: budgetData.accountModel
+            model: AppState.data.accountModel
             textRole: "name"
             delegate: ItemDelegate {
                 required property int index

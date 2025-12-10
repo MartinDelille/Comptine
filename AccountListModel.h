@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QQmlEngine>
 #include "Account.h"
 
 class AccountListModel : public QAbstractListModel {
   Q_OBJECT
+  QML_ELEMENT
 
   Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 

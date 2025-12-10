@@ -9,8 +9,8 @@ FocusScope {
     property bool dialogOpen: categoryEditDialog.visible || categoryDetailView.visible
 
     function editCurrentCategory() {
-        if (budgetData.currentCategoryIndex >= 0 && budgetData.currentCategoryIndex < budgetSummary.length) {
-            let category = budgetSummary[budgetData.currentCategoryIndex];
+        if (AppState.navigation.currentCategoryIndex >= 0 && AppState.navigation.currentCategoryIndex < budgetSummary.length) {
+            let category = budgetSummary[AppState.navigation.currentCategoryIndex];
             categoryEditDialog.originalName = category.name;
             categoryEditDialog.originalBudgetLimit = category.signedBudgetLimit;
             categoryEditDialog.open();
@@ -20,24 +20,24 @@ FocusScope {
     // Forward focus to the category list
     onActiveFocusChanged: {
         if (activeFocus && budgetSummary.length > 0) {
-            if (budgetData.currentCategoryIndex < 0) {
-                budgetData.currentCategoryIndex = 0;
+            if (AppState.navigation.currentCategoryIndex < 0) {
+                AppState.navigation.currentCategoryIndex = 0;
             }
             categoryListView.forceActiveFocus();
         }
     }
 
     function updateBudgetSummary() {
-        budgetSummary = budgetData.monthlyBudgetSummary(budgetData.budgetYear, budgetData.budgetMonth);
+        budgetSummary = AppState.categories.monthlyBudgetSummary(AppState.navigation.budgetYear, AppState.navigation.budgetMonth);
         // Reset current index if out of bounds, or initialize to first item
-        if (budgetData.currentCategoryIndex < 0 && budgetSummary.length > 0) {
-            budgetData.currentCategoryIndex = 0;
-        } else if (budgetData.currentCategoryIndex >= budgetSummary.length) {
-            budgetData.currentCategoryIndex = budgetSummary.length > 0 ? 0 : -1;
+        if (AppState.navigation.currentCategoryIndex < 0 && budgetSummary.length > 0) {
+            AppState.navigation.currentCategoryIndex = 0;
+        } else if (AppState.navigation.currentCategoryIndex >= budgetSummary.length) {
+            AppState.navigation.currentCategoryIndex = budgetSummary.length > 0 ? 0 : -1;
         }
         // Restore scroll position to current category after model update
-        if (budgetData.currentCategoryIndex >= 0) {
-            categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
+        if (AppState.navigation.currentCategoryIndex >= 0) {
+            categoryListView.positionViewAtIndex(AppState.navigation.currentCategoryIndex, ListView.Contain);
         }
     }
 
@@ -46,20 +46,32 @@ FocusScope {
     }
 
     Connections {
-        target: budgetData
+        target: AppState.file
         function onDataLoaded() {
             updateBudgetSummary();
         }
+    }
+
+    Connections {
+        target: AppState.categories
         function onCategoryCountChanged() {
             updateBudgetSummary();
         }
+    }
+
+    Connections {
+        target: AppState.data
+        function onOperationDataChanged() {
+            updateBudgetSummary();
+        }
+    }
+
+    Connections {
+        target: AppState.navigation
         function onBudgetYearChanged() {
             updateBudgetSummary();
         }
         function onBudgetMonthChanged() {
-            updateBudgetSummary();
-        }
-        function onOperationDataChanged() {
             updateBudgetSummary();
         }
     }
@@ -97,25 +109,25 @@ FocusScope {
                 spacing: Theme.spacingNormal
                 clip: true
                 focus: true
-                currentIndex: budgetData.currentCategoryIndex
+                currentIndex: AppState.navigation.currentCategoryIndex
                 keyNavigationEnabled: false
 
                 Keys.onUpPressed: {
-                    budgetData.previousCategory();
-                    categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
+                    AppState.navigation.previousCategory();
+                    categoryListView.positionViewAtIndex(AppState.navigation.currentCategoryIndex, ListView.Contain);
                 }
 
                 Keys.onDownPressed: {
-                    budgetData.nextCategory();
-                    categoryListView.positionViewAtIndex(budgetData.currentCategoryIndex, ListView.Contain);
+                    AppState.navigation.nextCategory();
+                    categoryListView.positionViewAtIndex(AppState.navigation.currentCategoryIndex, ListView.Contain);
                 }
 
                 Keys.onReturnPressed: {
-                    if (budgetData.currentCategoryIndex >= 0 && budgetData.currentCategoryIndex < budgetSummary.length) {
-                        let category = budgetSummary[budgetData.currentCategoryIndex];
+                    if (AppState.navigation.currentCategoryIndex >= 0 && AppState.navigation.currentCategoryIndex < budgetSummary.length) {
+                        let category = budgetSummary[AppState.navigation.currentCategoryIndex];
                         categoryDetailView.categoryName = category.name;
-                        categoryDetailView.year = budgetData.budgetYear;
-                        categoryDetailView.month = budgetData.budgetMonth;
+                        categoryDetailView.year = AppState.navigation.budgetYear;
+                        categoryDetailView.month = AppState.navigation.budgetMonth;
                         categoryDetailView.open();
                     }
                 }
@@ -127,8 +139,8 @@ FocusScope {
                     width: ListView.view.width
                     implicitHeight: contentColumn.implicitHeight + 24
                     color: delegateMouseArea.containsMouse ? Theme.surface : Theme.surfaceElevated
-                    border.color: budgetData.currentCategoryIndex === index ? Theme.accent : Theme.borderLight
-                    border.width: budgetData.currentCategoryIndex === index ? 2 : Theme.cardBorderWidth
+                    border.color: AppState.navigation.currentCategoryIndex === index ? Theme.accent : Theme.borderLight
+                    border.width: AppState.navigation.currentCategoryIndex === index ? 2 : Theme.cardBorderWidth
                     radius: Theme.cardRadius
 
                     MouseArea {
@@ -137,11 +149,11 @@ FocusScope {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            budgetData.currentCategoryIndex = index;
+                            AppState.navigation.currentCategoryIndex = index;
                             categoryListView.forceActiveFocus();
                             categoryDetailView.categoryName = modelData.name;
-                            categoryDetailView.year = budgetData.budgetYear;
-                            categoryDetailView.month = budgetData.budgetMonth;
+                            categoryDetailView.year = AppState.navigation.budgetYear;
+                            categoryDetailView.month = AppState.navigation.budgetMonth;
                             categoryDetailView.open();
                         }
                     }
@@ -175,7 +187,7 @@ FocusScope {
                                 focusPolicy: Qt.NoFocus
                                 opacity: hovered ? 1.0 : 0.5
                                 onClicked: {
-                                    budgetData.currentCategoryIndex = index;
+                                    AppState.navigation.currentCategoryIndex = index;
                                     categoryEditDialog.originalName = modelData.name;
                                     categoryEditDialog.originalBudgetLimit = modelData.signedBudgetLimit;
                                     categoryEditDialog.open();
