@@ -596,3 +596,28 @@ void FileController::clear() {
   }
   set_currentFilePath({});
 }
+
+void FileController::loadInitialFile(const QStringList &args) {
+  // Command line argument takes priority (skip first arg which is the program name)
+  if (args.size() > 1) {
+    QString filePath = args.at(1);
+    if (filePath.endsWith(".comptine") || filePath.endsWith(".yaml") || filePath.endsWith(".yml")) {
+      loadFromYaml(filePath);
+      return;
+    } else if (filePath.endsWith(".csv")) {
+      importFromCsv(filePath);
+      return;
+    }
+  }
+
+  // Fall back to most recent file
+  if (_appSettings) {
+    QStringList recentFiles = _appSettings->recentFiles();
+    if (!recentFiles.isEmpty()) {
+      QString lastFile = recentFiles.first();
+      if (QFile::exists(lastFile)) {
+        loadFromYaml(lastFile);
+      }
+    }
+  }
+}

@@ -1,8 +1,13 @@
 #include "NavigationController.h"
+#include <QDate>
 #include "BudgetData.h"
 #include "CategoryController.h"
 
 NavigationController::NavigationController(QObject *parent) : QObject(parent) {
+  // Initialize budget date to current month (will be overridden when a file is loaded)
+  QDate today = QDate::currentDate();
+  _budgetYear = today.year();
+  _budgetMonth = today.month();
 }
 
 void NavigationController::setCategoryController(CategoryController *categoryController) {

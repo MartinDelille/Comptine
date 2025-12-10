@@ -36,6 +36,9 @@ public:
                                  const QString &accountName = QString(),
                                  bool useCategories = false);
 
+  // Load initial file from command line arguments or most recent file
+  void loadInitialFile(const QStringList &args);
+
   // Clear all data
   Q_INVOKABLE void clear();
 
