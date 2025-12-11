@@ -16,7 +16,7 @@ FocusScope {
     // Function to edit the current operation from menu action
     function editCurrentOperation() {
         if (operationList.currentIndex >= 0) {
-            let op = budgetData.operationModel.operationAt(operationList.currentIndex);
+            let op = AppState.data.operationModel.operationAt(operationList.currentIndex);
             if (op) {
                 operationEditDialog.initialize(operationList.currentIndex, op.amount, op.date, op.budgetDate, op.isSplit ? op.allocations : [], op.category ?? "");
                 operationEditDialog.open();
@@ -43,7 +43,7 @@ FocusScope {
             property string originalName: ""
 
             onOpened: {
-                originalName = budgetData.currentAccount?.name ?? "";
+                originalName = AppState.data.currentAccount?.name ?? "";
                 renameField.text = originalName;
                 renameField.selectAll();
                 renameField.forceActiveFocus();
@@ -51,7 +51,7 @@ FocusScope {
 
             onAccepted: {
                 if (renameField.text.trim() !== "") {
-                    budgetData.renameCurrentAccount(renameField.text.trim());
+                    AppState.data.renameCurrentAccount(renameField.text.trim());
                 }
             }
 
@@ -80,13 +80,13 @@ FocusScope {
             ComboBox {
                 id: accountSelector
                 Layout.preferredWidth: 200
-                model: budgetData.accountModel
+                model: AppState.data.accountModel
                 textRole: "name"
-                currentIndex: budgetData.currentAccountIndex
-                enabled: budgetData.accountCount > 0
-                displayText: budgetData.currentAccount?.name ?? qsTr("No account")
+                currentIndex: AppState.navigation.currentAccountIndex
+                enabled: AppState.data.accountCount > 0
+                displayText: AppState.data.currentAccount?.name ?? qsTr("No account")
                 onActivated: function (index) {
-                    budgetData.currentAccountIndex = index;
+                    AppState.navigation.currentAccountIndex = index;
                 }
                 delegate: ItemDelegate {
                     required property int index
@@ -99,14 +99,14 @@ FocusScope {
 
             Button {
                 text: qsTr("Rename")
-                enabled: budgetData.accountCount > 0
+                enabled: AppState.data.accountCount > 0
                 onClicked: renameDialog.open()
             }
 
             BalanceHeader {
                 Layout.fillWidth: true
-                balance: budgetData.operationModel.count > 0 ? budgetData.operationModel.balanceAt(0) : 0
-                operationCount: budgetData.operationModel.count
+                balance: AppState.data.operationModel.count > 0 ? AppState.data.operationModel.balanceAt(0) : 0
+                operationCount: AppState.data.operationModel.count
             }
         }
 

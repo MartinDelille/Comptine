@@ -1,20 +1,20 @@
 #include "Account.h"
 
-Account::Account(QObject *parent) :
+Account::Account(QObject* parent) :
     QObject(parent) {}
 
-Account::Account(const QString &name, QObject *parent) :
+Account::Account(const QString& name, QObject* parent) :
     QObject(parent), _name(name) {}
 
 int Account::operationCount() const {
   return _operations.size();
 }
 
-QList<Operation *> Account::operations() const {
+QList<Operation*> Account::operations() const {
   return _operations;
 }
 
-void Account::addOperation(Operation *operation) {
+void Account::addOperation(Operation* operation) {
   if (operation) {
     operation->setParent(this);
     // Insert in sorted order (most recent first)
@@ -34,7 +34,7 @@ void Account::removeOperation(int index) {
   }
 }
 
-bool Account::removeOperation(Operation *operation) {
+bool Account::removeOperation(Operation* operation) {
   int index = _operations.indexOf(operation);
   if (index >= 0) {
     _operations.removeAt(index);
@@ -50,8 +50,8 @@ void Account::clearOperations() {
   emit operationCountChanged();
 }
 
-bool Account::hasOperation(const QDate &date, double amount, const QString &description) const {
-  for (Operation *op : _operations) {
+bool Account::hasOperation(const QDate& date, double amount, const QString& description) const {
+  for (Operation* op : _operations) {
     if (op->date() == date && op->amount() == amount && op->description() == description) {
       return true;
     }
@@ -59,7 +59,7 @@ bool Account::hasOperation(const QDate &date, double amount, const QString &desc
   return false;
 }
 
-Operation *Account::getOperation(int index) const {
+Operation* Account::getOperation(int index) const {
   if (index >= 0 && index < _operations.size()) {
     return _operations[index];
   }

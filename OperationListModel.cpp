@@ -1,15 +1,15 @@
 #include "OperationListModel.h"
 
-OperationListModel::OperationListModel(QObject *parent) :
+OperationListModel::OperationListModel(QObject* parent) :
     QAbstractListModel(parent) {}
 
-int OperationListModel::rowCount(const QModelIndex &parent) const {
+int OperationListModel::rowCount(const QModelIndex& parent) const {
   if (parent.isValid() || !_account)
     return 0;
   return _account->operationCount();
 }
 
-QVariant OperationListModel::data(const QModelIndex &index, int role) const {
+QVariant OperationListModel::data(const QModelIndex& index, int role) const {
   if (!index.isValid() || !_account)
     return QVariant();
 
@@ -17,7 +17,7 @@ QVariant OperationListModel::data(const QModelIndex &index, int role) const {
   if (row < 0 || row >= _account->operationCount())
     return QVariant();
 
-  Operation *op = _account->getOperation(row);
+  Operation* op = _account->getOperation(row);
   if (!op)
     return QVariant();
 
@@ -41,7 +41,7 @@ QVariant OperationListModel::data(const QModelIndex &index, int role) const {
   }
 }
 
-bool OperationListModel::setData(const QModelIndex &index, const QVariant &value,
+bool OperationListModel::setData(const QModelIndex& index, const QVariant& value,
                                  int role) {
   if (!index.isValid() || role != SelectedRole)
     return false;
@@ -72,11 +72,10 @@ QHash<int, QByteArray> OperationListModel::roleNames() const {
   };
 }
 
-void OperationListModel::setAccount(Account *account) {
-  if (_account == account)
+void OperationListModel::setAccount(Account* account) {
+  if (_account == account) {
     return;
-
-  beginResetModel();
+  }
 
   // Disconnect from old account
   if (_account) {
@@ -94,6 +93,8 @@ void OperationListModel::setAccount(Account *account) {
   }
 
   recalculateBalances();
+
+  beginResetModel();
   endResetModel();
 
   emit countChanged();
@@ -123,7 +124,7 @@ void OperationListModel::recalculateBalances() {
   // Calculate cumulative balance from oldest to newest
   double balance = 0.0;
   for (int i = count - 1; i >= 0; --i) {
-    Operation *op = _account->getOperation(i);
+    Operation* op = _account->getOperation(i);
     if (op) {
       balance += op->amount();
     }
@@ -137,7 +138,7 @@ void OperationListModel::refresh() {
   endResetModel();
 }
 
-Operation *OperationListModel::operationAt(int index) const {
+Operation* OperationListModel::operationAt(int index) const {
   if (!_account || index < 0 || index >= _account->operationCount())
     return nullptr;
   return _account->getOperation(index);
@@ -247,7 +248,7 @@ double OperationListModel::selectedTotal() const {
 
   double total = 0.0;
   for (int index : _selection) {
-    Operation *op = _account->getOperation(index);
+    Operation* op = _account->getOperation(index);
     if (op) {
       total += op->amount();
     }
@@ -267,7 +268,7 @@ QString OperationListModel::selectedOperationsAsCsv() const {
   std::sort(sortedIndices.begin(), sortedIndices.end());
 
   for (int index : sortedIndices) {
-    Operation *op = _account->getOperation(index);
+    Operation* op = _account->getOperation(index);
     if (op) {
       csv += QString("%1,\"%2\",%3,%4\n")
                  .arg(op->date().toString("yyyy-MM-dd"))

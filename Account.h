@@ -2,6 +2,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QQmlEngine>
 #include <QString>
 
 #include "Operation.h"
@@ -9,23 +10,24 @@
 
 class Account : public QObject {
   Q_OBJECT
+  QML_ELEMENT
   PROPERTY_RW(QString, name, QString())
   PROPERTY_RO(int, operationCount)
 
 public:
-  explicit Account(QObject *parent = nullptr);
-  explicit Account(const QString &name, QObject *parent = nullptr);
+  explicit Account(QObject* parent = nullptr);
+  explicit Account(const QString& name, QObject* parent = nullptr);
 
-  QList<Operation *> operations() const;
+  QList<Operation*> operations() const;
 
-  void addOperation(Operation *operation);
+  void addOperation(Operation* operation);
   void removeOperation(int index);
-  bool removeOperation(Operation *operation);  // Remove by pointer, returns true if found
+  bool removeOperation(Operation* operation);  // Remove by pointer, returns true if found
   void clearOperations();
-  bool hasOperation(const QDate &date, double amount, const QString &description) const;
+  bool hasOperation(const QDate& date, double amount, const QString& description) const;
 
-  Q_INVOKABLE Operation *getOperation(int index) const;
+  Q_INVOKABLE Operation* getOperation(int index) const;
 
 private:
-  QList<Operation *> _operations;
+  QList<Operation*> _operations;
 };

@@ -1,6 +1,5 @@
 // CSV parsing utilities for Comptine
-#ifndef CSVPARSER_H
-#define CSVPARSER_H
+#pragma once
 
 #include <QString>
 #include <QStringList>
@@ -9,7 +8,7 @@
 namespace CsvParser {
 
 // Parse amount string handling French format (e.g., "-5 428,69 €" or "-5428.69")
-inline double parseAmount(const QString &str) {
+inline double parseAmount(const QString& str) {
   QString cleaned = str.trimmed();
   cleaned.remove(' ');            // Remove regular spaces (thousand separators)
   cleaned.remove(QChar(0xA0));    // Remove non-breaking space (U+00A0)
@@ -30,7 +29,7 @@ inline double parseAmount(const QString &str) {
 }
 
 // Parse CSV line respecting quoted fields
-inline QStringList parseCsvLine(const QString &line, QChar delimiter) {
+inline QStringList parseCsvLine(const QString& line, QChar delimiter) {
   QStringList fields;
   QString field;
   bool inQuotes = false;
@@ -74,7 +73,7 @@ struct CsvFieldIndices {
 };
 
 // Safe field access - returns empty string if index is out of bounds
-inline QString getField(const QStringList &fields, int index) {
+inline QString getField(const QStringList& fields, int index) {
   if (index >= 0 && index < fields.size()) {
     return fields[index].trimmed();
   }
@@ -82,7 +81,7 @@ inline QString getField(const QStringList &fields, int index) {
 }
 
 // Normalize header for comparison (lowercase, remove accents)
-inline QString normalizeHeader(const QString &header) {
+inline QString normalizeHeader(const QString& header) {
   QString h = header.trimmed().toLower();
   // Remove common French accents
   h.replace(QString::fromUtf8("é"), "e");
@@ -101,7 +100,7 @@ inline QString normalizeHeader(const QString &header) {
 
 // Parse header row to detect column indices
 // For fields that can appear multiple times (category), the LAST match wins
-inline CsvFieldIndices parseHeader(const QStringList &headerFields) {
+inline CsvFieldIndices parseHeader(const QStringList& headerFields) {
   CsvFieldIndices indices;
 
   for (int i = 0; i < headerFields.size(); i++) {
@@ -141,7 +140,7 @@ inline CsvFieldIndices parseHeader(const QStringList &headerFields) {
 }
 
 // Check if line is empty (only delimiters and whitespace)
-inline bool isEmptyLine(const QString &line, QChar delimiter) {
+inline bool isEmptyLine(const QString& line, QChar delimiter) {
   QString stripped = line;
   stripped.remove(delimiter);
   stripped.remove('"');
@@ -149,5 +148,3 @@ inline bool isEmptyLine(const QString &line, QChar delimiter) {
 }
 
 }  // namespace CsvParser
-
-#endif  // CSVPARSER_H

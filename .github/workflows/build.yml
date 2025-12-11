@@ -113,19 +113,51 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download all release artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: release-*
           merge-multiple: true
 
+      - name: Get previous tag
+        id: prev-tag
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG="${{ steps.prev-tag.outputs.tag }}"
+          if [ -n "$PREV_TAG" ]; then
+            # Get commits, exclude merge commits
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges $PREV_TAG..HEAD)
+          else
+            CHANGELOG="- Initial release"
+          fi
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
+        env:
+          COMPARE_URL: ${{ github.server_url }}/${{ github.repository }}/compare
         with:
           files: |
             *.dmg
             *.exe
-          generate_release_notes: true
+          body: |
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.content }}
+
+            **[Full Changelog](${{ env.COMPARE_URL }}/${{ steps.prev-tag.outputs.tag }}...${{ github.ref_name }})**
 
   comment-artifacts:
     if: github.event_name == 'pull_request'
@@ -145,9 +177,12 @@ jobs:
               repo: context.repo.repo,
               run_id: context.runId
             });
-            const links = artifacts.artifacts.map(a =>
-              `- [${a.name}](https://nightly.link/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/${a.name}.zip)`
-            ).join('\n');
+            const links = artifacts.artifacts.map(a => {
+              const baseUrl = 'https://nightly.link';
+              const repo = `${context.repo.owner}/${context.repo.repo}`;
+              const path = `actions/runs/${context.runId}/${a.name}.zip`;
+              return `- [${a.name}](${baseUrl}/${repo}/${path})`;
+            }).join('\n');
             core.setOutput('links', links);
 
       - name: Post artifact links

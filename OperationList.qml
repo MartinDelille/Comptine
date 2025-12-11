@@ -15,26 +15,25 @@ FocusScope {
     ListView {
         id: listView
         anchors.fill: parent
-        model: budgetData.operationModel
-
+        model: AppState.data.operationModel
         clip: true
         boundsBehavior: Flickable.StopAtBounds
         focus: true
         keyNavigationEnabled: false  // We handle key navigation ourselves
         highlightFollowsCurrentItem: false  // Don't auto-scroll highlight
-        currentIndex: budgetData.currentOperationIndex
+        currentIndex: AppState.navigation.currentOperationIndex
 
         // Restore focus when YAML file is loaded (not after CSV import, which handles its own selection)
         Connections {
-            target: budgetData
+            target: AppState.file
             function onYamlFileLoaded() {
                 if (listView.count > 0) {
-                    // Use the index from the file (already set in budgetData.currentOperationIndex)
-                    let idx = Math.min(budgetData.currentOperationIndex, listView.count - 1);
+                    // Use the index from the file (already set in AppState.navigation.currentOperationIndex)
+                    let idx = Math.min(AppState.navigation.currentOperationIndex, listView.count - 1);
                     if (idx < 0)
                         idx = 0;
-                    budgetData.currentOperationIndex = idx;
-                    budgetData.operationModel.select(idx, false);
+                    AppState.navigation.currentOperationIndex = idx;
+                    AppState.data.operationModel.select(idx, false);
                     listView.positionViewAtIndex(idx, ListView.Center);
                 }
                 listView.forceActiveFocus();
@@ -42,34 +41,38 @@ FocusScope {
             function onDataLoaded() {
                 // For CSV import: sync ListView currentIndex with model selection
                 // The model already has the correct selection, just update the view
-                if (listView.count > 0 && budgetData.currentOperationIndex < 0) {
-                    budgetData.currentOperationIndex = 0;
+                if (listView.count > 0 && AppState.navigation.currentOperationIndex < 0) {
+                    AppState.navigation.currentOperationIndex = 0;
                 }
-                listView.positionViewAtIndex(budgetData.currentOperationIndex >= 0 ? budgetData.currentOperationIndex : 0, ListView.Contain);
+                listView.positionViewAtIndex(AppState.navigation.currentOperationIndex >= 0 ? AppState.navigation.currentOperationIndex : 0, ListView.Contain);
                 listView.forceActiveFocus();
             }
+        }
+
+        Connections {
+            target: AppState.navigation
             function onOperationSelected(index) {
                 // Navigate from CategoryDetailView: focus and scroll to the operation
-                budgetData.currentOperationIndex = index;
+                AppState.navigation.currentOperationIndex = index;
                 listView.positionViewAtIndex(index, ListView.Center);
                 listView.forceActiveFocus();
             }
         }
 
         Keys.onUpPressed: event => {
-            budgetData.previousOperation(event.modifiers & Qt.ShiftModifier);
-            positionViewAtIndex(budgetData.currentOperationIndex, ListView.Contain);
+            AppState.navigation.previousOperation(event.modifiers & Qt.ShiftModifier);
+            positionViewAtIndex(AppState.navigation.currentOperationIndex, ListView.Contain);
         }
 
         Keys.onDownPressed: event => {
-            budgetData.nextOperation(event.modifiers & Qt.ShiftModifier);
-            positionViewAtIndex(budgetData.currentOperationIndex, ListView.Contain);
+            AppState.navigation.nextOperation(event.modifiers & Qt.ShiftModifier);
+            positionViewAtIndex(AppState.navigation.currentOperationIndex, ListView.Contain);
         }
 
         // Cmd+A to select all
         Keys.onPressed: event => {
             if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_A) {
-                budgetData.operationModel.selectRange(0, count - 1);
+                AppState.data.operationModel.selectRange(0, count - 1);
                 event.accepted = true;
             }
         }
@@ -87,18 +90,18 @@ FocusScope {
             MouseArea {
                 anchors.fill: parent
                 onClicked: mouse => {
-                    budgetData.currentOperationIndex = parent.index;
+                    AppState.navigation.currentOperationIndex = parent.index;
                     listView.forceActiveFocus();
 
                     if (mouse.modifiers & Qt.ControlModifier) {
                         // Cmd/Ctrl+click: toggle selection
-                        budgetData.operationModel.toggleSelection(parent.index);
+                        AppState.data.operationModel.toggleSelection(parent.index);
                     } else if (mouse.modifiers & Qt.ShiftModifier) {
                         // Shift+click: range selection from current
-                        budgetData.operationModel.selectRange(budgetData.currentOperationIndex, parent.index);
+                        AppState.data.operationModel.selectRange(AppState.navigation.currentOperationIndex, parent.index);
                     } else {
                         // Plain click: single selection (clear others)
-                        budgetData.operationModel.select(parent.index, false);
+                        AppState.data.operationModel.select(parent.index, false);
                     }
                 }
             }

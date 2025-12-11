@@ -18,7 +18,7 @@ Dialog {
     property real totalAmount: 0
 
     onOpened: {
-        operations = budgetData.operationsForCategory(categoryName, year, month);
+        operations = AppState.categories.operationsForCategory(categoryName, year, month);
         totalAmount = operations.reduce((sum, op) => sum + op.amount, 0);
     }
 
@@ -82,7 +82,7 @@ Dialog {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        budgetData.selectOperation(modelData.accountName, modelData.date, modelData.description, modelData.amount);
+                        AppState.navigation.selectOperation(modelData.accountName, modelData.date, modelData.description, modelData.totalAmount);
                         root.close();
                     }
                 }
