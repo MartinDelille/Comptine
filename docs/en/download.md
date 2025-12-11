@@ -8,10 +8,12 @@ platforms:
     name: "macOS"
     requirements: "macOS 11 (Big Sur) or later"
     button: "Download .dmg"
+    url: "download_macos"
   - icon: "🪟"
     name: "Windows"
     requirements: "Windows 10 or later"
     button: "Download .exe"
+    url: "download_windows"
 ---
 
 ## Installation

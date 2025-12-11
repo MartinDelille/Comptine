@@ -16,6 +16,8 @@ exclude:
 # Custom variables
 github_repo: https://github.com/MartinDelille/comptine
 latest_release: https://github.com/MartinDelille/comptine/releases/latest
+download_macos: https://github.com/MartinDelille/comptine/releases/latest/download/Comptine-MacOS.dmg
+download_windows: https://github.com/MartinDelille/comptine/releases/latest/download/Comptine-Windows.exe
 
 # Default layout
 defaults:
