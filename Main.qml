@@ -213,7 +213,7 @@ ApplicationWindow {
             }
             Action {
                 text: qsTr("&Project Page")
-                onTriggered: Qt.openUrlExternally("https://github.com/MartinDelille/Comptine")
+                onTriggered: Qt.openUrlExternally("https://martin.delille.org/comptine/")
             }
             MenuSeparator {}
             Action {
