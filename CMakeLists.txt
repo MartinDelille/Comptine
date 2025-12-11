@@ -111,7 +111,7 @@ qt_add_executable(Comptine
 
 # Generate platform-specific icons from SVG at build time
 set(APP_ICON_SVG ${CMAKE_CURRENT_SOURCE_DIR}/comptine.svg)
-set(APP_ICON_SMALL_SVG ${CMAKE_CURRENT_SOURCE_DIR}/comptine-small.svg)
+set(APP_ICON_SMALL_SVG ${CMAKE_CURRENT_SOURCE_DIR}/docs/assets/comptine-small.svg)
 
 if(APPLE)
   set(APP_ICON_PNG ${CMAKE_CURRENT_BINARY_DIR}/comptine.png)
