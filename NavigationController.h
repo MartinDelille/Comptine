@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+
 #include "PropertyMacros.h"
 
 class BudgetData;
@@ -26,11 +27,11 @@ class NavigationController : public QObject {
   PROPERTY_RW_CUSTOM(int, currentAccountIndex, -1)
 
 public:
-  explicit NavigationController(QObject *parent = nullptr);
+  explicit NavigationController(QObject* parent = nullptr);
 
   // Set references to other controllers
-  void setBudgetData(BudgetData *budgetData);
-  void setCategoryController(CategoryController *categoryController);
+  void setBudgetData(BudgetData* budgetData);
+  void setCategoryController(CategoryController* categoryController);
 
   // Month navigation
   Q_INVOKABLE void previousMonth();
@@ -49,8 +50,8 @@ public:
   Q_INVOKABLE void showBudgetTab();
 
   // Cross-navigation (switch account and select operation)
-  Q_INVOKABLE void selectOperation(const QString &accountName, const QDate &date,
-                                   const QString &description, double amount);
+  Q_INVOKABLE void selectOperation(const QString& accountName, const QDate& date,
+                                   const QString& description, double amount);
 
 public slots:
   // Called when FileController loads navigation state from a file
@@ -61,6 +62,6 @@ signals:
   void operationSelected(int index);  // Emitted when an operation is selected via selectOperation()
 
 private:
-  BudgetData *_budgetData = nullptr;
-  CategoryController *_categoryController = nullptr;
+  BudgetData* _budgetData = nullptr;
+  CategoryController* _categoryController = nullptr;
 };

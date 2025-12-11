@@ -1,8 +1,8 @@
-#include "AppSettings.h"
-
 #include <QFileInfo>
 
-AppSettings::AppSettings(QObject *parent) :
+#include "AppSettings.h"
+
+AppSettings::AppSettings(QObject* parent) :
     QObject(parent),
     _recentFilesModel(this) {
   _language = _settings.value("language", QString()).toString();
@@ -66,7 +66,7 @@ void AppSettings::set_lastUpdateCheck(QDateTime value) {
   }
 }
 
-QStringListModel *AppSettings::recentFilesModel() {
+QStringListModel* AppSettings::recentFilesModel() {
   return &_recentFilesModel;
 }
 
@@ -74,7 +74,7 @@ QStringList AppSettings::recentFiles() const {
   return _recentFilesModel.stringList();
 }
 
-void AppSettings::addRecentFile(const QString &filePath) {
+void AppSettings::addRecentFile(const QString& filePath) {
   // Find if file already exists in the list
   QStringList files = _recentFilesModel.stringList();
   int existingIndex = files.indexOf(filePath);

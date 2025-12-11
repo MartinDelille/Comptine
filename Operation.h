@@ -6,6 +6,7 @@
 #include <QQmlEngine>
 #include <QString>
 #include <QVariantList>
+
 #include "PropertyMacros.h"
 
 // Represents one allocation in a split operation
@@ -13,13 +14,13 @@ struct CategoryAllocation {
   QString category;
   double amount;
 
-  bool operator==(const CategoryAllocation &other) const {
+  bool operator==(const CategoryAllocation& other) const {
     // qFuzzyCompare doesn't work well with zero values, use threshold comparison
     constexpr double epsilon = 0.0001;
     return category == other.category && std::abs(amount - other.amount) < epsilon;
   }
 
-  bool operator!=(const CategoryAllocation &other) const { return !(*this == other); }
+  bool operator!=(const CategoryAllocation& other) const { return !(*this == other); }
 };
 
 class Operation : public QObject {
@@ -40,20 +41,20 @@ class Operation : public QObject {
   Q_PROPERTY(QString categoryDisplay READ categoryDisplay NOTIFY allocationsChanged)
 
 public:
-  explicit Operation(QObject *parent = nullptr);
-  Operation(const QDate &date, double amount, const QString &category,
-            const QString &description, QObject *parent = nullptr);
+  explicit Operation(QObject* parent = nullptr);
+  Operation(const QDate& date, double amount, const QString& category,
+            const QString& description, QObject* parent = nullptr);
 
   // Split allocations methods
   QVariantList allocations() const;
   QList<CategoryAllocation> allocationsList() const { return _allocations; }
-  void setAllocations(const QList<CategoryAllocation> &allocations);
+  void setAllocations(const QList<CategoryAllocation>& allocations);
   void clearAllocations();
   bool isSplit() const;
   QString categoryDisplay() const;
 
   // Get amount allocated to a specific category (for budget calculations)
-  double amountForCategory(const QString &categoryName) const;
+  double amountForCategory(const QString& categoryName) const;
 
 signals:
   void allocationsChanged();

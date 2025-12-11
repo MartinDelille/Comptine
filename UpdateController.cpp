@@ -1,7 +1,3 @@
-#include "UpdateController.h"
-#include "AppSettings.h"
-#include "Version.h"
-
 #include <QDesktopServices>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -11,14 +7,18 @@
 #include <QNetworkRequest>
 #include <QUrl>
 
-UpdateController::UpdateController(QObject *parent) :
+#include "AppSettings.h"
+#include "UpdateController.h"
+#include "Version.h"
+
+UpdateController::UpdateController(QObject* parent) :
     QObject(parent),
     _networkManager(new QNetworkAccessManager(this)) {
   connect(_networkManager, &QNetworkAccessManager::finished,
           this, &UpdateController::onNetworkReply);
 }
 
-void UpdateController::setAppSettings(AppSettings *settings) {
+void UpdateController::setAppSettings(AppSettings* settings) {
   _appSettings = settings;
 }
 
@@ -43,7 +43,7 @@ void UpdateController::checkForUpdates() {
   _networkManager->get(request);
 }
 
-void UpdateController::onNetworkReply(QNetworkReply *reply) {
+void UpdateController::onNetworkReply(QNetworkReply* reply) {
   reply->deleteLater();
   set_checking(false);
 
@@ -125,7 +125,7 @@ QString UpdateController::currentVersion() const {
   return APP_VERSION;
 }
 
-bool UpdateController::isVersionNewer(const QString &remote, const QString &local) const {
+bool UpdateController::isVersionNewer(const QString& remote, const QString& local) const {
   QList<int> remoteParts = parseVersion(remote);
   QList<int> localParts = parseVersion(local);
 
@@ -145,7 +145,7 @@ bool UpdateController::isVersionNewer(const QString &remote, const QString &loca
   return false;  // Versions are equal
 }
 
-QList<int> UpdateController::parseVersion(const QString &version) const {
+QList<int> UpdateController::parseVersion(const QString& version) const {
   QList<int> parts;
 
   // Remove suffix after hyphen (e.g., "-dev-abc123")
@@ -157,7 +157,7 @@ QList<int> UpdateController::parseVersion(const QString &version) const {
 
   // Split by dots and parse as integers
   QStringList stringParts = cleanVersion.split('.');
-  for (const QString &part : stringParts) {
+  for (const QString& part : stringParts) {
     bool ok;
     int value = part.toInt(&ok);
     if (ok) {

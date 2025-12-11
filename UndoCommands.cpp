@@ -7,11 +7,11 @@
 #include "Operation.h"
 #include "OperationListModel.h"
 
-RenameAccountCommand::RenameAccountCommand(Account *account,
-                                           AccountListModel *accountModel,
-                                           const QString &oldName,
-                                           const QString &newName,
-                                           QUndoCommand *parent) :
+RenameAccountCommand::RenameAccountCommand(Account* account,
+                                           AccountListModel* accountModel,
+                                           const QString& oldName,
+                                           const QString& newName,
+                                           QUndoCommand* parent) :
     QUndoCommand(parent), _account(account), _accountModel(accountModel), _oldName(oldName), _newName(newName) {
   setText(QObject::tr("Rename account to \"%1\"").arg(newName));
 }
@@ -34,14 +34,14 @@ void RenameAccountCommand::redo() {
   }
 }
 
-EditCategoryCommand::EditCategoryCommand(Category *category,
-                                         BudgetData *budgetData,
-                                         CategoryController *categoryController,
-                                         const QString &oldName,
-                                         const QString &newName,
+EditCategoryCommand::EditCategoryCommand(Category* category,
+                                         BudgetData* budgetData,
+                                         CategoryController* categoryController,
+                                         const QString& oldName,
+                                         const QString& newName,
                                          double oldBudgetLimit,
                                          double newBudgetLimit,
-                                         QUndoCommand *parent) :
+                                         QUndoCommand* parent) :
     QUndoCommand(parent),
     _category(category),
     _budgetData(budgetData),
@@ -59,12 +59,12 @@ EditCategoryCommand::EditCategoryCommand(Category *category,
   }
 }
 
-void EditCategoryCommand::renameOperationsCategory(const QString &fromName, const QString &toName) {
+void EditCategoryCommand::renameOperationsCategory(const QString& fromName, const QString& toName) {
   if (!_budgetData || fromName == toName) return;
 
   // Update all operations that use this category
-  for (Account *account : _budgetData->accounts()) {
-    for (Operation *op : account->operations()) {
+  for (Account* account : _budgetData->accounts()) {
+    for (Operation* op : account->operations()) {
       if (op->category() == fromName) {
         op->set_category(toName);
       }
@@ -103,12 +103,12 @@ void EditCategoryCommand::redo() {
   }
 }
 
-ImportOperationsCommand::ImportOperationsCommand(Account *account,
-                                                 OperationListModel *operationModel,
-                                                 CategoryController *categoryController,
-                                                 const QList<Operation *> &operations,
-                                                 const QList<Category *> &newCategories,
-                                                 QUndoCommand *parent) :
+ImportOperationsCommand::ImportOperationsCommand(Account* account,
+                                                 OperationListModel* operationModel,
+                                                 CategoryController* categoryController,
+                                                 const QList<Operation*>& operations,
+                                                 const QList<Category*>& newCategories,
+                                                 QUndoCommand* parent) :
     QUndoCommand(parent),
     _account(account),
     _operationModel(operationModel),
@@ -140,14 +140,14 @@ void ImportOperationsCommand::undo() {
   if (!_account) return;
 
   // Remove operations from account (don't delete them, we keep ownership)
-  for (Operation *op : _operations) {
+  for (Operation* op : _operations) {
     _account->removeOperation(op);
   }
   _ownsOperations = true;
 
   // Remove new categories from CategoryController (take ownership back, don't delete)
   if (_categoryController) {
-    for (Category *cat : _newCategories) {
+    for (Category* cat : _newCategories) {
       _categoryController->takeCategoryByName(cat->name());
     }
   }
@@ -163,14 +163,14 @@ void ImportOperationsCommand::redo() {
   if (!_account) return;
 
   // Re-add operations to account
-  for (Operation *op : _operations) {
+  for (Operation* op : _operations) {
     _account->addOperation(op);
   }
   _ownsOperations = false;
 
   // Re-add categories to CategoryController
   if (_categoryController) {
-    for (Category *cat : _newCategories) {
+    for (Category* cat : _newCategories) {
       _categoryController->addCategory(cat);
     }
   }
@@ -182,11 +182,11 @@ void ImportOperationsCommand::redo() {
   }
 }
 
-SetOperationCategoryCommand::SetOperationCategoryCommand(Operation *operation,
-                                                         OperationListModel *operationModel,
-                                                         const QString &oldCategory,
-                                                         const QString &newCategory,
-                                                         QUndoCommand *parent) :
+SetOperationCategoryCommand::SetOperationCategoryCommand(Operation* operation,
+                                                         OperationListModel* operationModel,
+                                                         const QString& oldCategory,
+                                                         const QString& newCategory,
+                                                         QUndoCommand* parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
@@ -219,11 +219,11 @@ void SetOperationCategoryCommand::redo() {
   }
 }
 
-SetOperationBudgetDateCommand::SetOperationBudgetDateCommand(Operation *operation,
-                                                             OperationListModel *operationModel,
-                                                             const QDate &oldBudgetDate,
-                                                             const QDate &newBudgetDate,
-                                                             QUndoCommand *parent) :
+SetOperationBudgetDateCommand::SetOperationBudgetDateCommand(Operation* operation,
+                                                             OperationListModel* operationModel,
+                                                             const QDate& oldBudgetDate,
+                                                             const QDate& newBudgetDate,
+                                                             QUndoCommand* parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
@@ -252,12 +252,12 @@ void SetOperationBudgetDateCommand::redo() {
   }
 }
 
-SplitOperationCommand::SplitOperationCommand(Operation *operation,
-                                             OperationListModel *operationModel,
-                                             const QString &oldCategory,
-                                             const QList<CategoryAllocation> &oldAllocations,
-                                             const QList<CategoryAllocation> &newAllocations,
-                                             QUndoCommand *parent) :
+SplitOperationCommand::SplitOperationCommand(Operation* operation,
+                                             OperationListModel* operationModel,
+                                             const QString& oldCategory,
+                                             const QList<CategoryAllocation>& oldAllocations,
+                                             const QList<CategoryAllocation>& newAllocations,
+                                             QUndoCommand* parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
@@ -311,11 +311,11 @@ void SplitOperationCommand::redo() {
   }
 }
 
-SetOperationAmountCommand::SetOperationAmountCommand(Operation *operation,
-                                                     OperationListModel *operationModel,
+SetOperationAmountCommand::SetOperationAmountCommand(Operation* operation,
+                                                     OperationListModel* operationModel,
                                                      double oldAmount,
                                                      double newAmount,
-                                                     QUndoCommand *parent) :
+                                                     QUndoCommand* parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),
@@ -344,11 +344,11 @@ void SetOperationAmountCommand::redo() {
   }
 }
 
-SetOperationDateCommand::SetOperationDateCommand(Operation *operation,
-                                                 OperationListModel *operationModel,
-                                                 const QDate &oldDate,
-                                                 const QDate &newDate,
-                                                 QUndoCommand *parent) :
+SetOperationDateCommand::SetOperationDateCommand(Operation* operation,
+                                                 OperationListModel* operationModel,
+                                                 const QDate& oldDate,
+                                                 const QDate& newDate,
+                                                 QUndoCommand* parent) :
     QUndoCommand(parent),
     _operation(operation),
     _operationModel(operationModel),

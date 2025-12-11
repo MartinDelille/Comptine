@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+
 #include "PropertyMacros.h"
 
 class QNetworkAccessManager;
@@ -21,9 +22,9 @@ class UpdateController : public QObject {
   PROPERTY_RW(QString, errorMessage, {})
 
 public:
-  explicit UpdateController(QObject *parent = nullptr);
+  explicit UpdateController(QObject* parent = nullptr);
 
-  void setAppSettings(AppSettings *settings);
+  void setAppSettings(AppSettings* settings);
 
   // Check for updates from GitHub releases
   Q_INVOKABLE void checkForUpdates();
@@ -42,19 +43,19 @@ public:
 
 signals:
   void updateCheckCompleted();
-  void updateCheckFailed(const QString &error);
+  void updateCheckFailed(const QString& error);
 
 private slots:
-  void onNetworkReply(QNetworkReply *reply);
+  void onNetworkReply(QNetworkReply* reply);
 
 private:
-  bool isVersionNewer(const QString &remote, const QString &local) const;
-  QList<int> parseVersion(const QString &version) const;
+  bool isVersionNewer(const QString& remote, const QString& local) const;
+  QList<int> parseVersion(const QString& version) const;
 
-  QNetworkAccessManager *_networkManager;
-  AppSettings *_appSettings = nullptr;
+  QNetworkAccessManager* _networkManager;
+  AppSettings* _appSettings = nullptr;
 
   // GitHub repository information
-  static constexpr const char *GITHUB_OWNER = "MartinDelille";
-  static constexpr const char *GITHUB_REPO = "Comptine";
+  static constexpr const char* GITHUB_OWNER = "MartinDelille";
+  static constexpr const char* GITHUB_REPO = "Comptine";
 };

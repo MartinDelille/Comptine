@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QTextStream>
+
 #include "Account.h"
 #include "AppSettings.h"
 #include "BudgetData.h"
@@ -21,22 +22,22 @@
 
 using namespace CsvParser;
 
-FileController::FileController(QObject *parent) : QObject(parent) {
+FileController::FileController(QObject* parent) : QObject(parent) {
 }
 
-void FileController::setAppSettings(AppSettings *settings) {
+void FileController::setAppSettings(AppSettings* settings) {
   _appSettings = settings;
 }
 
-void FileController::setBudgetData(BudgetData *budgetData) {
+void FileController::setBudgetData(BudgetData* budgetData) {
   _budgetData = budgetData;
 }
 
-void FileController::setCategoryController(CategoryController *categoryController) {
+void FileController::setCategoryController(CategoryController* categoryController) {
   _categoryController = categoryController;
 }
 
-void FileController::setNavigationController(NavigationController *navController) {
+void FileController::setNavigationController(NavigationController* navController) {
   _navController = navController;
 }
 
@@ -45,11 +46,11 @@ bool FileController::hasUnsavedChanges() const {
 }
 
 // Helper to convert QString to std::string for ryml
-static std::string toStdString(const QString &s) {
+static std::string toStdString(const QString& s) {
   return s.toStdString();
 }
 
-bool FileController::saveToYaml(const QString &filePath) {
+bool FileController::saveToYaml(const QString& filePath) {
   if (!_budgetData) return false;
 
   // Clear any previous error
@@ -77,9 +78,9 @@ bool FileController::saveToYaml(const QString &filePath) {
   // Write categories
   ryml::NodeRef categories = root["categories"];
   categories |= ryml::SEQ;
-  QList<Category *> cats = _categoryController ? _categoryController->categories() : QList<Category *>();
+  QList<Category*> cats = _categoryController ? _categoryController->categories() : QList<Category*>();
   for (int i = 0; i < cats.size(); i++) {
-    const Category *category = cats[i];
+    const Category* category = cats[i];
     ryml::NodeRef cat = categories.append_child();
     cat |= ryml::MAP;
     cat["name"] << toStdString(category->name());
@@ -92,9 +93,9 @@ bool FileController::saveToYaml(const QString &filePath) {
   // Write accounts
   ryml::NodeRef accounts = root["accounts"];
   accounts |= ryml::SEQ;
-  QList<Account *> accs = _budgetData->accounts();
+  QList<Account*> accs = _budgetData->accounts();
   for (int accIdx = 0; accIdx < accs.size(); accIdx++) {
-    const Account *account = accs[accIdx];
+    const Account* account = accs[accIdx];
     ryml::NodeRef acc = accounts.append_child();
     acc |= ryml::MAP;
     acc["name"] << toStdString(account->name());
@@ -104,9 +105,9 @@ bool FileController::saveToYaml(const QString &filePath) {
 
     ryml::NodeRef operations = acc["operations"];
     operations |= ryml::SEQ;
-    const auto &ops = account->operations();
+    const auto& ops = account->operations();
     for (int opIdx = 0; opIdx < ops.size(); opIdx++) {
-      const Operation *op = ops[opIdx];
+      const Operation* op = ops[opIdx];
       ryml::NodeRef opNode = operations.append_child();
       opNode |= ryml::MAP;
       opNode["date"] << toStdString(op->date().toString("yyyy-MM-dd"));
@@ -117,7 +118,7 @@ bool FileController::saveToYaml(const QString &filePath) {
       if (op->isSplit()) {
         ryml::NodeRef allocsNode = opNode["allocations"];
         allocsNode |= ryml::SEQ;
-        for (const auto &alloc : op->allocationsList()) {
+        for (const auto& alloc : op->allocationsList()) {
           ryml::NodeRef allocNode = allocsNode.append_child();
           allocNode |= ryml::MAP;
           allocNode["category"] << toStdString(alloc.category);
@@ -160,7 +161,7 @@ bool FileController::saveToYaml(const QString &filePath) {
   return true;
 }
 
-bool FileController::loadFromYaml(const QString &filePath) {
+bool FileController::loadFromYaml(const QString& filePath) {
   if (!_budgetData || !_categoryController) return false;
 
   // Clear any previous error
@@ -184,7 +185,7 @@ bool FileController::loadFromYaml(const QString &filePath) {
   int loadedBudgetMonth = 0;
   int loadedAccountIdx = 0;
   int loadedCategoryIdx = 0;
-  Operation *currentOperation = nullptr;
+  Operation* currentOperation = nullptr;
 
   try {
     ryml::Tree tree = ryml::parse_in_arena(ryml::to_csubstr(data.constData()));
@@ -304,7 +305,7 @@ bool FileController::loadFromYaml(const QString &filePath) {
         accIdx++;
       }
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     qWarning() << "YAML parsing error:" << e.what();
     set_errorMessage(tr("Could not parse file: %1").arg(QString::fromUtf8(e.what())));
     return false;
@@ -316,11 +317,11 @@ bool FileController::loadFromYaml(const QString &filePath) {
   // Calculate operation index from pointer
   int loadedOperationIdx = 0;
   if (currentOperation) {
-    QList<Account *> accs = _budgetData->accounts();
+    QList<Account*> accs = _budgetData->accounts();
     int boundedAccountIdx = qBound(0, loadedAccountIdx, accs.size() - 1);
-    Account *account = _budgetData->getAccount(boundedAccountIdx);
+    Account* account = _budgetData->getAccount(boundedAccountIdx);
     if (account) {
-      QList<Operation *> ops = account->operations();
+      QList<Operation*> ops = account->operations();
       int idx = ops.indexOf(currentOperation);
       if (idx >= 0) {
         loadedOperationIdx = idx;
@@ -355,8 +356,8 @@ bool FileController::loadFromYaml(const QString &filePath) {
   return true;
 }
 
-bool FileController::importFromCsv(const QString &filePath,
-                                   const QString &accountName,
+bool FileController::importFromCsv(const QString& filePath,
+                                   const QString& accountName,
                                    bool useCategories) {
   if (!_budgetData || !_categoryController) return false;
 
@@ -401,7 +402,7 @@ bool FileController::importFromCsv(const QString &filePath,
 
   // Create or get account
   QString name = accountName.isEmpty() ? "Imported Account" : accountName;
-  Account *account = _budgetData->getAccountByName(name);
+  Account* account = _budgetData->getAccountByName(name);
   if (!account) {
     account = new Account(name);
     _budgetData->addAccount(account);
@@ -433,14 +434,14 @@ bool FileController::importFromCsv(const QString &filePath,
     return false;
   }
 
-  QList<Operation *> importedOperations;
+  QList<Operation*> importedOperations;
   int skippedCount = 0;
   double totalBalance = 0.0;
 
   // Build case-insensitive lookup for existing categories (only used if useCategories is true)
   QMap<QString, QString> existingCategoryLookup;  // lowercase -> actual name
   if (useCategories) {
-    for (const Category *cat : _categoryController->categories()) {
+    for (const Category* cat : _categoryController->categories()) {
       existingCategoryLookup.insert(cat->name().toLower(), cat->name());
     }
   }
@@ -511,7 +512,7 @@ bool FileController::importFromCsv(const QString &filePath,
     // If useCategories is false or category is empty, leave category empty
 
     // Create operation
-    Operation *operation = new Operation(account);
+    Operation* operation = new Operation(account);
     operation->set_date(date);
     operation->set_amount(amount);
     operation->set_description(description);
@@ -544,10 +545,10 @@ bool FileController::importFromCsv(const QString &filePath,
   }
 
   // Create new category objects (only if useCategories is true)
-  QList<Category *> newCategories;
+  QList<Category*> newCategories;
   if (useCategories) {
-    for (const QString &catName : newCategoryNames) {
-      Category *cat = new Category(catName, 0.0);
+    for (const QString& catName : newCategoryNames) {
+      Category* cat = new Category(catName, 0.0);
       newCategories.append(cat);
     }
   }
@@ -562,7 +563,7 @@ bool FileController::importFromCsv(const QString &filePath,
   }
 
   // Set as current account
-  QList<Account *> accs = _budgetData->accounts();
+  QList<Account*> accs = _budgetData->accounts();
   int accountIndex = accs.indexOf(account);
   if (accountIndex >= 0 && _navController) {
     _navController->set_currentAccountIndex(accountIndex);
@@ -572,7 +573,7 @@ bool FileController::importFromCsv(const QString &filePath,
 
   // Select all imported operations
   if (!importedOperations.isEmpty()) {
-    QSet<Operation *> importedSet(importedOperations.begin(), importedOperations.end());
+    QSet<Operation*> importedSet(importedOperations.begin(), importedOperations.end());
     bool firstSelected = false;
     for (int i = 0; i < account->operationCount(); i++) {
       if (importedSet.contains(account->getOperation(i))) {
@@ -597,7 +598,7 @@ void FileController::clear() {
   set_currentFilePath({});
 }
 
-void FileController::loadInitialFile(const QStringList &args) {
+void FileController::loadInitialFile(const QStringList& args) {
   // Command line argument takes priority (skip first arg which is the program name)
   if (args.size() > 1) {
     QString filePath = args.at(1);

@@ -81,14 +81,14 @@ jobs:
       - name: Install clang-format
         run: |
           wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository -y "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-19 main"
+          sudo add-apt-repository -y "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs)-21 main"
           sudo apt-get update
-          sudo apt-get install -y clang-format-19
+          sudo apt-get install -y clang-format-21
 
       - name: Check C++ formatting
         run: |
           find . -name '*.cpp' -o -name '*.h' | while read file; do
-            if ! clang-format-19 --dry-run --Werror "$file" 2>/dev/null; then
+            if ! clang-format-21 --dry-run --Werror "$file" 2>/dev/null; then
               echo "Error: $file needs formatting"
               exit 1
             fi

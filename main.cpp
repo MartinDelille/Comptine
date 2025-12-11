@@ -1,9 +1,10 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+
 #include "AppState.h"
 #include "TranslationManager.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   QGuiApplication app(argc, argv);
   app.setOrganizationDomain("martin.delille.org");
   app.setApplicationName("Comptine");
@@ -11,7 +12,7 @@ int main(int argc, char *argv[]) {
   QQmlApplicationEngine engine;
 
   // Get the AppState singleton created by QML engine
-  auto *appState = engine.singletonInstance<AppState *>("Comptine", "AppState");
+  auto* appState = engine.singletonInstance<AppState*>("Comptine", "AppState");
   Q_ASSERT(appState);
 
   // Setup translation manager (handles initial load and live switching)
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]) {
   // Load initial file after QML engine is fully initialized
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
-      [appState](QObject *obj, const QUrl &) {
+      [appState](QObject* obj, const QUrl&) {
         if (obj) {
           appState->file()->loadInitialFile(QCoreApplication::arguments());
         }

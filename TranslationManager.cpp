@@ -1,12 +1,15 @@
-#include "TranslationManager.h"
 #include <QGuiApplication>
 #include <QLocale>
 #include <QQmlApplicationEngine>
-#include "AppSettings.h"
 
-TranslationManager::TranslationManager(QGuiApplication *app, QQmlApplicationEngine *engine,
-                                       AppSettings *settings, QObject *parent)
-    : QObject(parent), _app(app), _engine(engine), _settings(settings) {
+#include "AppSettings.h"
+#include "TranslationManager.h"
+
+TranslationManager::TranslationManager(QGuiApplication* app, QQmlApplicationEngine* engine,
+                                       AppSettings* settings, QObject* parent) : QObject(parent),
+                                                                                 _app(app),
+                                                                                 _engine(engine),
+                                                                                 _settings(settings) {
   // Load initial translation
   loadTranslation();
 

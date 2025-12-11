@@ -4,6 +4,7 @@
 #include <QPointer>
 #include <QQmlEngine>
 #include <QSet>
+
 #include "Account.h"
 
 class OperationListModel : public QAbstractListModel {
@@ -26,17 +27,17 @@ public:
   };
   Q_ENUM(Roles)
 
-  explicit OperationListModel(QObject *parent = nullptr);
+  explicit OperationListModel(QObject* parent = nullptr);
 
   // QAbstractListModel interface
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-  QVariant data(const QModelIndex &index, int role) const override;
-  bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  bool setData(const QModelIndex& index, const QVariant& value, int role) override;
   QHash<int, QByteArray> roleNames() const override;
 
   // Account management
-  void setAccount(Account *account);
-  Account *account() const { return _account; }
+  void setAccount(Account* account);
+  Account* account() const { return _account; }
 
   // Selection management
   Q_INVOKABLE void select(int index, bool extend = false);
@@ -52,7 +53,7 @@ public:
   void refresh();
 
   // QML helper methods to avoid magic role numbers
-  Q_INVOKABLE Operation *operationAt(int index) const;
+  Q_INVOKABLE Operation* operationAt(int index) const;
   Q_INVOKABLE double balanceAt(int index) const;
 
 signals:

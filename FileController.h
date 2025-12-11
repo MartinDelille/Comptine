@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+
 #include "PropertyMacros.h"
 
 class AppSettings;
@@ -21,23 +22,23 @@ class FileController : public QObject {
   PROPERTY_RO(bool, hasUnsavedChanges)
 
 public:
-  explicit FileController(QObject *parent = nullptr);
+  explicit FileController(QObject* parent = nullptr);
 
   // Set references to other controllers
-  void setAppSettings(AppSettings *settings);
-  void setBudgetData(BudgetData *budgetData);
-  void setCategoryController(CategoryController *categoryController);
-  void setNavigationController(NavigationController *navController);
+  void setAppSettings(AppSettings* settings);
+  void setBudgetData(BudgetData* budgetData);
+  void setCategoryController(CategoryController* categoryController);
+  void setNavigationController(NavigationController* navController);
 
   // File operations
-  Q_INVOKABLE bool loadFromYaml(const QString &filePath);
-  Q_INVOKABLE bool saveToYaml(const QString &filePath);
-  Q_INVOKABLE bool importFromCsv(const QString &filePath,
-                                 const QString &accountName = QString(),
+  Q_INVOKABLE bool loadFromYaml(const QString& filePath);
+  Q_INVOKABLE bool saveToYaml(const QString& filePath);
+  Q_INVOKABLE bool importFromCsv(const QString& filePath,
+                                 const QString& accountName = QString(),
                                  bool useCategories = false);
 
   // Load initial file from command line arguments or most recent file
-  void loadInitialFile(const QStringList &args);
+  void loadInitialFile(const QStringList& args);
 
   // Clear all data
   Q_INVOKABLE void clear();
@@ -52,8 +53,8 @@ signals:
                              int accountIndex, int categoryIndex, int operationIndex);
 
 private:
-  AppSettings *_appSettings = nullptr;
-  BudgetData *_budgetData = nullptr;
-  CategoryController *_categoryController = nullptr;
-  NavigationController *_navController = nullptr;
+  AppSettings* _appSettings = nullptr;
+  BudgetData* _budgetData = nullptr;
+  CategoryController* _categoryController = nullptr;
+  NavigationController* _navController = nullptr;
 };

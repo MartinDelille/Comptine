@@ -7,7 +7,7 @@
 #include "NavigationController.h"
 #include "UpdateController.h"
 
-AppState::AppState(QObject *parent) :
+AppState::AppState(QObject* parent) :
     QObject(parent),
     _settings(new AppSettings(this)),
     _data(new BudgetData(this)),

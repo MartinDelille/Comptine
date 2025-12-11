@@ -1,20 +1,21 @@
-#include "NavigationController.h"
 #include <QDate>
+
 #include "BudgetData.h"
 #include "CategoryController.h"
+#include "NavigationController.h"
 
-NavigationController::NavigationController(QObject *parent) : QObject(parent) {
+NavigationController::NavigationController(QObject* parent) : QObject(parent) {
   // Initialize budget date to current month (will be overridden when a file is loaded)
   QDate today = QDate::currentDate();
   _budgetYear = today.year();
   _budgetMonth = today.month();
 }
 
-void NavigationController::setCategoryController(CategoryController *categoryController) {
+void NavigationController::setCategoryController(CategoryController* categoryController) {
   _categoryController = categoryController;
 }
 
-void NavigationController::setBudgetData(BudgetData *budgetData) {
+void NavigationController::setBudgetData(BudgetData* budgetData) {
   _budgetData = budgetData;
 }
 
@@ -86,7 +87,7 @@ void NavigationController::previousOperation(bool extendSelection) {
 void NavigationController::nextOperation(bool extendSelection) {
   if (!_budgetData) return;
 
-  Account *account = _budgetData->getAccount(_currentAccountIndex);
+  Account* account = _budgetData->getAccount(_currentAccountIndex);
   if (account && _currentOperationIndex < account->operationCount() - 1) {
     set_currentOperationIndex(_currentOperationIndex + 1);
     _budgetData->operationModel()->select(_currentOperationIndex, extendSelection);
@@ -101,13 +102,13 @@ void NavigationController::showBudgetTab() {
   set_currentTabIndex(1);
 }
 
-void NavigationController::selectOperation(const QString &accountName, const QDate &date,
-                                           const QString &description, double amount) {
+void NavigationController::selectOperation(const QString& accountName, const QDate& date,
+                                           const QString& description, double amount) {
   if (!_budgetData) return;
 
   // Find the account index
   int accountIndex = -1;
-  QList<Account *> accounts = _budgetData->accounts();
+  QList<Account*> accounts = _budgetData->accounts();
   for (int i = 0; i < accounts.size(); ++i) {
     if (accounts[i]->name() == accountName) {
       accountIndex = i;
@@ -123,10 +124,10 @@ void NavigationController::selectOperation(const QString &accountName, const QDa
   set_currentAccountIndex(accountIndex);
 
   // Find the operation in the account
-  Account *account = accounts[accountIndex];
-  const QList<Operation *> &ops = account->operations();
+  Account* account = accounts[accountIndex];
+  const QList<Operation*>& ops = account->operations();
   for (int i = 0; i < ops.size(); ++i) {
-    Operation *op = ops[i];
+    Operation* op = ops[i];
     if (op->date() == date && op->description() == description && qFuzzyCompare(op->amount(), amount)) {
       // Select this operation
       _budgetData->operationModel()->select(i);

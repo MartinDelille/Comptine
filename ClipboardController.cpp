@@ -1,12 +1,13 @@
+#include "ClipboardController.h"
 #include <QClipboard>
 #include <QGuiApplication>
-#include "ClipboardController.h"
+
 #include "OperationListModel.h"
 
-ClipboardController::ClipboardController(QObject *parent) : QObject(parent) {
+ClipboardController::ClipboardController(QObject* parent) : QObject(parent) {
 }
 
-void ClipboardController::setOperationModel(OperationListModel *model) {
+void ClipboardController::setOperationModel(OperationListModel* model) {
   _operationModel = model;
 }
 

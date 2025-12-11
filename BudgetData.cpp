@@ -1,13 +1,14 @@
+#include "BudgetData.h"
 #include <QDate>
 #include <QDebug>
+
 #include "AccountListModel.h"
-#include "BudgetData.h"
 #include "NavigationController.h"
 #include "OperationListModel.h"
 #include "UndoCommands.h"
 #include "Version.h"
 
-void BudgetData::setNavigationController(NavigationController *navController) {
+void BudgetData::setNavigationController(NavigationController* navController) {
   _navController = navController;
   if (_navController) {
     connect(_navController, &NavigationController::currentAccountIndexChanged,
@@ -23,7 +24,7 @@ QString BudgetData::appCommitHash() const {
   return APP_COMMIT_HASH;
 }
 
-BudgetData::BudgetData(QObject *parent) :
+BudgetData::BudgetData(QObject* parent) :
     QObject(parent),
     _operationModel(new OperationListModel(this)),
     _accountModel(new AccountListModel(this)),
@@ -43,26 +44,26 @@ int BudgetData::accountCount() const {
   return _accounts.size();
 }
 
-QList<Account *> BudgetData::accounts() const {
+QList<Account*> BudgetData::accounts() const {
   return _accounts;
 }
 
-Account *BudgetData::getAccount(int index) const {
+Account* BudgetData::getAccount(int index) const {
   if (index >= 0 && index < _accounts.size()) {
     return _accounts[index];
   }
   return nullptr;
 }
 
-Account *BudgetData::currentAccount() const {
+Account* BudgetData::currentAccount() const {
   if (_navController) {
     return getAccount(_navController->currentAccountIndex());
   }
   return nullptr;
 }
 
-Account *BudgetData::getAccountByName(const QString &name) const {
-  for (Account *account : _accounts) {
+Account* BudgetData::getAccountByName(const QString& name) const {
+  for (Account* account : _accounts) {
     if (account->name() == name) {
       return account;
     }
@@ -70,16 +71,16 @@ Account *BudgetData::getAccountByName(const QString &name) const {
   return nullptr;
 }
 
-void BudgetData::renameCurrentAccount(const QString &newName) {
+void BudgetData::renameCurrentAccount(const QString& newName) {
   if (!_navController) return;
-  Account *account = getAccount(_navController->currentAccountIndex());
+  Account* account = getAccount(_navController->currentAccountIndex());
   if (account && !newName.isEmpty() && account->name() != newName) {
     _undoStack->push(new RenameAccountCommand(account, _accountModel,
                                               account->name(), newName));
   }
 }
 
-void BudgetData::addAccount(Account *account) {
+void BudgetData::addAccount(Account* account) {
   if (account) {
     account->setParent(this);
     _accounts.append(account);
@@ -102,12 +103,12 @@ void BudgetData::clearAccounts() {
   emit accountCountChanged();
 }
 
-void BudgetData::setOperationCategory(int operationIndex, const QString &newCategory) {
+void BudgetData::setOperationCategory(int operationIndex, const QString& newCategory) {
   if (!_navController) return;
-  Account *account = getAccount(_navController->currentAccountIndex());
+  Account* account = getAccount(_navController->currentAccountIndex());
   if (!account) return;
 
-  Operation *operation = account->getOperation(operationIndex);
+  Operation* operation = account->getOperation(operationIndex);
   if (!operation) return;
 
   QString oldCategory = operation->category();
@@ -117,12 +118,12 @@ void BudgetData::setOperationCategory(int operationIndex, const QString &newCate
   }
 }
 
-void BudgetData::setOperationBudgetDate(int operationIndex, const QDate &newBudgetDate) {
+void BudgetData::setOperationBudgetDate(int operationIndex, const QDate& newBudgetDate) {
   if (!_navController) return;
-  Account *account = getAccount(_navController->currentAccountIndex());
+  Account* account = getAccount(_navController->currentAccountIndex());
   if (!account) return;
 
-  Operation *operation = account->getOperation(operationIndex);
+  Operation* operation = account->getOperation(operationIndex);
   if (!operation) return;
 
   QDate oldBudgetDate = operation->budgetDate();
@@ -134,10 +135,10 @@ void BudgetData::setOperationBudgetDate(int operationIndex, const QDate &newBudg
 
 void BudgetData::setOperationAmount(int operationIndex, double newAmount) {
   if (!_navController) return;
-  Account *account = getAccount(_navController->currentAccountIndex());
+  Account* account = getAccount(_navController->currentAccountIndex());
   if (!account) return;
 
-  Operation *operation = account->getOperation(operationIndex);
+  Operation* operation = account->getOperation(operationIndex);
   if (!operation) return;
 
   double oldAmount = operation->amount();
@@ -147,12 +148,12 @@ void BudgetData::setOperationAmount(int operationIndex, double newAmount) {
   }
 }
 
-void BudgetData::setOperationDate(int operationIndex, const QDate &newDate) {
+void BudgetData::setOperationDate(int operationIndex, const QDate& newDate) {
   if (!_navController) return;
-  Account *account = getAccount(_navController->currentAccountIndex());
+  Account* account = getAccount(_navController->currentAccountIndex());
   if (!account) return;
 
-  Operation *operation = account->getOperation(operationIndex);
+  Operation* operation = account->getOperation(operationIndex);
   if (!operation) return;
 
   QDate oldDate = operation->date();
@@ -162,17 +163,17 @@ void BudgetData::setOperationDate(int operationIndex, const QDate &newDate) {
   }
 }
 
-void BudgetData::splitOperation(int operationIndex, const QVariantList &allocations) {
+void BudgetData::splitOperation(int operationIndex, const QVariantList& allocations) {
   if (!_navController) return;
-  Account *account = getAccount(_navController->currentAccountIndex());
+  Account* account = getAccount(_navController->currentAccountIndex());
   if (!account) return;
 
-  Operation *operation = account->getOperation(operationIndex);
+  Operation* operation = account->getOperation(operationIndex);
   if (!operation) return;
 
   // Convert QVariantList to QList<CategoryAllocation>
   QList<CategoryAllocation> newAllocations;
-  for (const QVariant &v : allocations) {
+  for (const QVariant& v : allocations) {
     QVariantMap m = v.toMap();
     CategoryAllocation alloc;
     alloc.category = m["category"].toString();

@@ -13,6 +13,6 @@ class Category : public QObject {
   PROPERTY_RW(double, budgetLimit, 0.0)
 
 public:
-  explicit Category(QObject *parent = nullptr);
-  Category(const QString &name, double budgetLimit, QObject *parent = nullptr);
+  explicit Category(QObject* parent = nullptr);
+  Category(const QString& name, double budgetLimit, QObject* parent = nullptr);
 };

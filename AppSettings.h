@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QString>
 #include <QStringListModel>
+
 #include "PropertyMacros.h"
 
 class AppSettings : public QObject {
@@ -23,14 +24,14 @@ class AppSettings : public QObject {
   PROPERTY_RW_CUSTOM(QDateTime, lastUpdateCheck, QDateTime())
 
   // Recent files model for proper QML binding
-  Q_PROPERTY(QStringListModel *recentFilesModel READ recentFilesModel CONSTANT)
+  Q_PROPERTY(QStringListModel* recentFilesModel READ recentFilesModel CONSTANT)
 
 public:
-  explicit AppSettings(QObject *parent = nullptr);
+  explicit AppSettings(QObject* parent = nullptr);
 
-  QStringListModel *recentFilesModel();
+  QStringListModel* recentFilesModel();
   QStringList recentFiles() const;
-  Q_INVOKABLE void addRecentFile(const QString &filePath);
+  Q_INVOKABLE void addRecentFile(const QString& filePath);
   Q_INVOKABLE void clearRecentFiles();
 
   static constexpr int MaxRecentFiles = 10;
