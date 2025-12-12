@@ -70,4 +70,5 @@ signals:
 private:
   BudgetData* _budgetData = nullptr;
   CategoryController* _categoryController = nullptr;
+  Account* _currentAccount = nullptr;  // Cached pointer to current account
 };

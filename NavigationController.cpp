@@ -21,8 +21,7 @@ void NavigationController::setBudgetData(BudgetData* budgetData) {
 }
 
 Account* NavigationController::currentAccount() const {
-  if (!_budgetData) return nullptr;
-  return _budgetData->getAccount(_currentAccountIndex);
+  return _currentAccount;
 }
 
 int NavigationController::currentAccountIndex() const {
@@ -34,14 +33,23 @@ void NavigationController::set_currentAccountIndex(int index) {
 
   int accountCount = _budgetData->accountCount();
   if (index >= -1 && index < accountCount) {
-    bool changed = (index != _currentAccountIndex);
+    bool indexChanged = (index != _currentAccountIndex);
     _currentAccountIndex = index;
+
+    Account* newAccount = _budgetData->getAccount(index);
+    bool accountChanged = (_currentAccount != newAccount);
+    _currentAccount = newAccount;
+
     // Always update the operation model with the current account pointer
     // (the model has its own guard to avoid unnecessary resets)
-    _budgetData->operationModel()->setAccount(_budgetData->getAccount(index));
+    _budgetData->operationModel()->setAccount(newAccount);
 
-    if (changed) {
+    // Emit signals if either the index or the actual account pointer changed
+    // (account pointer can change even with same index when loading a new file)
+    if (indexChanged) {
       emit currentAccountIndexChanged();
+    }
+    if (accountChanged) {
       emit currentAccountChanged();
     }
   }
@@ -91,8 +99,9 @@ void NavigationController::previousOperation(bool extendSelection) {
 
   int currentIndex = account->currentOperationIndex();
   if (currentIndex > 0) {
-    account->set_currentOperationIndex(currentIndex - 1);
-    _budgetData->operationModel()->select(account->currentOperationIndex(), extendSelection);
+    int newIndex = currentIndex - 1;
+    account->selectAt(newIndex, extendSelection);
+    account->set_currentOperationIndex(newIndex);
   }
 }
 
@@ -104,8 +113,9 @@ void NavigationController::nextOperation(bool extendSelection) {
 
   int currentIndex = account->currentOperationIndex();
   if (currentIndex < account->operationCount() - 1) {
-    account->set_currentOperationIndex(currentIndex + 1);
-    _budgetData->operationModel()->select(account->currentOperationIndex(), extendSelection);
+    int newIndex = currentIndex + 1;
+    account->selectAt(newIndex, extendSelection);
+    account->set_currentOperationIndex(newIndex);
   }
 }
 
@@ -144,11 +154,9 @@ void NavigationController::navigateToOperation(const QString& accountName, const
   for (int i = 0; i < ops.size(); ++i) {
     Operation* op = ops[i];
     if (op->date() == date && op->description() == description && qFuzzyCompare(op->amount(), amount)) {
-      // Set this operation as the current operation for the account
+      // Set this operation as the current operation and select it
       account->set_currentOperation(op);
-
-      // Select in the model
-      _budgetData->operationModel()->select(i);
+      account->select(op, false);
 
       // Emit signal so OperationList can focus the operation
       emit operationSelected(i);

@@ -584,14 +584,12 @@ bool FileController::importFromCsv(const QString& filePath,
 
   // Select all imported operations
   if (!importedOperations.isEmpty()) {
-    QSet<Operation*> importedSet(importedOperations.begin(), importedOperations.end());
-    bool firstSelected = false;
-    for (int i = 0; i < account->operationCount(); i++) {
-      if (importedSet.contains(account->getOperation(i))) {
-        _budgetData->operationModel()->select(i, firstSelected);  // First one clears, rest extend
-        firstSelected = true;
-      }
+    account->clearSelection();
+    for (Operation* op : importedOperations) {
+      account->select(op, true);  // Extend selection to include all imported operations
     }
+    // Set the first imported operation as the current operation
+    account->set_currentOperation(importedOperations.first());
   }
 
   emit dataLoaded();

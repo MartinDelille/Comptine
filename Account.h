@@ -3,6 +3,7 @@
 #include <QList>
 #include <QObject>
 #include <QQmlEngine>
+#include <QSet>
 #include <QString>
 
 #include "Operation.h"
@@ -19,6 +20,10 @@ class Account : public QObject {
   // Uses currentOperationChanged signal since it changes when currentOperation changes
   Q_PROPERTY(int currentOperationIndex READ currentOperationIndex WRITE set_currentOperationIndex
                  NOTIFY currentOperationChanged)
+
+  // Selection properties (pointer-based, survives sorting)
+  Q_PROPERTY(int selectionCount READ selectionCount NOTIFY selectionChanged)
+  Q_PROPERTY(double selectedTotal READ selectedTotal NOTIFY selectionChanged)
 
 public:
   explicit Account(QObject* parent = nullptr);
@@ -39,6 +44,25 @@ public:
 
   Q_INVOKABLE Operation* getOperation(int index) const;
 
+  // Selection management (Excel-like behavior)
+  // Uses currentOperation as anchor for range selection
+  bool isSelected(Operation* operation) const;
+  Q_INVOKABLE bool isSelectedAt(int index) const;
+  void select(Operation* operation, bool extend = false);
+  Q_INVOKABLE void selectAt(int index, bool extend = false);
+  void toggleSelection(Operation* operation);
+  Q_INVOKABLE void toggleSelectionAt(int index);
+  Q_INVOKABLE void selectRange(int fromIndex, int toIndex);
+  Q_INVOKABLE void clearSelection();
+  int selectionCount() const;
+  double selectedTotal() const;
+  QSet<Operation*> selectedOperations() const;
+  QString selectedOperationsAsCsv() const;
+
+signals:
+  void selectionChanged();
+
 private:
   QList<Operation*> _operations;
+  QSet<Operation*> _selectedOperations;
 };
