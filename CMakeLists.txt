@@ -193,6 +193,7 @@ qt_add_qml_module(Comptine URI Comptine
         BudgetView.qml
         CategoryDetailView.qml
         CategoryEditDialog.qml
+        DateSpinBox.qml
         ImportDialog.qml
         MonthSelector.qml
         OperationDelegate.qml

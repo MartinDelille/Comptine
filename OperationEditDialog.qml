@@ -225,12 +225,11 @@ BaseDialog {
                 Layout.preferredWidth: 100
             }
 
-            SpinBox {
+            DateSpinBox {
                 id: dateDay
                 from: 1
                 to: 31
                 value: 1
-                editable: true
                 Layout.preferredWidth: 80
             }
 
@@ -240,12 +239,11 @@ BaseDialog {
                 Layout.fillWidth: true
             }
 
-            SpinBox {
+            DateSpinBox {
                 id: dateYear
                 from: 2000
                 to: 2100
                 value: 2024
-                editable: true
                 Layout.preferredWidth: 100
                 textFromValue: function (value) {
                     return value.toString();
@@ -265,12 +263,11 @@ BaseDialog {
                 Layout.preferredWidth: 100
             }
 
-            SpinBox {
+            DateSpinBox {
                 id: budgetDateDay
                 from: 1
                 to: 31
                 value: 1
-                editable: true
                 Layout.preferredWidth: 80
             }
 
@@ -280,12 +277,11 @@ BaseDialog {
                 Layout.fillWidth: true
             }
 
-            SpinBox {
+            DateSpinBox {
                 id: budgetDateYear
                 from: 2000
                 to: 2100
                 value: 2024
-                editable: true
                 Layout.preferredWidth: 100
                 textFromValue: function (value) {
                     return value.toString();
