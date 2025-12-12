@@ -59,6 +59,16 @@ FocusScope {
             }
         }
 
+        Connections {
+            target: AppState.data.operationModel
+            function onCurrentOperationChanged(index) {
+                // Programmatic selection (e.g., after date edit): update current index and scroll
+                AppState.navigation.currentOperationIndex = index;
+                listView.currentIndex = index;
+                listView.positionViewAtIndex(index, ListView.Center);
+            }
+        }
+
         Keys.onUpPressed: event => {
             AppState.navigation.previousOperation(event.modifiers & Qt.ShiftModifier);
             positionViewAtIndex(AppState.navigation.currentOperationIndex, ListView.Contain);

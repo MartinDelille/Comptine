@@ -24,6 +24,7 @@ public:
   void removeOperation(int index);
   bool removeOperation(Operation* operation);  // Remove by pointer, returns true if found
   void clearOperations();
+  void sortOperations();  // Re-sort operations by date (most recent first)
   bool hasOperation(const QDate& date, double amount, const QString& description) const;
 
   Q_INVOKABLE Operation* getOperation(int index) const;

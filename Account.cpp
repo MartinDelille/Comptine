@@ -50,6 +50,12 @@ void Account::clearOperations() {
   emit operationCountChanged();
 }
 
+void Account::sortOperations() {
+  std::sort(_operations.begin(), _operations.end(), [](Operation* a, Operation* b) {
+    return a->date() > b->date();  // Most recent first
+  });
+}
+
 bool Account::hasOperation(const QDate& date, double amount, const QString& description) const {
   for (Operation* op : _operations) {
     if (op->date() == date && op->amount() == amount && op->description() == description) {

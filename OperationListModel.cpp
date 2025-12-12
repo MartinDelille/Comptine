@@ -242,6 +242,20 @@ bool OperationListModel::isSelected(int index) const {
   return _selection.contains(index);
 }
 
+void OperationListModel::selectOperation(Operation* operation) {
+  if (!_account || !operation)
+    return;
+
+  // Find the index of the operation in the account
+  for (int i = 0; i < _account->operationCount(); ++i) {
+    if (_account->getOperation(i) == operation) {
+      select(i, false);
+      emit currentOperationChanged(i);
+      return;
+    }
+  }
+}
+
 double OperationListModel::selectedTotal() const {
   if (!_account || _selection.isEmpty())
     return 0.0;

@@ -134,12 +134,6 @@ Dialog {
             AppState.data.setOperationAmount(operationIndex, editedAmount);
         }
 
-        // Apply date change if different
-        let newDate = new Date(dateYear.value, dateMonth.currentIndex, dateDay.value);
-        if (newDate.getTime() !== originalDate.getTime()) {
-            AppState.data.setOperationDate(operationIndex, newDate);
-        }
-
         // Apply budget date change if different
         let newBudgetDate = new Date(budgetDateYear.value, budgetDateMonth.currentIndex, budgetDateDay.value);
         if (newBudgetDate.getTime() !== originalBudgetDate.getTime()) {
@@ -179,6 +173,12 @@ Dialog {
             if (allocationsChanged) {
                 AppState.data.splitOperation(operationIndex, allocations);
             }
+        }
+
+        // Apply date change LAST (since it sorts and changes the operation's index)
+        let newDate = new Date(dateYear.value, dateMonth.currentIndex, dateDay.value);
+        if (newDate.getTime() !== originalDate.getTime()) {
+            AppState.data.setOperationDate(operationIndex, newDate);
         }
     }
 
