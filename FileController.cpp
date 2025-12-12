@@ -68,7 +68,6 @@ bool FileController::saveToYaml(const QString& filePath) {
   int budgetMonth = _navController ? _navController->budgetMonth() : 0;
   int currentAccountIndex = _navController ? _navController->currentAccountIndex() : 0;
   int currentCategoryIndex = _navController ? _navController->currentCategoryIndex() : 0;
-  int currentOperationIndex = _navController ? _navController->currentOperationIndex() : 0;
 
   // Write state section
   ryml::NodeRef state = root["state"];
@@ -134,8 +133,8 @@ bool FileController::saveToYaml(const QString& filePath) {
       if (op->budgetDate() != op->date()) {
         opNode["budget_date"] << toStdString(op->budgetDate().toString("yyyy-MM-dd"));
       }
-      // Mark current operation (only for current account)
-      if (accIdx == currentAccountIndex && opIdx == currentOperationIndex) {
+      // Mark current operation for this account
+      if (op == account->currentOperation()) {
         opNode["current"] << "true";
       }
     }
@@ -301,7 +300,9 @@ bool FileController::loadFromYaml(const QString& filePath) {
             if (opNode.has_child("current")) {
               auto val = opNode["current"].val();
               if (QString::fromUtf8(val.str, val.len).toLower() == "true") {
-                // Only track current operation for the current account
+                // Set this operation as the current operation for this account
+                account->set_currentOperation(op);
+                // Also track for navigation if this is the current account
                 if (accIdx == loadedAccountIdx) {
                   currentOperation = op;
                 }

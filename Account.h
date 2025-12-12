@@ -13,10 +13,20 @@ class Account : public QObject {
   QML_ELEMENT
   PROPERTY_RW(QString, name, QString())
   PROPERTY_RO(int, operationCount)
+  PROPERTY_RW(Operation*, currentOperation, nullptr)
+
+  // Computed property: index of currentOperation in operations list
+  // Uses currentOperationChanged signal since it changes when currentOperation changes
+  Q_PROPERTY(int currentOperationIndex READ currentOperationIndex WRITE set_currentOperationIndex
+                 NOTIFY currentOperationChanged)
 
 public:
   explicit Account(QObject* parent = nullptr);
   explicit Account(const QString& name, QObject* parent = nullptr);
+
+  // Current operation index (computed from currentOperation pointer)
+  int currentOperationIndex() const;
+  void set_currentOperationIndex(int index);
 
   QList<Operation*> operations() const;
 

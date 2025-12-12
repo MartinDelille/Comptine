@@ -204,7 +204,7 @@ void SetOperationCategoryCommand::undo() {
     _operation->set_category(_oldCategory);
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -215,7 +215,7 @@ void SetOperationCategoryCommand::redo() {
     _operation->set_category(_newCategory);
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -239,7 +239,7 @@ void SetOperationBudgetDateCommand::undo() {
     _operation->set_budgetDate(_oldBudgetDate);
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -250,7 +250,7 @@ void SetOperationBudgetDateCommand::redo() {
     _operation->set_budgetDate(_newBudgetDate);
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -289,7 +289,7 @@ void SplitOperationCommand::undo() {
     }
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -311,7 +311,7 @@ void SplitOperationCommand::redo() {
     }
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -335,7 +335,7 @@ void SetOperationAmountCommand::undo() {
     _operation->set_amount(_oldAmount);
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -346,7 +346,7 @@ void SetOperationAmountCommand::redo() {
     _operation->set_amount(_newAmount);
     if (_operationModel) {
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -373,7 +373,7 @@ void SetOperationDateCommand::undo() {
         _operationModel->account()->sortOperations();
       }
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }
@@ -387,7 +387,7 @@ void SetOperationDateCommand::redo() {
         _operationModel->account()->sortOperations();
       }
       _operationModel->refresh();
-      _operationModel->selectOperation(_operation);
+      _operationModel->selectByPointer(_operation);
       emit _operationModel->operationDataChanged();
     }
   }

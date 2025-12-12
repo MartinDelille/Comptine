@@ -6,6 +6,15 @@ Account::Account(QObject* parent) :
 Account::Account(const QString& name, QObject* parent) :
     QObject(parent), _name(name) {}
 
+int Account::currentOperationIndex() const {
+  if (!_currentOperation) return -1;
+  return _operations.indexOf(_currentOperation);
+}
+
+void Account::set_currentOperationIndex(int index) {
+  set_currentOperation(getOperation(index));
+}
+
 int Account::operationCount() const {
   return _operations.size();
 }
@@ -29,7 +38,12 @@ void Account::addOperation(Operation* operation) {
 
 void Account::removeOperation(int index) {
   if (index >= 0 && index < _operations.size()) {
-    delete _operations.takeAt(index);
+    Operation* op = _operations.takeAt(index);
+    // Clear currentOperation if it was the deleted one
+    if (_currentOperation == op) {
+      set_currentOperation(nullptr);
+    }
+    delete op;
     emit operationCountChanged();
   }
 }
@@ -38,6 +52,10 @@ bool Account::removeOperation(Operation* operation) {
   int index = _operations.indexOf(operation);
   if (index >= 0) {
     _operations.removeAt(index);
+    // Clear currentOperation if it was the removed one
+    if (_currentOperation == operation) {
+      set_currentOperation(nullptr);
+    }
     emit operationCountChanged();
     return true;
   }
@@ -47,6 +65,9 @@ bool Account::removeOperation(Operation* operation) {
 void Account::clearOperations() {
   qDeleteAll(_operations);
   _operations.clear();
+  if (_currentOperation) {
+    set_currentOperation(nullptr);
+  }
   emit operationCountChanged();
 }
 
@@ -54,6 +75,10 @@ void Account::sortOperations() {
   std::sort(_operations.begin(), _operations.end(), [](Operation* a, Operation* b) {
     return a->date() > b->date();  // Most recent first
   });
+  // The index of currentOperation may have changed after sorting
+  if (_currentOperation) {
+    emit currentOperationChanged();
+  }
 }
 
 bool Account::hasOperation(const QDate& date, double amount, const QString& description) const {

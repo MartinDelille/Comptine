@@ -45,7 +45,7 @@ public:
   Q_INVOKABLE void selectRange(int fromIndex, int toIndex);
   Q_INVOKABLE void clearSelection();
   Q_INVOKABLE bool isSelected(int index) const;
-  void selectOperation(Operation* operation);  // Select by operation pointer (finds current index)
+  void selectByPointer(Operation* operation);  // Select by operation pointer (finds current index)
   int selectionCount() const { return _selection.size(); }
   double selectedTotal() const;
   QString selectedOperationsAsCsv() const;
@@ -71,5 +71,4 @@ private:
 
   void recalculateBalances();
   void onOperationCountChanged();
-  void emitSelectionDataChanged();
 };

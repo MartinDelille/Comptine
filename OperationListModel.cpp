@@ -242,9 +242,12 @@ bool OperationListModel::isSelected(int index) const {
   return _selection.contains(index);
 }
 
-void OperationListModel::selectOperation(Operation* operation) {
+void OperationListModel::selectByPointer(Operation* operation) {
   if (!_account || !operation)
     return;
+
+  // Set the operation as the account's current operation
+  _account->set_currentOperation(operation);
 
   // Find the index of the operation in the account
   for (int i = 0; i < _account->operationCount(); ++i) {
@@ -293,11 +296,4 @@ QString OperationListModel::selectedOperationsAsCsv() const {
   }
 
   return csv;
-}
-
-void OperationListModel::emitSelectionDataChanged() {
-  for (int i : _selection) {
-    QModelIndex mi = createIndex(i, 0);
-    emit dataChanged(mi, mi, { SelectedRole });
-  }
 }
