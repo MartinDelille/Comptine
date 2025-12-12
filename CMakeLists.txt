@@ -189,6 +189,7 @@ qt_add_qml_module(Comptine URI Comptine
         AboutDialog.qml
         AmountField.qml
         BalanceHeader.qml
+        BaseDialog.qml
         BudgetView.qml
         CategoryDetailView.qml
         CategoryEditDialog.qml

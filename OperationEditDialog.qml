@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Dialog {
+BaseDialog {
     id: root
 
     property int operationIndex: -1
@@ -18,9 +18,6 @@ Dialog {
     property var categoryList: []
 
     title: qsTr("Edit Operation")
-    modal: true
-    parent: Overlay.overlay
-    anchors.centerIn: parent
     width: Math.min(500, parent.width - 40)
     standardButtons: Dialog.Ok | Dialog.Cancel
 
@@ -59,6 +56,9 @@ Dialog {
     readonly property bool dateValid: dateDay.value >= 1 && dateDay.value <= 31
     readonly property bool budgetDateValid: budgetDateDay.value >= 1 && budgetDateDay.value <= 31
     readonly property bool isValid: allocationsValid && dateValid && budgetDateValid
+
+    // Use BaseDialog's canSubmit for Enter key validation
+    canSubmit: isValid
 
     // Disable OK button when invalid
     onOpened: {
