@@ -17,7 +17,7 @@ class OperationListModel;
 // Command for renaming an account
 class RenameAccountCommand : public QUndoCommand {
 public:
-  RenameAccountCommand(Account* account, AccountListModel* accountModel,
+  RenameAccountCommand(Account& account, AccountListModel* accountModel,
                        const QString& oldName, const QString& newName,
                        QUndoCommand* parent = nullptr);
 
@@ -25,7 +25,7 @@ public:
   void redo() override;
 
 private:
-  Account* _account;
+  Account& _account;
   AccountListModel* _accountModel;
   QString _oldName;
   QString _newName;
@@ -37,7 +37,7 @@ private:
 // 2. Emits categoryCountChanged to refresh the UI
 class EditCategoryCommand : public QUndoCommand {
 public:
-  EditCategoryCommand(Category* category, BudgetData* budgetData, CategoryController* categoryController,
+  EditCategoryCommand(Category& category, BudgetData* budgetData, CategoryController* categoryController,
                       const QString& oldName, const QString& newName,
                       double oldBudgetLimit, double newBudgetLimit,
                       QUndoCommand* parent = nullptr);
@@ -48,7 +48,7 @@ public:
 private:
   void renameOperationsCategory(const QString& fromName, const QString& toName);
 
-  Category* _category;
+  Category& _category;
   BudgetData* _budgetData;
   CategoryController* _categoryController;
   QString _oldName;
@@ -84,7 +84,7 @@ private:
 // Command for setting an operation's category
 class SetOperationCategoryCommand : public QUndoCommand {
 public:
-  SetOperationCategoryCommand(Operation* operation,
+  SetOperationCategoryCommand(Operation& operation,
                               OperationListModel* operationModel,
                               const QString& oldCategory,
                               const QString& newCategory,
@@ -94,7 +94,7 @@ public:
   void redo() override;
 
 private:
-  Operation* _operation;
+  Operation& _operation;
   OperationListModel* _operationModel;
   QString _oldCategory;
   QString _newCategory;
@@ -103,7 +103,7 @@ private:
 // Command for setting an operation's budget date
 class SetOperationBudgetDateCommand : public QUndoCommand {
 public:
-  SetOperationBudgetDateCommand(Operation* operation,
+  SetOperationBudgetDateCommand(Operation& operation,
                                 OperationListModel* operationModel,
                                 const QDate& oldBudgetDate,
                                 const QDate& newBudgetDate,
@@ -113,7 +113,7 @@ public:
   void redo() override;
 
 private:
-  Operation* _operation;
+  Operation& _operation;
   OperationListModel* _operationModel;
   QDate _oldBudgetDate;
   QDate _newBudgetDate;
@@ -122,7 +122,7 @@ private:
 // Command for splitting an operation across multiple categories
 class SplitOperationCommand : public QUndoCommand {
 public:
-  SplitOperationCommand(Operation* operation,
+  SplitOperationCommand(Operation& operation,
                         OperationListModel* operationModel,
                         const QString& oldCategory,
                         const QList<CategoryAllocation>& oldAllocations,
@@ -133,7 +133,7 @@ public:
   void redo() override;
 
 private:
-  Operation* _operation;
+  Operation& _operation;
   OperationListModel* _operationModel;
   QString _oldCategory;
   QList<CategoryAllocation> _oldAllocations;
@@ -143,7 +143,7 @@ private:
 // Command for setting an operation's amount
 class SetOperationAmountCommand : public QUndoCommand {
 public:
-  SetOperationAmountCommand(Operation* operation,
+  SetOperationAmountCommand(Operation& operation,
                             OperationListModel* operationModel,
                             double oldAmount, double newAmount,
                             QUndoCommand* parent = nullptr);
@@ -152,7 +152,7 @@ public:
   void redo() override;
 
 private:
-  Operation* _operation;
+  Operation& _operation;
   OperationListModel* _operationModel;
   double _oldAmount;
   double _newAmount;
@@ -161,7 +161,7 @@ private:
 // Command for setting an operation's date
 class SetOperationDateCommand : public QUndoCommand {
 public:
-  SetOperationDateCommand(Operation* operation,
+  SetOperationDateCommand(Operation& operation,
                           OperationListModel* operationModel,
                           const QDate& oldDate, const QDate& newDate,
                           QUndoCommand* parent = nullptr);
@@ -170,7 +170,7 @@ public:
   void redo() override;
 
 private:
-  Operation* _operation;
+  Operation& _operation;
   OperationListModel* _operationModel;
   QDate _oldDate;
   QDate _newDate;
@@ -179,7 +179,7 @@ private:
 // Command for setting an operation's description
 class SetOperationDescriptionCommand : public QUndoCommand {
 public:
-  SetOperationDescriptionCommand(Operation* operation,
+  SetOperationDescriptionCommand(Operation& operation,
                                  OperationListModel* operationModel,
                                  const QString& oldDescription,
                                  const QString& newDescription,
@@ -189,7 +189,7 @@ public:
   void redo() override;
 
 private:
-  Operation* _operation;
+  Operation& _operation;
   OperationListModel* _operationModel;
   QString _oldDescription;
   QString _newDescription;

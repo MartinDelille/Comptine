@@ -7,34 +7,34 @@
 #include "Operation.h"
 #include "OperationListModel.h"
 
-RenameAccountCommand::RenameAccountCommand(Account* account,
+RenameAccountCommand::RenameAccountCommand(Account& account,
                                            AccountListModel* accountModel,
                                            const QString& oldName,
                                            const QString& newName,
                                            QUndoCommand* parent) :
-    QUndoCommand(parent), _account(account), _accountModel(accountModel), _oldName(oldName), _newName(newName) {
+    QUndoCommand(parent),
+    _account(account),
+    _accountModel(accountModel),
+    _oldName(oldName),
+    _newName(newName) {
   setText(QObject::tr("Rename account to \"%1\"").arg(newName));
 }
 
 void RenameAccountCommand::undo() {
-  if (_account) {
-    _account->set_name(_oldName);
-    if (_accountModel) {
-      _accountModel->refresh();
-    }
+  _account.set_name(_oldName);
+  if (_accountModel) {
+    _accountModel->refresh();
   }
 }
 
 void RenameAccountCommand::redo() {
-  if (_account) {
-    _account->set_name(_newName);
-    if (_accountModel) {
-      _accountModel->refresh();
-    }
+  _account.set_name(_newName);
+  if (_accountModel) {
+    _accountModel->refresh();
   }
 }
 
-EditCategoryCommand::EditCategoryCommand(Category* category,
+EditCategoryCommand::EditCategoryCommand(Category& category,
                                          BudgetData* budgetData,
                                          CategoryController* categoryController,
                                          const QString& oldName,
@@ -73,33 +73,29 @@ void EditCategoryCommand::renameOperationsCategory(const QString& fromName, cons
 }
 
 void EditCategoryCommand::undo() {
-  if (_category) {
-    // Rename operations back to old category name
-    if (_oldName != _newName) {
-      renameOperationsCategory(_newName, _oldName);
-    }
+  // Rename operations back to old category name
+  if (_oldName != _newName) {
+    renameOperationsCategory(_newName, _oldName);
+  }
 
-    _category->set_name(_oldName);
-    _category->set_budgetLimit(_oldBudgetLimit);
-    if (_categoryController) {
-      emit _categoryController->categoryCountChanged();  // Trigger UI refresh
-    }
+  _category.set_name(_oldName);
+  _category.set_budgetLimit(_oldBudgetLimit);
+  if (_categoryController) {
+    emit _categoryController->categoryCountChanged();  // Trigger UI refresh
   }
 }
 
 void EditCategoryCommand::redo() {
-  if (_category) {
-    _category->set_name(_newName);
-    _category->set_budgetLimit(_newBudgetLimit);
+  _category.set_name(_newName);
+  _category.set_budgetLimit(_newBudgetLimit);
 
-    // Rename operations to new category name
-    if (_oldName != _newName) {
-      renameOperationsCategory(_oldName, _newName);
-    }
+  // Rename operations to new category name
+  if (_oldName != _newName) {
+    renameOperationsCategory(_oldName, _newName);
+  }
 
-    if (_categoryController) {
-      emit _categoryController->categoryCountChanged();  // Trigger UI refresh
-    }
+  if (_categoryController) {
+    emit _categoryController->categoryCountChanged();  // Trigger UI refresh
   }
 }
 
@@ -137,8 +133,6 @@ ImportOperationsCommand::~ImportOperationsCommand() {
 }
 
 void ImportOperationsCommand::undo() {
-  if (!_account) return;
-
   // Remove operations from account (don't delete them, we keep ownership)
   for (Operation* op : _operations) {
     _account->removeOperation(op);
@@ -160,8 +154,6 @@ void ImportOperationsCommand::undo() {
 }
 
 void ImportOperationsCommand::redo() {
-  if (!_account) return;
-
   // Re-add operations to account
   for (Operation* op : _operations) {
     _account->addOperation(op);
@@ -182,7 +174,7 @@ void ImportOperationsCommand::redo() {
   }
 }
 
-SetOperationCategoryCommand::SetOperationCategoryCommand(Operation* operation,
+SetOperationCategoryCommand::SetOperationCategoryCommand(Operation& operation,
                                                          OperationListModel* operationModel,
                                                          const QString& oldCategory,
                                                          const QString& newCategory,
@@ -200,28 +192,24 @@ SetOperationCategoryCommand::SetOperationCategoryCommand(Operation* operation,
 }
 
 void SetOperationCategoryCommand::undo() {
-  if (_operation) {
-    _operation->set_category(_oldCategory);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_category(_oldCategory);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
 void SetOperationCategoryCommand::redo() {
-  if (_operation) {
-    _operation->set_category(_newCategory);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_category(_newCategory);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
-SetOperationBudgetDateCommand::SetOperationBudgetDateCommand(Operation* operation,
+SetOperationBudgetDateCommand::SetOperationBudgetDateCommand(Operation& operation,
                                                              OperationListModel* operationModel,
                                                              const QDate& oldBudgetDate,
                                                              const QDate& newBudgetDate,
@@ -235,28 +223,24 @@ SetOperationBudgetDateCommand::SetOperationBudgetDateCommand(Operation* operatio
 }
 
 void SetOperationBudgetDateCommand::undo() {
-  if (_operation) {
-    _operation->set_budgetDate(_oldBudgetDate);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_budgetDate(_oldBudgetDate);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
 void SetOperationBudgetDateCommand::redo() {
-  if (_operation) {
-    _operation->set_budgetDate(_newBudgetDate);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_budgetDate(_newBudgetDate);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
-SplitOperationCommand::SplitOperationCommand(Operation* operation,
+SplitOperationCommand::SplitOperationCommand(Operation& operation,
                                              OperationListModel* operationModel,
                                              const QString& oldCategory,
                                              const QList<CategoryAllocation>& oldAllocations,
@@ -278,46 +262,42 @@ SplitOperationCommand::SplitOperationCommand(Operation* operation,
 }
 
 void SplitOperationCommand::undo() {
-  if (_operation) {
-    if (_oldAllocations.isEmpty()) {
-      // Was a single category, restore it
-      _operation->clearAllocations();
-      _operation->set_category(_oldCategory);
-    } else {
-      // Was already split, restore old allocations
-      _operation->setAllocations(_oldAllocations);
-    }
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  if (_oldAllocations.isEmpty()) {
+    // Was a single category, restore it
+    _operation.clearAllocations();
+    _operation.set_category(_oldCategory);
+  } else {
+    // Was already split, restore old allocations
+    _operation.setAllocations(_oldAllocations);
+  }
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
 void SplitOperationCommand::redo() {
-  if (_operation) {
-    if (_newAllocations.size() == 1) {
-      // Single category - use regular category field
-      _operation->clearAllocations();
-      _operation->set_category(_newAllocations.first().category);
-    } else if (_newAllocations.isEmpty()) {
-      // Clear everything
-      _operation->clearAllocations();
-      _operation->set_category(QString());
-    } else {
-      // Multiple categories - use allocations
-      _operation->setAllocations(_newAllocations);
-    }
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  if (_newAllocations.size() == 1) {
+    // Single category - use regular category field
+    _operation.clearAllocations();
+    _operation.set_category(_newAllocations.first().category);
+  } else if (_newAllocations.isEmpty()) {
+    // Clear everything
+    _operation.clearAllocations();
+    _operation.set_category(QString());
+  } else {
+    // Multiple categories - use allocations
+    _operation.setAllocations(_newAllocations);
+  }
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
-SetOperationAmountCommand::SetOperationAmountCommand(Operation* operation,
+SetOperationAmountCommand::SetOperationAmountCommand(Operation& operation,
                                                      OperationListModel* operationModel,
                                                      double oldAmount,
                                                      double newAmount,
@@ -331,28 +311,24 @@ SetOperationAmountCommand::SetOperationAmountCommand(Operation* operation,
 }
 
 void SetOperationAmountCommand::undo() {
-  if (_operation) {
-    _operation->set_amount(_oldAmount);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_amount(_oldAmount);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
 void SetOperationAmountCommand::redo() {
-  if (_operation) {
-    _operation->set_amount(_newAmount);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_amount(_newAmount);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
-SetOperationDateCommand::SetOperationDateCommand(Operation* operation,
+SetOperationDateCommand::SetOperationDateCommand(Operation& operation,
                                                  OperationListModel* operationModel,
                                                  const QDate& oldDate,
                                                  const QDate& newDate,
@@ -366,34 +342,30 @@ SetOperationDateCommand::SetOperationDateCommand(Operation* operation,
 }
 
 void SetOperationDateCommand::undo() {
-  if (_operation) {
-    _operation->set_date(_oldDate);
-    if (_operationModel) {
-      if (_operationModel->account()) {
-        _operationModel->account()->sortOperations();
-      }
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
+  _operation.set_date(_oldDate);
+  if (_operationModel) {
+    if (_operationModel->account()) {
+      _operationModel->account()->sortOperations();
     }
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
 void SetOperationDateCommand::redo() {
-  if (_operation) {
-    _operation->set_date(_newDate);
-    if (_operationModel) {
-      if (_operationModel->account()) {
-        _operationModel->account()->sortOperations();
-      }
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
+  _operation.set_date(_newDate);
+  if (_operationModel) {
+    if (_operationModel->account()) {
+      _operationModel->account()->sortOperations();
     }
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
-SetOperationDescriptionCommand::SetOperationDescriptionCommand(Operation* operation,
+SetOperationDescriptionCommand::SetOperationDescriptionCommand(Operation& operation,
                                                                OperationListModel* operationModel,
                                                                const QString& oldDescription,
                                                                const QString& newDescription,
@@ -407,23 +379,19 @@ SetOperationDescriptionCommand::SetOperationDescriptionCommand(Operation* operat
 }
 
 void SetOperationDescriptionCommand::undo() {
-  if (_operation) {
-    _operation->set_description(_oldDescription);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_description(_oldDescription);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }
 
 void SetOperationDescriptionCommand::redo() {
-  if (_operation) {
-    _operation->set_description(_newDescription);
-    if (_operationModel) {
-      _operationModel->refresh();
-      _operationModel->selectByPointer(_operation);
-      emit _operationModel->operationDataChanged();
-    }
+  _operation.set_description(_newDescription);
+  if (_operationModel) {
+    _operationModel->refresh();
+    _operationModel->selectByPointer(&_operation);
+    emit _operationModel->operationDataChanged();
   }
 }

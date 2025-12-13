@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   Q_ASSERT(appState);
 
   // Setup translation manager (handles initial load and live switching)
-  TranslationManager translationManager(&app, &engine, appState->settings());
+  TranslationManager translationManager(app, engine, *appState->settings());
 
   // Handle QML creation failure
   QObject::connect(

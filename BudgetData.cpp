@@ -32,10 +32,8 @@ QString BudgetData::appCommitHash() const {
 BudgetData::BudgetData(QObject* parent) :
     QObject(parent),
     _operationModel(new OperationListModel(this)),
-    _accountModel(new AccountListModel(this)),
+    _accountModel(new AccountListModel(_accounts, this)),
     _undoStack(new QUndoStack(this)) {
-  _accountModel->setAccounts(&_accounts);
-
   // Relay operation data changes from model to BudgetData signal
   connect(_operationModel, &OperationListModel::operationDataChanged,
           this, &BudgetData::operationDataChanged);
@@ -80,7 +78,7 @@ void BudgetData::renameCurrentAccount(const QString& newName) {
   if (!_navController) return;
   Account* account = getAccount(_navController->currentAccountIndex());
   if (account && !newName.isEmpty() && account->name() != newName) {
-    _undoStack->push(new RenameAccountCommand(account, _accountModel,
+    _undoStack->push(new RenameAccountCommand(*account, _accountModel,
                                               account->name(), newName));
   }
 }
@@ -118,7 +116,7 @@ void BudgetData::setOperationCategory(int operationIndex, const QString& newCate
 
   QString oldCategory = operation->category();
   if (oldCategory != newCategory) {
-    _undoStack->push(new SetOperationCategoryCommand(operation, _operationModel,
+    _undoStack->push(new SetOperationCategoryCommand(*operation, _operationModel,
                                                      oldCategory, newCategory));
   }
 }
@@ -133,7 +131,7 @@ void BudgetData::setOperationBudgetDate(int operationIndex, const QDate& newBudg
 
   QDate oldBudgetDate = operation->budgetDate();
   if (oldBudgetDate != newBudgetDate) {
-    _undoStack->push(new SetOperationBudgetDateCommand(operation, _operationModel,
+    _undoStack->push(new SetOperationBudgetDateCommand(*operation, _operationModel,
                                                        oldBudgetDate, newBudgetDate));
   }
 }
@@ -148,7 +146,7 @@ void BudgetData::setOperationAmount(int operationIndex, double newAmount) {
 
   double oldAmount = operation->amount();
   if (!qFuzzyCompare(oldAmount, newAmount)) {
-    _undoStack->push(new SetOperationAmountCommand(operation, _operationModel,
+    _undoStack->push(new SetOperationAmountCommand(*operation, _operationModel,
                                                    oldAmount, newAmount));
   }
 }
@@ -163,7 +161,7 @@ void BudgetData::setOperationDate(int operationIndex, const QDate& newDate) {
 
   QDate oldDate = operation->date();
   if (oldDate != newDate) {
-    _undoStack->push(new SetOperationDateCommand(operation, _operationModel,
+    _undoStack->push(new SetOperationDateCommand(*operation, _operationModel,
                                                  oldDate, newDate));
   }
 }
@@ -178,7 +176,7 @@ void BudgetData::setOperationDescription(int operationIndex, const QString& newD
 
   QString oldDescription = operation->description();
   if (oldDescription != newDescription) {
-    _undoStack->push(new SetOperationDescriptionCommand(operation, _operationModel,
+    _undoStack->push(new SetOperationDescriptionCommand(*operation, _operationModel,
                                                         oldDescription, newDescription));
   }
 }
@@ -207,7 +205,7 @@ void BudgetData::splitOperation(int operationIndex, const QVariantList& allocati
 
   // Only create command if something changed
   if (newAllocations != oldAllocations || (newAllocations.size() == 1 && newAllocations.first().category != oldCategory)) {
-    _undoStack->push(new SplitOperationCommand(operation, _operationModel,
+    _undoStack->push(new SplitOperationCommand(*operation, _operationModel,
                                                oldCategory, oldAllocations, newAllocations));
   }
 }

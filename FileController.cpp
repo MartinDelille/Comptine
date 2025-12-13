@@ -23,28 +23,20 @@
 
 using namespace CsvParser;
 
-FileController::FileController(QObject* parent) :
-    QObject(parent) {
-}
-
-void FileController::setAppSettings(AppSettings* settings) {
-  _appSettings = settings;
-}
-
-void FileController::setBudgetData(BudgetData* budgetData) {
-  _budgetData = budgetData;
-}
-
-void FileController::setCategoryController(CategoryController* categoryController) {
-  _categoryController = categoryController;
-}
-
-void FileController::setNavigationController(NavigationController* navController) {
-  _navController = navController;
+FileController::FileController(AppSettings& appSettings,
+                               BudgetData& budgetData,
+                               CategoryController& categoryController,
+                               NavigationController& navController,
+                               QObject* parent) :
+    QObject(parent),
+    _appSettings(appSettings),
+    _budgetData(budgetData),
+    _categoryController(categoryController),
+    _navController(navController) {
 }
 
 bool FileController::hasUnsavedChanges() const {
-  return _budgetData ? !_budgetData->undoStack()->isClean() : false;
+  return !_budgetData.undoStack()->isClean();
 }
 
 // Helper to convert QString to std::string for ryml
@@ -53,8 +45,6 @@ static std::string toStdString(const QString& s) {
 }
 
 bool FileController::saveToYaml(const QString& filePath) {
-  if (!_budgetData) return false;
-
   // Clear any previous error
   set_errorMessage({});
 
@@ -63,11 +53,11 @@ bool FileController::saveToYaml(const QString& filePath) {
   root |= ryml::MAP;
 
   // Get navigation state from NavigationController
-  int currentTabIndex = _navController ? _navController->currentTabIndex() : 0;
-  int budgetYear = _navController ? _navController->budgetYear() : 0;
-  int budgetMonth = _navController ? _navController->budgetMonth() : 0;
-  int currentAccountIndex = _navController ? _navController->currentAccountIndex() : 0;
-  int currentCategoryIndex = _navController ? _navController->currentCategoryIndex() : 0;
+  int currentTabIndex = _navController.currentTabIndex();
+  int budgetYear = _navController.budgetYear();
+  int budgetMonth = _navController.budgetMonth();
+  int currentAccountIndex = _navController.currentAccountIndex();
+  int currentCategoryIndex = _navController.currentCategoryIndex();
 
   // Write state section
   ryml::NodeRef state = root["state"];
@@ -79,7 +69,7 @@ bool FileController::saveToYaml(const QString& filePath) {
   // Write categories
   ryml::NodeRef categories = root["categories"];
   categories |= ryml::SEQ;
-  QList<Category*> cats = _categoryController ? _categoryController->categories() : QList<Category*>();
+  QList<Category*> cats = _categoryController.categories();
   for (int i = 0; i < cats.size(); i++) {
     const Category* category = cats[i];
     ryml::NodeRef cat = categories.append_child();
@@ -94,7 +84,7 @@ bool FileController::saveToYaml(const QString& filePath) {
   // Write accounts
   ryml::NodeRef accounts = root["accounts"];
   accounts |= ryml::SEQ;
-  QList<Account*> accs = _budgetData->accounts();
+  QList<Account*> accs = _budgetData.accounts();
   for (int accIdx = 0; accIdx < accs.size(); accIdx++) {
     const Account* account = accs[accIdx];
     ryml::NodeRef acc = accounts.append_child();
@@ -157,14 +147,12 @@ bool FileController::saveToYaml(const QString& filePath) {
   file.close();
 
   qDebug() << "Budget data saved to:" << filePath;
-  _budgetData->undoStack()->setClean();
+  _budgetData.undoStack()->setClean();
   emit dataSaved();
   return true;
 }
 
 bool FileController::loadFromYaml(const QString& filePath) {
-  if (!_budgetData || !_categoryController) return false;
-
   // Clear any previous error
   set_errorMessage({});
 
@@ -184,7 +172,7 @@ bool FileController::loadFromYaml(const QString& filePath) {
     return false;
   }
 
-  _budgetData->clear();
+  _budgetData.clear();
 
   // Track state from file for NavigationController
   // Default to current year/month if not specified in file
@@ -236,7 +224,7 @@ bool FileController::loadFromYaml(const QString& filePath) {
             loadedCategoryIdx = catIdx;
           }
         }
-        _categoryController->addCategory(category);
+        _categoryController.addCategory(category);
         catIdx++;
       }
     }
@@ -312,7 +300,7 @@ bool FileController::loadFromYaml(const QString& filePath) {
             opIdx++;
           }
         }
-        _budgetData->addAccount(account);
+        _budgetData.addAccount(account);
         accIdx++;
       }
     }
@@ -323,14 +311,14 @@ bool FileController::loadFromYaml(const QString& filePath) {
   }
 
   // Refresh account model
-  _budgetData->accountModel()->refresh();
+  _budgetData.accountModel()->refresh();
 
   // Calculate operation index from pointer
   int loadedOperationIdx = 0;
   if (currentOperation) {
-    QList<Account*> accs = _budgetData->accounts();
+    QList<Account*> accs = _budgetData.accounts();
     int boundedAccountIdx = qBound(0, loadedAccountIdx, accs.size() - 1);
-    Account* account = _budgetData->getAccount(boundedAccountIdx);
+    Account* account = _budgetData.getAccount(boundedAccountIdx);
     if (account) {
       QList<Operation*> ops = account->operations();
       int idx = ops.indexOf(currentOperation);
@@ -345,24 +333,22 @@ bool FileController::loadFromYaml(const QString& filePath) {
       loadedTabIndex,
       loadedBudgetYear,
       loadedBudgetMonth,
-      qBound(0, loadedAccountIdx, qMax(0, _budgetData->accountCount() - 1)),
-      qBound(0, loadedCategoryIdx, qMax(0, _categoryController->categoryCount() - 1)),
+      qBound(0, loadedAccountIdx, qMax(0, _budgetData.accountCount() - 1)),
+      qBound(0, loadedCategoryIdx, qMax(0, _categoryController.categoryCount() - 1)),
       loadedOperationIdx);
 
   set_currentFilePath(filePath);
-  _budgetData->undoStack()->clear();
-  _budgetData->undoStack()->setClean();
+  _budgetData.undoStack()->clear();
+  _budgetData.undoStack()->setClean();
 
   // Add to recent files
-  if (_appSettings) {
-    _appSettings->addRecentFile(filePath);
-  }
+  _appSettings.addRecentFile(filePath);
 
   emit yamlFileLoaded();
   emit dataLoaded();
   qDebug() << "Budget data loaded from:" << filePath;
-  qDebug() << "  Accounts:" << _budgetData->accountCount();
-  qDebug() << "  Categories:" << _categoryController->categoryCount();
+  qDebug() << "  Accounts:" << _budgetData.accountCount();
+  qDebug() << "  Categories:" << _categoryController.categoryCount();
 
   return true;
 }
@@ -370,8 +356,6 @@ bool FileController::loadFromYaml(const QString& filePath) {
 bool FileController::importFromCsv(const QString& filePath,
                                    const QString& accountName,
                                    bool useCategories) {
-  if (!_budgetData || !_categoryController) return false;
-
   // Clear any previous error
   set_errorMessage({});
 
@@ -413,10 +397,10 @@ bool FileController::importFromCsv(const QString& filePath,
 
   // Create or get account
   QString name = accountName.isEmpty() ? "Imported Account" : accountName;
-  Account* account = _budgetData->getAccountByName(name);
+  Account* account = _budgetData.getAccountByName(name);
   if (!account) {
     account = new Account(name);
-    _budgetData->addAccount(account);
+    _budgetData.addAccount(account);
   }
 
   // Parse header to detect column indices
@@ -452,7 +436,7 @@ bool FileController::importFromCsv(const QString& filePath,
   // Build case-insensitive lookup for existing categories (only used if useCategories is true)
   QMap<QString, QString> existingCategoryLookup;  // lowercase -> actual name
   if (useCategories) {
-    for (const Category* cat : _categoryController->categories()) {
+    for (const Category* cat : _categoryController.categories()) {
       existingCategoryLookup.insert(cat->name().toLower(), cat->name());
     }
   }
@@ -566,21 +550,21 @@ bool FileController::importFromCsv(const QString& filePath,
 
   // Add operations and categories via undo command (if any were imported)
   if (!importedOperations.isEmpty()) {
-    _budgetData->undoStack()->push(new ImportOperationsCommand(account, _budgetData->operationModel(), _categoryController,
-                                                               importedOperations, newCategories));
+    _budgetData.undoStack()->push(new ImportOperationsCommand(account, _budgetData.operationModel(), &_categoryController,
+                                                              importedOperations, newCategories));
   } else {
     // No operations imported, clean up categories
     qDeleteAll(newCategories);
   }
 
   // Set as current account
-  QList<Account*> accs = _budgetData->accounts();
+  QList<Account*> accs = _budgetData.accounts();
   int accountIndex = accs.indexOf(account);
-  if (accountIndex >= 0 && _navController) {
-    _navController->set_currentAccountIndex(accountIndex);
+  if (accountIndex >= 0) {
+    _navController.set_currentAccountIndex(accountIndex);
   }
 
-  _budgetData->accountModel()->refresh();
+  _budgetData.accountModel()->refresh();
 
   // Select all imported operations
   if (!importedOperations.isEmpty()) {
@@ -598,9 +582,7 @@ bool FileController::importFromCsv(const QString& filePath,
 }
 
 void FileController::clear() {
-  if (_budgetData) {
-    _budgetData->clear();
-  }
+  _budgetData.clear();
   set_currentFilePath({});
 }
 
@@ -618,13 +600,11 @@ void FileController::loadInitialFile(const QStringList& args) {
   }
 
   // Fall back to most recent file
-  if (_appSettings) {
-    QStringList recentFiles = _appSettings->recentFiles();
-    if (!recentFiles.isEmpty()) {
-      QString lastFile = recentFiles.first();
-      if (QFile::exists(lastFile)) {
-        loadFromYaml(lastFile);
-      }
+  QStringList recentFiles = _appSettings.recentFiles();
+  if (!recentFiles.isEmpty()) {
+    QString lastFile = recentFiles.first();
+    if (QFile::exists(lastFile)) {
+      loadFromYaml(lastFile);
     }
   }
 }

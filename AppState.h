@@ -27,20 +27,21 @@ class AppState : public QObject {
 public:
   explicit AppState(QObject* parent = nullptr);
 
-  AppSettings* settings() const { return _settings; }
-  BudgetData* data() const { return _data; }
-  CategoryController* categories() const { return _categories; }
-  ClipboardController* clipboard() const { return _clipboard; }
-  NavigationController* navigation() const { return _navigation; }
-  FileController* file() const { return _file; }
-  UpdateController* update() const { return _update; }
+  AppSettings* settings() { return &_settings; }
+  BudgetData* data() { return &_data; }
+  CategoryController* categories() { return &_categories; }
+  ClipboardController* clipboard() { return &_clipboard; }
+  NavigationController* navigation() { return &_navigation; }
+  FileController* file() { return &_file; }
+  UpdateController* update() { return &_update; }
 
 private:
-  AppSettings* _settings;
-  BudgetData* _data;
-  CategoryController* _categories;
-  ClipboardController* _clipboard;
-  NavigationController* _navigation;
-  FileController* _file;
-  UpdateController* _update;
+  // Declaration order matters - dependencies must come first
+  AppSettings _settings;
+  BudgetData _data;
+  CategoryController _categories;
+  NavigationController _navigation;
+  ClipboardController _clipboard;  // Depends on BudgetData::operationModel()
+  FileController _file;            // Depends on all 4 controllers
+  UpdateController _update;        // Depends on AppSettings
 };
