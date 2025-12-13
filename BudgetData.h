@@ -11,6 +11,7 @@
 #include "OperationListModel.h"
 #include "PropertyMacros.h"
 
+class CategoryController;
 class NavigationController;
 
 class BudgetData : public QObject {
@@ -69,6 +70,9 @@ public:
   // Set reference to NavigationController (for current account access)
   void setNavigationController(NavigationController* navController);
 
+  // Set reference to CategoryController (for clearing categories)
+  void setCategoryController(CategoryController* categoryController);
+
 signals:
   void operationDataChanged();   // Emitted when operation data changes (e.g., category edit)
   void currentAccountChanged();  // Emitted when current account changes (for QML binding)
@@ -79,4 +83,5 @@ private:
   AccountListModel* _accountModel;
   QUndoStack* _undoStack;
   NavigationController* _navController = nullptr;
+  CategoryController* _categoryController = nullptr;
 };

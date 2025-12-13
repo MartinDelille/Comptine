@@ -20,6 +20,7 @@ AppState::AppState(QObject* parent) :
   _navigation->setBudgetData(_data);
   _navigation->setCategoryController(_categories);
   _data->setNavigationController(_navigation);
+  _data->setCategoryController(_categories);
   _categories->setBudgetData(_data);
   _categories->setUndoStack(_data->undoStack());
   _clipboard->setOperationModel(_data->operationModel());
