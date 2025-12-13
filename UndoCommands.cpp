@@ -7,6 +7,47 @@
 #include "Operation.h"
 #include "OperationListModel.h"
 
+// AddAccountCommand implementation
+
+AddAccountCommand::AddAccountCommand(Account* account, BudgetData* budgetData,
+                                     QUndoCommand* parent) :
+    QUndoCommand(parent),
+    _account(account),
+    _budgetData(budgetData),
+    _ownsAccount(true) {  // We own the account until first redo
+  setText(QObject::tr("Add account \"%1\"").arg(account->name()));
+}
+
+AddAccountCommand::~AddAccountCommand() {
+  if (_ownsAccount) {
+    delete _account;
+  }
+}
+
+void AddAccountCommand::undo() {
+  if (_budgetData) {
+    _budgetData->takeAccount(_account);
+    _ownsAccount = true;
+    _budgetData->accountModel()->refresh();
+  }
+}
+
+void AddAccountCommand::redo() {
+  if (_budgetData) {
+    _budgetData->addAccount(_account);
+    _ownsAccount = false;
+
+    // Select the newly added account
+    int accountIndex = _budgetData->accounts().indexOf(_account);
+    if (accountIndex >= 0) {
+      _budgetData->selectAccount(accountIndex);
+    }
+    _budgetData->accountModel()->refresh();
+  }
+}
+
+// RenameAccountCommand implementation
+
 RenameAccountCommand::RenameAccountCommand(Account& account,
                                            AccountListModel* accountModel,
                                            const QString& oldName,
@@ -99,55 +140,71 @@ void EditCategoryCommand::redo() {
   }
 }
 
-ImportOperationsCommand::ImportOperationsCommand(Account* account,
-                                                 OperationListModel* operationModel,
-                                                 CategoryController* categoryController,
-                                                 const QList<Operation*>& operations,
-                                                 const QList<Category*>& newCategories,
-                                                 QUndoCommand* parent) :
+// AddCategoriesCommand implementation
+
+AddCategoriesCommand::AddCategoriesCommand(CategoryController* categoryController,
+                                           const QList<Category*>& categories,
+                                           QUndoCommand* parent) :
     QUndoCommand(parent),
-    _account(account),
-    _operationModel(operationModel),
     _categoryController(categoryController),
-    _operations(operations),
-    _newCategories(newCategories),
-    _ownsOperations(false),
-    _ownsCategories(false) {
-  if (newCategories.isEmpty()) {
-    setText(QObject::tr("Import %n operation(s)", "", operations.size()));
-  } else {
-    setText(QObject::tr("Import %n operation(s) with %1 new category(ies)", "", operations.size())
-                .arg(newCategories.size()));
-  }
+    _categories(categories),
+    _ownsCategories(true) {  // We own the categories until first redo
+  setText(QObject::tr("Add %n category(ies)", "", categories.size()));
 }
 
-ImportOperationsCommand::~ImportOperationsCommand() {
-  // If we own the operations (they were undone), delete them
-  if (_ownsOperations) {
-    qDeleteAll(_operations);
-  }
-  // If we own the categories (they were undone), delete them
+AddCategoriesCommand::~AddCategoriesCommand() {
   if (_ownsCategories) {
-    qDeleteAll(_newCategories);
+    qDeleteAll(_categories);
   }
 }
 
-void ImportOperationsCommand::undo() {
-  // Remove operations from account (don't delete them, we keep ownership)
-  for (Operation* op : _operations) {
-    _account->removeOperation(op);
-  }
-  _ownsOperations = true;
-
-  // Remove new categories from CategoryController (take ownership back, don't delete)
+void AddCategoriesCommand::undo() {
   if (_categoryController) {
-    for (Category* cat : _newCategories) {
+    for (Category* cat : _categories) {
       _categoryController->takeCategoryByName(cat->name());
     }
   }
   _ownsCategories = true;
+}
 
-  // Refresh the model if it's showing this account
+void AddCategoriesCommand::redo() {
+  if (_categoryController) {
+    for (Category* cat : _categories) {
+      _categoryController->addCategory(cat);
+    }
+  }
+  _ownsCategories = false;
+}
+
+// ImportOperationsCommand implementation
+
+ImportOperationsCommand::ImportOperationsCommand(Account* account,
+                                                 OperationListModel* operationModel,
+                                                 const QList<Operation*>& operations,
+                                                 QUndoCommand* parent) :
+    QUndoCommand(parent),
+    _account(account),
+    _operationModel(operationModel),
+    _operations(operations),
+    _ownsOperations(false) {
+  setText(QObject::tr("Import %n operation(s)", "", operations.size()));
+}
+
+ImportOperationsCommand::~ImportOperationsCommand() {
+  if (_ownsOperations) {
+    qDeleteAll(_operations);
+  }
+}
+
+void ImportOperationsCommand::undo() {
+  // Remove operations from account and detach Qt parent to prevent double-delete
+  // (when AddAccountCommand deletes the account, it would also delete child operations)
+  for (Operation* op : _operations) {
+    _account->removeOperation(op);
+    op->setParent(nullptr);
+  }
+  _ownsOperations = true;
+
   if (_operationModel) {
     _operationModel->refresh();
   }
@@ -160,15 +217,6 @@ void ImportOperationsCommand::redo() {
   }
   _ownsOperations = false;
 
-  // Re-add categories to CategoryController
-  if (_categoryController) {
-    for (Category* cat : _newCategories) {
-      _categoryController->addCategory(cat);
-    }
-  }
-  _ownsCategories = false;
-
-  // Refresh the model if it's showing this account
   if (_operationModel) {
     _operationModel->refresh();
   }

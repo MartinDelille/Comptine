@@ -398,9 +398,11 @@ bool FileController::importFromCsv(const QString& filePath,
   // Create or get account
   QString name = accountName.isEmpty() ? "Imported Account" : accountName;
   Account* account = _budgetData.getAccountByName(name);
+  bool isNewAccount = false;
   if (!account) {
+    // New account - will be added to BudgetData via AddAccountCommand when undo stack is pushed
     account = new Account(name);
-    _budgetData.addAccount(account);
+    isNewAccount = true;
   }
 
   // Parse header to detect column indices
@@ -550,11 +552,42 @@ bool FileController::importFromCsv(const QString& filePath,
 
   // Add operations and categories via undo command (if any were imported)
   if (!importedOperations.isEmpty()) {
-    _budgetData.undoStack()->push(new ImportOperationsCommand(account, _budgetData.operationModel(), &_categoryController,
-                                                              importedOperations, newCategories));
+    // Create a macro command that composes all the sub-commands
+    QUndoCommand* macroCommand = new QUndoCommand();
+
+    // Add account command first (if new account)
+    if (isNewAccount) {
+      new AddAccountCommand(account, &_budgetData, macroCommand);
+    }
+
+    // Add categories command (if any new categories)
+    if (!newCategories.isEmpty()) {
+      new AddCategoriesCommand(&_categoryController, newCategories, macroCommand);
+    }
+
+    // Add operations command
+    new ImportOperationsCommand(account, _budgetData.operationModel(), importedOperations, macroCommand);
+
+    // Set text based on what was imported
+    if (isNewAccount && !newCategories.isEmpty()) {
+      macroCommand->setText(QObject::tr("Import %n operation(s) to new account with %1 category(ies)", "", importedOperations.size())
+                                .arg(newCategories.size()));
+    } else if (isNewAccount) {
+      macroCommand->setText(QObject::tr("Import %n operation(s) to new account", "", importedOperations.size()));
+    } else if (!newCategories.isEmpty()) {
+      macroCommand->setText(QObject::tr("Import %n operation(s) with %1 category(ies)", "", importedOperations.size())
+                                .arg(newCategories.size()));
+    } else {
+      macroCommand->setText(QObject::tr("Import %n operation(s)", "", importedOperations.size()));
+    }
+
+    _budgetData.undoStack()->push(macroCommand);
   } else {
-    // No operations imported, clean up categories
+    // No operations imported, clean up
     qDeleteAll(newCategories);
+    if (isNewAccount) {
+      delete account;
+    }
   }
 
   // Set as current account
