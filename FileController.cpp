@@ -600,10 +600,6 @@ bool FileController::importFromCsv(const QString& filePath,
 void FileController::clear() {
   if (_budgetData) {
     _budgetData->clear();
-    _categoryController->clearCategories();
-  }
-  if (_categoryController) {
-    _categoryController->clearCategories();
   }
   set_currentFilePath({});
 }

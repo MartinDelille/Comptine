@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "AccountListModel.h"
+#include "CategoryController.h"
 #include "NavigationController.h"
 #include "OperationListModel.h"
 #include "UndoCommands.h"
@@ -14,6 +15,10 @@ void BudgetData::setNavigationController(NavigationController* navController) {
     connect(_navController, &NavigationController::currentAccountIndexChanged,
             this, &BudgetData::currentAccountChanged);
   }
+}
+
+void BudgetData::setCategoryController(CategoryController* categoryController) {
+  _categoryController = categoryController;
 }
 
 QString BudgetData::appVersion() const {
@@ -209,6 +214,9 @@ void BudgetData::splitOperation(int operationIndex, const QVariantList& allocati
 
 void BudgetData::clear() {
   clearAccounts();
+  if (_categoryController) {
+    _categoryController->clearCategories();
+  }
   _undoStack->clear();
   _undoStack->setClean();
 }
