@@ -14,6 +14,25 @@ class Category;
 class CategoryController;
 class OperationListModel;
 
+// Command for adding a new account
+// Note: This command manages account lifecycle in BudgetData
+class AddAccountCommand : public QUndoCommand {
+public:
+  AddAccountCommand(Account* account, BudgetData* budgetData,
+                    QUndoCommand* parent = nullptr);
+  ~AddAccountCommand();
+
+  void undo() override;
+  void redo() override;
+
+  Account* account() const { return _account; }
+
+private:
+  Account* _account;
+  BudgetData* _budgetData;
+  bool _ownsAccount;  // True when account is not in BudgetData (after undo)
+};
+
 // Command for renaming an account
 class RenameAccountCommand : public QUndoCommand {
 public:
@@ -57,14 +76,31 @@ private:
   double _newBudgetLimit;
 };
 
-// Command for importing operations from CSV
-// Note: This command manages both operations (via Account) and categories (via CategoryController)
+// Command for adding categories
+// Note: This command manages category lifecycle in CategoryController
+class AddCategoriesCommand : public QUndoCommand {
+public:
+  AddCategoriesCommand(CategoryController* categoryController,
+                       const QList<Category*>& categories,
+                       QUndoCommand* parent = nullptr);
+  ~AddCategoriesCommand();
+
+  void undo() override;
+  void redo() override;
+
+private:
+  CategoryController* _categoryController;
+  QList<Category*> _categories;
+  bool _ownsCategories;  // True when categories are not in CategoryController (after undo)
+};
+
+// Command for importing operations into an account
+// Note: This command only manages operations. Use as child of a macro command
+// with AddAccountCommand and AddCategoriesCommand for full import functionality.
 class ImportOperationsCommand : public QUndoCommand {
 public:
   ImportOperationsCommand(Account* account, OperationListModel* operationModel,
-                          CategoryController* categoryController,
                           const QList<Operation*>& operations,
-                          const QList<Category*>& newCategories,
                           QUndoCommand* parent = nullptr);
   ~ImportOperationsCommand();
 
@@ -74,11 +110,8 @@ public:
 private:
   Account* _account;
   OperationListModel* _operationModel;
-  CategoryController* _categoryController;
   QList<Operation*> _operations;
-  QList<Category*> _newCategories;
   bool _ownsOperations;  // True when operations are not in the account (after undo)
-  bool _ownsCategories;  // True when categories are not in CategoryController (after undo)
 };
 
 // Command for setting an operation's category

@@ -609,6 +609,17 @@ Importez et gérez vos données bancaires.</translation>
         <translation>Renommer le compte en « %1 »</translation>
     </message>
     <message>
+        <source>Add account &quot;%1&quot;</source>
+        <translation>Ajouter le compte « %1 »</translation>
+    </message>
+    <message numerus="yes">
+        <source>Add %n category(ies)</source>
+        <translation>
+            <numerusform>Ajouter %n catégorie</numerusform>
+            <numerusform>Ajouter %n catégories</numerusform>
+        </translation>
+    </message>
+    <message>
         <source>Edit category &quot;%1&quot;</source>
         <translation>Modifier la catégorie « %1 »</translation>
     </message>
@@ -628,10 +639,24 @@ Importez et gérez vos données bancaires.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <source>Import %n operation(s) with %1 new category(ies)</source>
+        <source>Import %n operation(s) to new account with %1 category(ies)</source>
         <translation>
-            <numerusform>Importer %n opération avec %1 nouvelle(s) catégorie(s)</numerusform>
-            <numerusform>Importer %n opérations avec %1 nouvelle(s) catégorie(s)</numerusform>
+            <numerusform>Importer %n opération dans un nouveau compte avec %1 catégorie(s)</numerusform>
+            <numerusform>Importer %n opérations dans un nouveau compte avec %1 catégorie(s)</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Import %n operation(s) to new account</source>
+        <translation>
+            <numerusform>Importer %n opération dans un nouveau compte</numerusform>
+            <numerusform>Importer %n opérations dans un nouveau compte</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Import %n operation(s) with %1 category(ies)</source>
+        <translation>
+            <numerusform>Importer %n opération avec %1 catégorie(s)</numerusform>
+            <numerusform>Importer %n opérations avec %1 catégorie(s)</numerusform>
         </translation>
     </message>
     <message>

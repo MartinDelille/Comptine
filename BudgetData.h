@@ -50,6 +50,8 @@ public:
   Q_INVOKABLE void renameCurrentAccount(const QString& newName);
   void addAccount(Account* account);
   void removeAccount(int index);
+  Account* takeAccount(Account* account);  // Remove without deleting, returns nullptr if not found
+  void selectAccount(int index);           // Select account by index (updates navigation)
   void clearAccounts();
 
   // Operation editing

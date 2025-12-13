@@ -98,6 +98,34 @@ void BudgetData::removeAccount(int index) {
   }
 }
 
+Account* BudgetData::takeAccount(Account* account) {
+  int index = _accounts.indexOf(account);
+  if (index >= 0) {
+    // If this is the current account, update navigation before removing
+    if (_navController && _navController->currentAccountIndex() == index) {
+      // Select previous account, or -1 if this was the only account
+      int newIndex = _accounts.size() > 1 ? qMax(0, index - 1) : -1;
+      _navController->set_currentAccountIndex(newIndex);
+    } else if (_navController && _navController->currentAccountIndex() > index) {
+      // Adjust index if removing an account before the current one
+      _navController->set_currentAccountIndex(_navController->currentAccountIndex() - 1);
+    }
+
+    Account* acc = _accounts.takeAt(index);
+    acc->setParent(nullptr);  // Release Qt ownership
+    _accountModel->refresh();
+    emit accountCountChanged();
+    return acc;
+  }
+  return nullptr;
+}
+
+void BudgetData::selectAccount(int index) {
+  if (_navController && index >= 0 && index < _accounts.size()) {
+    _navController->set_currentAccountIndex(index);
+  }
+}
+
 void BudgetData::clearAccounts() {
   _operationModel->setAccount(nullptr);
   qDeleteAll(_accounts);
