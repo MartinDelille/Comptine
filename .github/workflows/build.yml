@@ -59,7 +59,7 @@ jobs:
 
       - name: Install librsvg (macOS)
         if: matrix.os == 'macos-latest'
-        run: brew install librsvg
+        run: brew install librsvg yq
 
       - name: Install dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -89,6 +89,21 @@ jobs:
         run: |
           macdeployqt build/Comptine.app -qmldir=.
           codesign --force --deep --sign - build/Comptine.app
+
+      - name: Capture screenshots (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          ./scripts/capture-screenshots.sh \
+            build/Comptine.app \
+            example_long.comptine \
+            screenshots
+
+      - name: Upload screenshots
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/*.png
 
       - name: Create installer (macOS)
         if: matrix.os == 'macos-latest'
