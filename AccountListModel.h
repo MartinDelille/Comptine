@@ -19,20 +19,19 @@ public:
   };
   Q_ENUM(Roles)
 
-  explicit AccountListModel(QObject* parent = nullptr);
+  explicit AccountListModel(QList<Account*>& accounts, QObject* parent = nullptr);
 
   // QAbstractListModel interface
   int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   QVariant data(const QModelIndex& index, int role) const override;
   QHash<int, QByteArray> roleNames() const override;
 
-  // Account list management
-  void setAccounts(QList<Account*>* accounts);
+  // Refresh the model view
   void refresh();
 
 signals:
   void countChanged();
 
 private:
-  QList<Account*>* _accounts = nullptr;
+  QList<Account*>& _accounts;
 };

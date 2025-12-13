@@ -4,17 +4,13 @@
 
 #include "OperationListModel.h"
 
-ClipboardController::ClipboardController(QObject* parent) : QObject(parent) {
-}
-
-void ClipboardController::setOperationModel(OperationListModel* model) {
-  _operationModel = model;
+ClipboardController::ClipboardController(OperationListModel& operationModel, QObject* parent) :
+    QObject(parent),
+    _operationModel(operationModel) {
 }
 
 void ClipboardController::copySelectedOperations() const {
-  if (!_operationModel) return;
-
-  QString csv = _operationModel->selectedOperationsAsCsv();
+  QString csv = _operationModel.selectedOperationsAsCsv();
   if (!csv.isEmpty()) {
     QGuiApplication::clipboard()->setText(csv);
   }

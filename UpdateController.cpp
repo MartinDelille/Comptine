@@ -11,15 +11,12 @@
 #include "UpdateController.h"
 #include "Version.h"
 
-UpdateController::UpdateController(QObject* parent) :
+UpdateController::UpdateController(AppSettings& appSettings, QObject* parent) :
     QObject(parent),
+    _appSettings(appSettings),
     _networkManager(new QNetworkAccessManager(this)) {
   connect(_networkManager, &QNetworkAccessManager::finished,
           this, &UpdateController::onNetworkReply);
-}
-
-void UpdateController::setAppSettings(AppSettings* settings) {
-  _appSettings = settings;
 }
 
 void UpdateController::checkForUpdates() {
@@ -94,17 +91,13 @@ void UpdateController::openDownloadPage() {
 }
 
 bool UpdateController::shouldAutoCheck() const {
-  if (!_appSettings) {
-    return false;
-  }
-
   // Check if auto-update is enabled
-  if (!_appSettings->checkForUpdates()) {
+  if (!_appSettings.checkForUpdates()) {
     return false;
   }
 
   // Check if enough time has passed (1 day minimum between checks)
-  QDateTime lastCheck = _appSettings->lastUpdateCheck();
+  QDateTime lastCheck = _appSettings.lastUpdateCheck();
   if (!lastCheck.isValid()) {
     return true;  // Never checked before
   }
@@ -116,9 +109,7 @@ bool UpdateController::shouldAutoCheck() const {
 }
 
 void UpdateController::markUpdateChecked() {
-  if (_appSettings) {
-    _appSettings->set_lastUpdateCheck(QDateTime::currentDateTime());
-  }
+  _appSettings.set_lastUpdateCheck(QDateTime::currentDateTime());
 }
 
 QString UpdateController::currentVersion() const {

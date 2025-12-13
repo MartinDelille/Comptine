@@ -5,34 +5,35 @@
 #include "AppSettings.h"
 #include "TranslationManager.h"
 
-TranslationManager::TranslationManager(QGuiApplication* app, QQmlApplicationEngine* engine,
-                                       AppSettings* settings, QObject* parent) : QObject(parent),
-                                                                                 _app(app),
-                                                                                 _engine(engine),
-                                                                                 _settings(settings) {
+TranslationManager::TranslationManager(QGuiApplication& app, QQmlApplicationEngine& engine,
+                                       AppSettings& settings, QObject* parent) :
+    QObject(parent),
+    _app(app),
+    _engine(engine),
+    _settings(settings) {
   // Load initial translation
   loadTranslation();
 
   // Connect to settings for live language switching
-  connect(_settings, &AppSettings::languageChangeRequested, this, &TranslationManager::loadTranslation);
+  connect(&_settings, &AppSettings::languageChangeRequested, this, &TranslationManager::loadTranslation);
 }
 
 void TranslationManager::loadTranslation() {
-  _app->removeTranslator(&_translator);
+  _app.removeTranslator(&_translator);
 
-  QString lang = _settings->language();
+  QString lang = _settings.language();
   if (lang.isEmpty()) {
     // System default
     if (_translator.load(QLocale(), "comptine", "_", ":/i18n")) {
-      _app->installTranslator(&_translator);
+      _app.installTranslator(&_translator);
     }
   } else if (lang == "fr") {
     if (_translator.load(":/i18n/comptine_fr.qm")) {
-      _app->installTranslator(&_translator);
+      _app.installTranslator(&_translator);
     }
   }
   // If lang == "en", don't load any translator (English is source)
 
   // Retranslate QML
-  _engine->retranslate();
+  _engine.retranslate();
 }

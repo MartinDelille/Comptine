@@ -1,26 +1,28 @@
 #include "AccountListModel.h"
 
-AccountListModel::AccountListModel(QObject* parent) :
-    QAbstractListModel(parent) {}
+AccountListModel::AccountListModel(QList<Account*>& accounts, QObject* parent) :
+    QAbstractListModel(parent),
+    _accounts(accounts) {
+}
 
 int AccountListModel::rowCount(const QModelIndex& parent) const {
-  if (parent.isValid() || !_accounts)
+  if (parent.isValid())
     return 0;
 
-  return _accounts->size();
+  return _accounts.size();
 }
 
 QVariant AccountListModel::data(const QModelIndex& index, int role) const {
-  if (!index.isValid() || !_accounts)
+  if (!index.isValid())
     return QVariant();
 
   const int row = index.row();
-  const int accountCount = _accounts->size();
+  const int accountCount = _accounts.size();
 
   if (row < 0 || row >= accountCount)
     return QVariant();
 
-  Account* account = _accounts->at(row);
+  Account* account = _accounts.at(row);
   if (!account)
     return QVariant();
 
@@ -42,17 +44,6 @@ QHash<int, QByteArray> AccountListModel::roleNames() const {
     { OperationCountRole, "operationCount" },
     { AccountRole, "account" }
   };
-}
-
-void AccountListModel::setAccounts(QList<Account*>* accounts) {
-  if (_accounts == accounts)
-    return;
-
-  beginResetModel();
-  _accounts = accounts;
-  endResetModel();
-
-  emit countChanged();
 }
 
 void AccountListModel::refresh() {

@@ -22,9 +22,7 @@ class UpdateController : public QObject {
   PROPERTY_RW(QString, errorMessage, {})
 
 public:
-  explicit UpdateController(QObject* parent = nullptr);
-
-  void setAppSettings(AppSettings* settings);
+  explicit UpdateController(AppSettings& appSettings, QObject* parent = nullptr);
 
   // Check for updates from GitHub releases
   Q_INVOKABLE void checkForUpdates();
@@ -52,8 +50,8 @@ private:
   bool isVersionNewer(const QString& remote, const QString& local) const;
   QList<int> parseVersion(const QString& version) const;
 
+  AppSettings& _appSettings;
   QNetworkAccessManager* _networkManager;
-  AppSettings* _appSettings = nullptr;
 
   // GitHub repository information
   static constexpr const char* GITHUB_OWNER = "MartinDelille";
