@@ -1,3 +1,4 @@
+#include <QCollator>
 #include <QDate>
 #include <algorithm>
 
@@ -85,7 +86,9 @@ QStringList CategoryController::categoryNames() const {
   for (const Category* category : _categories) {
     names.append(category->name());
   }
-  names.sort(Qt::CaseInsensitive);
+  QCollator collator;
+  collator.setCaseSensitivity(Qt::CaseInsensitive);
+  std::sort(names.begin(), names.end(), collator);
   return names;
 }
 
@@ -161,9 +164,11 @@ QVariantList CategoryController::monthlyBudgetSummary(int year, int month) const
     result.append(item);
   }
 
-  // Sort by category name
-  std::sort(result.begin(), result.end(), [](const QVariant& a, const QVariant& b) {
-    return a.toMap()["name"].toString().compare(b.toMap()["name"].toString(), Qt::CaseInsensitive) < 0;
+  // Sort by category name using locale-aware collation (handles accents properly)
+  QCollator collator;
+  collator.setCaseSensitivity(Qt::CaseInsensitive);
+  std::sort(result.begin(), result.end(), [&collator](const QVariant& a, const QVariant& b) {
+    return collator.compare(a.toMap()["name"].toString(), b.toMap()["name"].toString()) < 0;
   });
 
   return result;
