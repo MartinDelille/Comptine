@@ -123,7 +123,9 @@ FocusScope {
 
             OperationDetails {
                 id: operationDetails
-                Layout.preferredWidth: 300
+                Layout.preferredWidth: parent.width * 0.3
+                Layout.minimumWidth: 200
+                Layout.maximumWidth: 400
                 Layout.fillHeight: true
                 currentIndex: operationList.currentIndex
                 onEditRequested: (operationIndex, amount, operationDate, budgetDate, description, allocations, currentCategory) => {
